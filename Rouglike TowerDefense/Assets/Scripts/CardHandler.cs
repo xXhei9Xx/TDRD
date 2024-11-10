@@ -32,10 +32,9 @@ public class CardHandler : MonoBehaviour
 	private GameObject tower_flamethrower_template;
 	private GameObject ability_repair_template;
 	private List<GameObject> card_objects_list = new List<GameObject>();
-	public int mouse_on_card_number;
 	private Vector3 card_draw_starting_position = new Vector3 (-1200, 0, 0), card_discard_target_position = new Vector3 (2400, -800, 0);
-	public List <card_id> cards_in_deck_list;
-	public List <card_id> cards_in_graveyard_list = new List<card_id> ();
+	private List <GameObject> card_objects_in_deck_list = new List<GameObject> ();
+	private List <GameObject> card_objects_in_graveyard_list = new List<GameObject> ();
 
 	#endregion
 
@@ -150,7 +149,6 @@ public class CardHandler : MonoBehaviour
 		game_handler = GameObject.Find("GameHandler");
 		main_camera = GameObject.Find("Main Camera");
 		caller = game_handler.GetComponent<GameHandler>();
-		cards_in_deck_list = caller.deck_options.cards_in_deck;
         
 		target_amount_of_cards = caller.deck_options.starting_card_amount_in_hand;
 		upgrade_template = GameObject.Find ("Upgrade Template");
@@ -162,10 +160,31 @@ public class CardHandler : MonoBehaviour
 		oil_template = GameObject.Find ("Tower Oil Template");
 		lightning_template = GameObject.Find ("Tower Lightning Template");
 		tower_flamethrower_template = GameObject.Find ("Tower FlameThrower Template");
-		deck_size = cards_in_deck_list.Count;
+		deck_size = caller.deck_options.cards_in_deck.Count;
 		max_hand_size = caller.deck_options.max_hand_size;
 		target_amount_of_cards = caller.deck_options.starting_card_amount_in_hand;
+		for (int i = 0; i < caller.deck_options.cards_in_deck.Count; i++)
+		{
+			CardConstructor (caller.deck_options.cards_in_deck [i]);
+		}
     }
+
+	public void CardConstructor (card_id id)
+	{
+		//card constructor
+		GameObject current_card = Instantiate (GetCardTemplate (id));
+		current_card.AddComponent<Card>().target_position = new Vector3 (0, -1500, 0);
+		current_card.GetComponent<Card>().card_handler = this;
+		current_card.GetComponent<Card>().caller = caller;
+		current_card.GetComponent<Card>().card_movement_time = caller.gameplay_options.ui.card_movement_time;
+		current_card.GetComponent<Card>().starting_position = new Vector3 (-1200, 0, 0);
+		current_card.GetComponent<Card>().card_id = id;
+		card_objects_in_graveyard_list.Add(current_card);
+		current_card.name = "card";
+		current_card.transform.SetParent (GameObject.Find ("Deck").transform);
+		//adjusting position of cards in hand
+		current_card.transform.localPosition = card_draw_starting_position;
+	}
 
     void Update()
     {
@@ -194,7 +213,6 @@ public class CardHandler : MonoBehaviour
 				{
 					cards_in_hand--;
 					DiscardCard (i);
-					card_objects_list.Remove (card_objects_list [i - 1]);
 					RecenterCards (i - 1);
 					timer = 0;
 					break;
@@ -211,7 +229,6 @@ public class CardHandler : MonoBehaviour
 			{
 				cards_in_hand--;
 				DiscardCard (i);
-				card_objects_list.Remove (card_objects_list [i - 1]);
 				RecenterCards (i - 1);
 				timer = 0;
 				break;
@@ -227,40 +244,32 @@ public class CardHandler : MonoBehaviour
 	public void DrawCard ()
 	{
 		//checking if drawing is possible
-		if (cards_in_deck_list.Count == 0 && cards_in_graveyard_list.Count == 0)
+		if (card_objects_in_deck_list.Count == 0 && card_objects_in_graveyard_list.Count == 0)
 		{
 			cant_draw = true;
 		}
 		else
 		{
 			// shuffling graveyard back into the deck
-			if (cards_in_deck_list.Count == 0)
+			if (card_objects_in_deck_list.Count == 0)
 			{
-				for (int i = cards_in_graveyard_list.Count - 1; i > 0; i--)
+				for (int i = 0; i < card_objects_in_graveyard_list.Count;)
 				{
-					cards_in_deck_list.Add (cards_in_graveyard_list [i]);
-					cards_in_graveyard_list.Remove (cards_in_graveyard_list [i]);
+					card_objects_in_deck_list.Add (card_objects_in_graveyard_list [i]);
+					card_objects_in_graveyard_list [i].transform.SetParent (GameObject.Find ("Deck").transform);
+					card_objects_in_graveyard_list.Remove (card_objects_in_graveyard_list [i]);
 				}
 			}
 			//picking a random card from the deck
-			int card_index = caller.RandomInt (0, cards_in_deck_list.Count - 1);
-			card_id id = cards_in_deck_list [card_index];
-			cards_in_deck_list.RemoveAt (card_index);
-			//card constructor
-			GameObject current_card = Instantiate (GetCardTemplate (id));
-			current_card.AddComponent<Card>().target_position = new Vector3 (0, -1500, 0);
-			current_card.GetComponent<Card>().card_handler = this;
-			current_card.GetComponent<Card>().caller = caller;
-			current_card.GetComponent<Card>().card_movement_time = caller.gameplay_options.ui.card_movement_time;
-			current_card.GetComponent<Card>().starting_position = new Vector3 (-1200, 0, 0);
-			current_card.GetComponent<Card>().card_id = id;
-			card_objects_list.Add(current_card);
-			current_card.GetComponent<Card>().card_number = card_objects_list.Count;
-			current_card.name = "card " + card_objects_list.Count;
-			current_card.transform.SetParent(transform);
-			//adjusting position of cards in hand
-			current_card.transform.localPosition = card_draw_starting_position;
-			current_card.transform.Rotate (0, 0, (cards_in_hand * caller.gameplay_options.ui.space_between_cards));
+			int card_index = caller.RandomInt (0, card_objects_in_deck_list.Count - 1);
+			card_objects_list.Add (card_objects_in_deck_list [card_index]);
+			card_objects_in_deck_list [card_index].name = "card " + card_objects_list.Count;
+			card_objects_in_deck_list [card_index].GetComponent<Card>().card_number = card_objects_list.Count;
+			card_objects_in_deck_list [card_index].transform.localPosition = card_draw_starting_position;
+			card_objects_in_deck_list [card_index].transform.Rotate (0, 0, (cards_in_hand * caller.gameplay_options.ui.space_between_cards));
+			card_objects_in_deck_list [card_index].GetComponent<Card>().auto_moving = true;
+			card_objects_in_deck_list [card_index].transform.SetParent (GameObject.Find ("Hand").transform);
+			card_objects_in_deck_list.RemoveAt (card_index);
 			RecenterCards (0);
 		}
 	}
@@ -268,7 +277,19 @@ public class CardHandler : MonoBehaviour
 	public void DiscardCard (int position)
 	{
 		card_objects_list [position - 1].GetComponent<Card>().discarding = true;
-		cards_in_graveyard_list.Add (card_objects_list [position - 1].GetComponent<Card>().card_id);
+		card_objects_list [position - 1].transform.SetParent (GameObject.Find ("Graveyard").transform);
+		card_objects_in_graveyard_list.Add (card_objects_list [position - 1]);
+		card_objects_list.Remove (card_objects_list [position - 1]);
+	}
+
+	public void MoveCardToGraveyard (GameObject card_object)
+	{
+		card_object.transform.position = card_discard_target_position;
+		Vector3 current_rotation = card_object.transform.rotation.eulerAngles;
+		card_object.transform.Rotate (-current_rotation.x, -current_rotation.y, -current_rotation.z);
+		card_object.transform.SetParent (GameObject.Find ("Graveyard").transform);
+		card_objects_in_graveyard_list.Add (card_object);
+		card_objects_list.Remove (card_object);
 	}
 
 	public void RecenterCards (int position)
@@ -302,15 +323,13 @@ public class CardHandler : MonoBehaviour
 		//make map visible while placing towers
 		for (int i = 0; i < card_objects_list.Count; i++)
 		{
-			if (card_objects_list [i].GetComponent<UnityEngine.UI.Image>().enabled == true)
+			if (card_objects_list [i].transform.GetChild(0).gameObject.activeSelf == true)
 			{
-				card_objects_list [i].GetComponent<UnityEngine.UI.Image>().enabled = false;
-				card_objects_list [i].transform.GetChild (0).transform.gameObject.SetActive(false);
+				card_objects_list [i].transform.GetChild(0).transform.gameObject.SetActive(false);
 			}
 			else
 			{
-				card_objects_list [i].GetComponent<UnityEngine.UI.Image>().enabled = true;
-				card_objects_list [i].transform.GetChild (0).transform.gameObject.SetActive(true);
+				card_objects_list [i].transform.GetChild(0).transform.gameObject.SetActive(true);
 			}
 		}
 	}
@@ -343,7 +362,8 @@ public class CardHandler : MonoBehaviour
 
 	public void AddCardToDeck (card_id card_Id)
 	{
-		cards_in_deck_list.Add (card_Id);
+		deck_size++;
+		CardConstructor (card_Id);
 	}
 
 	public void ChoosingCardUpgrades (Card card)
@@ -373,11 +393,11 @@ public class CardHandler : MonoBehaviour
 		#region variable delcarations
 
 		public int card_number;
-		private float timer = 0;
+		public float timer_moving = 0, timer_rotating = 0, timer_discarding = 0;
 		private GameObject tower_object;
 		public GameHandler caller;
 		public CardHandler card_handler;
-		public bool auto_moving = true, rotating = true, mouse_tracking = false, mouse_on_card = false, discarding = false, shifting_card = false;
+		public bool auto_moving = false, rotating = false, mouse_tracking = false, mouse_on_card = false, discarding = false, shifting_card = false;
 		public float card_movement_time;
 		public Vector3 target_position, starting_position;
 		public float single_rotation_increment_z;
@@ -398,40 +418,50 @@ public class CardHandler : MonoBehaviour
 
 		private void Update()
 		{
-			//rotating and movement timer
-			if (auto_moving == true || rotating == true || discarding == true)
-			{
-				timer += Time.deltaTime / card_movement_time;
-			}
 			//moving from starting position to the card hand position
 			if (auto_moving == true)
 			{
-				MovingToTargetPosition (timer, movement_speed_multiplier);
+				timer_moving += Time.deltaTime * movement_speed_multiplier / card_movement_time;
+				transform.localPosition = starting_position + ((target_position - starting_position) * timer_moving);
+				if (timer_moving >= 1)
+				{
+					auto_moving = false;
+					transform.localPosition = target_position; 
+					timer_moving = 0;
+				}
 			}
 			if (rotating == true)
 			{
-				RotateOneIncrement (timer, rotation_speed_multiplier);
-			}
-			//resetting the movement and rotation timer and shifting boolean
-			if (rotating == false && auto_moving == false)
-			{
-				if (timer != 0)
+				timer_rotating += Time.deltaTime * rotation_speed_multiplier / card_movement_time;
+				gameObject.transform.Rotate(0, 0, single_rotation_increment_z * Time.deltaTime * rotation_speed_multiplier / card_movement_time);
+				if (timer_rotating >= 1)
 				{
-					timer = 0;
-				}
-				if (shifting_card == true)
-				{
-					rotation_speed_multiplier = 1;
-					shifting_card = false;
+					rotating = false;
+					target_rotation = transform.rotation.eulerAngles;
+					Vector3 rotation_gap = new Vector3 (0, 0, target_rotation.z - (float) Math.Ceiling (target_rotation.z));
+					gameObject.transform.Rotate (-rotation_gap);
+					timer_rotating = 0;
 				}
 			}
+			//moving from hand to discard position
 			if (discarding == true)
 			{
-				transform.localPosition = target_position + ((card_handler.card_discard_target_position - target_position) * timer);
-				if (timer >= 1)
+				timer_discarding += Time.deltaTime / card_movement_time;
+				transform.localPosition = target_position + ((card_handler.card_discard_target_position - target_position) * timer_discarding);
+				if (timer_discarding >= 1)
 				{
-					Destroy (gameObject);
+					transform.localPosition = card_handler.card_discard_target_position;
+					target_rotation = transform.rotation.eulerAngles;
+					gameObject.transform.Rotate(0, 0, -target_rotation.z);
+					discarding = false;
+					timer_discarding = 0;
 				}
+			}
+			//resetting the movement and rotation speed and shifting boolean
+			if (rotating == false && auto_moving == false && shifting_card == true)
+			{
+				rotation_speed_multiplier = 1;
+				shifting_card = false;
 			}
 			//Choosing this card to be upgraded
 			if (Input.GetMouseButtonDown(caller.gameplay_options.controls.MouseButtonTranslator(caller.gameplay_options.controls.drag_card)) &&
@@ -445,52 +475,71 @@ public class CardHandler : MonoBehaviour
 			{
 				target_rotation = transform.rotation.eulerAngles;
 				target_position = transform.localPosition;
+				transform.GetChild(0).transform.localPosition = transform.GetChild(0).transform.localPosition - new Vector3 (0, 200, 0);
 				gameObject.transform.Rotate(0, 0, -target_rotation.z);
 				mouse_tracking = true;
 			}
 			if (mouse_tracking == true)
 			{
-				transform.position = Input.mousePosition - new Vector3 (0, 900, 0);
+				transform.position = Input.mousePosition - new Vector3 (0, 880, 0);
+				var pointerEventData = new PointerEventData (EventSystem.current) { position = Input.mousePosition};
+				var raycastResults = new List<RaycastResult>();
+				EventSystem.current.RaycastAll(pointerEventData, raycastResults);
 				//shifting card positions between each other
-				if (card_handler.mouse_on_card_number != card_number && card_handler.mouse_on_card_number != 0)
+				if (raycastResults.Count > 0)
 				{
-					if (card_handler.card_objects_list [card_handler.mouse_on_card_number - 1].GetComponent<Card>().shifting_card == false)
+					foreach (var result in raycastResults)
 					{
-						target_rotation = card_handler.card_objects_list [card_handler.mouse_on_card_number - 1].transform.rotation.eulerAngles;
-						if (card_handler.mouse_on_card_number > card_number)
+						Debug.Log (result.gameObject.name);
+						if (result.gameObject.tag == "card")
 						{
-							for (int i = card_handler.mouse_on_card_number; i > card_number; i--)
+							RectTransformUtility.ScreenPointToLocalPointInRectangle (result.gameObject.GetComponent<RectTransform>(), Input.mousePosition, null, out Vector2 localPoint);
+							Debug.Log (localPoint.x);
+							if (result.gameObject.GetComponent<Card>().shifting_card == false && 
+							((result.gameObject.GetComponent<Card>().card_number + 1 == card_number && localPoint.x > 0) || 
+							(result.gameObject.GetComponent<Card>().card_number - 1 == card_number && localPoint.x < 0) ||
+							(result.gameObject.GetComponent<Card>().card_number - 1 > card_number) ||
+							(result.gameObject.GetComponent<Card>().card_number + 1 < card_number)))
 							{
-								if (card_handler.card_objects_list [i - 1].GetComponent<Card>().shifting_card == false)
+								target_rotation = result.gameObject.transform.rotation.eulerAngles;
+								//card to the right
+								if (result.gameObject.GetComponent<Card>().card_number > card_number)
 								{
-									card_handler.card_objects_list [i - 1].GetComponent<Card>().single_rotation_increment_z = - 2 * caller.gameplay_options.ui.space_between_cards;
-									card_handler.card_objects_list [i - 1].GetComponent<Card>().rotation_speed_multiplier = 2;
-									card_handler.card_objects_list [i - 1].GetComponent<Card>().rotating = true;
-									card_handler.card_objects_list [i - 1].GetComponent<Card>().shifting_card = true;
+									for (int i = result.gameObject.GetComponent<Card>().card_number; i > card_number; i--)
+									{
+										if (card_handler.card_objects_list [i - 1].GetComponent<Card>().shifting_card == false)
+										{
+											card_handler.card_objects_list [i - 1].GetComponent<Card>().single_rotation_increment_z = - 2 * caller.gameplay_options.ui.space_between_cards;
+											card_handler.card_objects_list [i - 1].GetComponent<Card>().rotation_speed_multiplier = 2;
+											card_handler.card_objects_list [i - 1].GetComponent<Card>().rotating = true;
+											card_handler.card_objects_list [i - 1].GetComponent<Card>().shifting_card = true;
+										}
+									}
 								}
+								//cards to the left
+								else
+								{
+									for (int i = result.gameObject.GetComponent<Card>().card_number; i < card_number; i++)
+									{
+										if (card_handler.card_objects_list [i - 1].GetComponent<Card>().shifting_card == false)
+										{
+											card_handler.card_objects_list [i - 1].GetComponent<Card>().single_rotation_increment_z = 2 * caller.gameplay_options.ui.space_between_cards;
+											card_handler.card_objects_list [i - 1].GetComponent<Card>().rotation_speed_multiplier = 2;
+											card_handler.card_objects_list [i - 1].GetComponent<Card>().rotating = true;
+											card_handler.card_objects_list [i - 1].GetComponent<Card>().shifting_card = true;
+										}
+									}
+								}
+								card_handler.card_objects_list.RemoveAt (card_number - 1);
+								card_handler.card_objects_list.Insert (result.gameObject.GetComponent<Card>().card_number - 1, gameObject);
+								card_handler.RenameCards();
+								transform.SetSiblingIndex (card_number - 1);
 							}
 						}
-						else
-						{
-							for (int i = card_handler.mouse_on_card_number; i < card_number; i++)
-							{
-								if (card_handler.card_objects_list [i - 1].GetComponent<Card>().shifting_card == false)
-								{
-									card_handler.card_objects_list [i - 1].GetComponent<Card>().single_rotation_increment_z = 2 * caller.gameplay_options.ui.space_between_cards;
-									card_handler.card_objects_list [i - 1].GetComponent<Card>().rotation_speed_multiplier = 2;
-									card_handler.card_objects_list [i - 1].GetComponent<Card>().rotating = true;
-									card_handler.card_objects_list [i - 1].GetComponent<Card>().shifting_card = true;
-								}
-							}
-						}
-						card_handler.card_objects_list.RemoveAt (card_number - 1);
-						card_handler.card_objects_list.Insert (card_handler.mouse_on_card_number - 1, gameObject);
-						card_handler.RenameCards();
-						transform.SetSiblingIndex (card_number);
-						card_handler.mouse_on_card_number = 0;
 					}
 				}
-				if (GetComponent<UnityEngine.UI.Image>().enabled == false)
+				//moving the tower with the mouse position
+				if (transform.GetChild(0).gameObject.activeSelf == false)
 				{
 					Ray mouse_world_ray = card_handler.main_camera.GetComponent<Camera>().ScreenPointToRay (Input.mousePosition);
 					Physics.Raycast (mouse_world_ray, out RaycastHit rayCastHit);
@@ -502,10 +551,9 @@ public class CardHandler : MonoBehaviour
 					}
 				}
 				//transforming the card into tower
-				if(Input.mousePosition.y > 200f && GetComponent<UnityEngine.UI.Image>().enabled == true)
+				if(Input.mousePosition.y > 200f && transform.GetChild(0).gameObject.activeSelf == true)
 				{
 					card_handler.ToggleHandCardsVisibility ();
-					transform.GetChild (0).transform.gameObject.SetActive(false);
 					Ray mouse_world_ray = card_handler.main_camera.GetComponent<Camera>().ScreenPointToRay (Input.mousePosition);
 					Physics.Raycast (mouse_world_ray, out RaycastHit rayCastHit);
 					var mouse_xz = caller.GetGameGrid().GetXZ (rayCastHit.point);
@@ -521,7 +569,7 @@ public class CardHandler : MonoBehaviour
 				if (!Input.GetMouseButton(caller.gameplay_options.controls.MouseButtonTranslator(caller.gameplay_options.controls.drag_card)))
 				{
 					//final tower placement
-					if (GetComponent<UnityEngine.UI.Image>().enabled == false)
+					if (transform.GetChild(0).gameObject.activeSelf == false)
 					{
 						Ray mouse_world_ray = card_handler.main_camera.GetComponent<Camera>().ScreenPointToRay (Input.mousePosition);
 						Physics.Raycast (mouse_world_ray, out RaycastHit rayCastHit);
@@ -538,12 +586,13 @@ public class CardHandler : MonoBehaviour
 						card_handler.card_objects_list.RemoveAt (card_number - 1);
 						card_handler.RenameCards ();
 						card_handler.RecenterCards (card_number - 1);
-						Destroy(gameObject);
+						card_handler.MoveCardToGraveyard (gameObject);
 					}
 					//returning the card to initial position
 					else
 					{
 						caller.SetAllSpawnerPathfinding ();
+						transform.GetChild(0).transform.localPosition = transform.GetChild(0).transform.localPosition + new Vector3 (0, 200, 0);
 						gameObject.transform.Rotate(0, 0, target_rotation.z);
 						transform.localPosition = target_position;
 						mouse_tracking = false;
@@ -556,11 +605,9 @@ public class CardHandler : MonoBehaviour
 					{
 						tower_object.GetComponent<BaseTower>().DestroyThisTower ();
 						caller.SetAllSpawnerPathfinding ();
-					}
-					if (GetComponent<UnityEngine.UI.Image>().enabled == false)
-					{
 						card_handler.ToggleHandCardsVisibility ();
 					}
+					transform.GetChild(0).transform.localPosition = transform.GetChild(0).transform.localPosition + new Vector3 (0, 200, 0);
 					gameObject.transform.Rotate(0, 0, target_rotation.z);
 					transform.localPosition = target_position;
 					mouse_tracking = false;
@@ -571,7 +618,6 @@ public class CardHandler : MonoBehaviour
 		public void OnPointerEnter(PointerEventData eventData)
 		{
 			mouse_on_card = true;
-			card_handler.mouse_on_card_number = card_number;
 		}
 
 		public void OnPointerExit(PointerEventData eventData)
@@ -584,40 +630,10 @@ public class CardHandler : MonoBehaviour
 			card_upgrades.Add (upgrade_id);
 		}
 
-		public void MovingToTargetPosition (float timer, float moving_speed_multiplier)
-		{
-			transform.localPosition = starting_position + ((target_position - starting_position) * timer * moving_speed_multiplier);
-			if (timer >= 1 / moving_speed_multiplier)
-			{
-				if (auto_moving == true)
-				{
-					auto_moving = false;
-					transform.localPosition = target_position;
-				}
-			}
-		}
-
-		public void RotateOneIncrement (float timer, float rotating_speed_multiplier)
-		{
-			gameObject.transform.Rotate(0, 0, single_rotation_increment_z * Time.deltaTime * rotating_speed_multiplier / card_movement_time);
-			if (timer >= 1 / rotating_speed_multiplier)
-			{
-				rotating = false;
-				target_rotation = transform.rotation.eulerAngles;
-				Vector3 rotation_gap = new Vector3 (0, 0, target_rotation.z - (float) Math.Ceiling (target_rotation.z));
-				gameObject.transform.Rotate (-rotation_gap);
-			}
-		}
-
 		private void SetTowerPositionXZ (int x, int z)
 		{
 			tower_object.transform.position = caller.GetGameGrid().GetWorldTileCenter(x, z, 1);
 			tower_object.GetComponent<BaseTower>().SetXZ ();
-		}
-
-		public void DestroyCardComponent ()
-		{
-			Destroy (this);
 		}
 	}
 
