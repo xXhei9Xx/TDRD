@@ -34776,7 +34776,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   testing_options:
-    display_grid_text: 1
+    display_grid_text: 0
     manual_spawn_list: 1
     random_core_positions: 0
     random_spawner_positions: 0

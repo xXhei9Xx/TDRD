@@ -1103,10 +1103,17 @@ public class GameHandler : MonoBehaviour
 
 	void Start()
     {
-		time_button_color_enter = new Color (0.6078432f, 0.6078432f, 0.6078432f);
-		time_button_color_exit = new Color (0.4156863f, 0.4156863f, 0.4156863f);
+		
+		#region initializing enemy picker, grid, pathfinding
+
 		enemy_picker = new EnemyPicker (this);
 		GameObject.Find ("Damage Chart").AddComponent<DamageChart>().SetDamageChart (enemy_picker);
+		 grid = new GameGrid (gameplay_options.map.length_x, gameplay_options.map.width_z, gameplay_options.map.cell_length_x, gameplay_options.map.cell_width_z, testing_options.display_grid_text);
+		pathfinding = new PathFinding ();
+
+		#endregion
+		#region references
+
 		damage_chart = GameObject.Find ("Damage Chart").GetComponent<DamageChart>();
 		wave_button = GameObject.Find ("Wave Button");
 		time_buttons = GameObject.Find ("Time Buttons");
@@ -1122,6 +1129,11 @@ public class GameHandler : MonoBehaviour
 		wave_display_text = GameObject.Find ("Wave Text").GetComponent<TextMeshProUGUI>();
 		card_handler = GameObject.Find ("Card Handler").GetComponent<CardHandler>();
 		inspector_handler = GameObject.Find ("Inspector Handler").GetComponent<InspectorHandler>();
+		camera = GameObject.Find("Main Camera");
+
+		#endregion
+		#region button functions, time button color
+
 		wave_button.GetComponent<Button_UI> ().ClickFunc = () => {
 		if (card_handler.drawing == false)
 		{
@@ -1139,19 +1151,44 @@ public class GameHandler : MonoBehaviour
 		upgrade_card_button.GetComponent<Button_UI> ().ClickFunc = () => {};
 		add_card_button.SetActive (false);
 		upgrade_card_button.SetActive (false);
-        grid = new GameGrid (gameplay_options.map.length_x, gameplay_options.map.width_z, gameplay_options.map.cell_length_x, gameplay_options.map.cell_width_z, testing_options.display_grid_text);
-		pathfinding = new PathFinding ();
+		time_button_color_enter = new Color (0.6078432f, 0.6078432f, 0.6078432f);
+		time_button_color_exit = new Color (0.4156863f, 0.4156863f, 0.4156863f);
+
+		#endregion
+       
+		//creating core in preset position
 		if (testing_options.random_spawner_positions == false)
 		{
 			new Core (grid.GetWorldTileCenter (4, 9, 0), this);
 		}
 		else
 		{
+			//creating cores in random positions
 			for (int i = 0; i < testing_options.amount_of_cores; i++)
 			{
 				new Core (grid.GetWorldTileCenter (grid.RandomTile (GameGrid.object_type.empty), 1), this);
 			}
 		}
+		//creating spawner in preset position
+		if (testing_options.random_spawner_positions == false)
+		{
+			new Enemy (grid.GetWorldTileCenter (4, 0, 0), this);
+		}
+		else
+		{
+			//creating spawners in random positions
+			for (int i = 0; i < testing_options.amount_of_spawners; i++)
+			{
+				new Enemy (grid.GetWorldTileCenter (grid.RandomTile (GameGrid.object_type.empty), 1), this);
+			}
+		}
+		SaveHandler save_handler = new SaveHandler();
+		if (gameplay_options.map.load_save == true)
+		{
+			save_handler.SaveTerrainLoad (this, gameplay_options.map.save_name);
+			MapConstructor map_constructor = new MapConstructor (this);
+		}
+		SetManaOutlineTimer ();
 		#region board center tupple
 
 		if (gameplay_options.map.length_x % 2 == 0)
@@ -1180,27 +1217,7 @@ public class GameHandler : MonoBehaviour
 		}
 
 		#endregion
-		camera = GameObject.Find("Main Camera");
 		camera.transform.position = new Vector3 (board_center_position_tuple.x, board_center_position_tuple.y, board_center_position_tuple.z);
-		//creating spawners
-		if (testing_options.random_spawner_positions == false)
-		{
-			new Enemy (grid.GetWorldTileCenter (4, 0, 0), this);
-		}
-		else
-		{
-			for (int i = 0; i < testing_options.amount_of_spawners; i++)
-			{
-				new Enemy (grid.GetWorldTileCenter (grid.RandomTile (GameGrid.object_type.empty), 1), this);
-			}
-		}
-		SaveHandler save_handler = new SaveHandler();
-		if (gameplay_options.map.load_save == true)
-		{
-			save_handler.SaveTerrainLoad (this, gameplay_options.map.save_name);
-			MapConstructor map_constructor = new MapConstructor (this);
-		}
-		SetManaOutlineTimer ();
     }
 
     void Update()

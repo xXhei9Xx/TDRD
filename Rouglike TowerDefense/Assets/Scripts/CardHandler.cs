@@ -16,7 +16,7 @@ public class CardHandler : MonoBehaviour
 {
 	#region variable declarations
 	
-	private float timer = 0;
+	private float timer = 0, extra_time_between_actions = 0.05f;
 	private int target_amount_of_cards, max_hand_size, deck_size, cards_in_deck;
 	public bool drawing = true, cant_draw = false, tower_discarding = false, ability_discarding = false, finished_discarding = false, after_picking = false, picking = false, choosing_upgrade = false;
 	private int cards_in_hand = 0;
@@ -151,6 +151,8 @@ public class CardHandler : MonoBehaviour
 		caller = game_handler.GetComponent<GameHandler>();
         
 		target_amount_of_cards = caller.deck_options.starting_card_amount_in_hand;
+		#region card template references
+
 		upgrade_template = GameObject.Find ("Upgrade Template");
 		tower_test_template = GameObject.Find ("Tower Test Template");
 		tower_wall_template = GameObject.Find ("Tower Wall Template");
@@ -160,6 +162,8 @@ public class CardHandler : MonoBehaviour
 		oil_template = GameObject.Find ("Tower Oil Template");
 		lightning_template = GameObject.Find ("Tower Lightning Template");
 		tower_flamethrower_template = GameObject.Find ("Tower FlameThrower Template");
+
+		#endregion
 		deck_size = caller.deck_options.cards_in_deck.Count;
 		max_hand_size = caller.deck_options.max_hand_size;
 		target_amount_of_cards = caller.deck_options.starting_card_amount_in_hand;
@@ -171,7 +175,6 @@ public class CardHandler : MonoBehaviour
 
 	public void CardConstructor (card_id id)
 	{
-		//card constructor
 		GameObject current_card = Instantiate (GetCardTemplate (id));
 		current_card.AddComponent<Card>().target_position = new Vector3 (0, -1500, 0);
 		current_card.GetComponent<Card>().card_handler = this;
@@ -182,19 +185,18 @@ public class CardHandler : MonoBehaviour
 		card_objects_in_graveyard_list.Add(current_card);
 		current_card.name = "card";
 		current_card.transform.SetParent (GameObject.Find ("Deck").transform);
-		//adjusting position of cards in hand
 		current_card.transform.localPosition = card_draw_starting_position;
 	}
 
     void Update()
     {
 		//draw phase of the turn
-		if ((cards_in_hand >= target_amount_of_cards && drawing == true && timer > (caller.gameplay_options.ui.card_movement_time + 0.1f)) ||
-		cant_draw == true && timer > (caller.gameplay_options.ui.card_movement_time + 0.1f))
+		if ((cards_in_hand >= target_amount_of_cards && drawing == true && timer > (caller.gameplay_options.ui.card_movement_time + extra_time_between_actions)) ||
+		cant_draw == true && timer > (caller.gameplay_options.ui.card_movement_time + extra_time_between_actions))
 		{
 			drawing = false;
 		}
-        if (drawing == true && cant_draw == false && timer > (caller.gameplay_options.ui.card_movement_time + 0.1f))
+        if (drawing == true && cant_draw == false && timer > (caller.gameplay_options.ui.card_movement_time + extra_time_between_actions))
 		{
 			cards_in_hand++;
 			DrawCard ();
@@ -205,7 +207,7 @@ public class CardHandler : MonoBehaviour
 			cant_draw = false;
 			tower_discarding = true;
 		}
-		if (tower_discarding == true && timer > (caller.gameplay_options.ui.card_movement_time + 0.1f))
+		if (tower_discarding == true && timer > (caller.gameplay_options.ui.card_movement_time + extra_time_between_actions))
 		{
 			for (int i = cards_in_hand; i > 0; i--)
 			{
@@ -223,7 +225,7 @@ public class CardHandler : MonoBehaviour
 				finished_discarding = true;
 			}
 		}
-		if (ability_discarding == true && timer > (caller.gameplay_options.ui.card_movement_time + 0.1f))
+		if (ability_discarding == true && timer > (caller.gameplay_options.ui.card_movement_time + extra_time_between_actions))
 		{
 			for (int i = cards_in_hand; i > 0;)
 			{
@@ -438,7 +440,7 @@ public class CardHandler : MonoBehaviour
 				{
 					rotating = false;
 					target_rotation = transform.rotation.eulerAngles;
-					Vector3 rotation_gap = new Vector3 (0, 0, target_rotation.z - (float) Math.Ceiling (target_rotation.z));
+					Vector3 rotation_gap = new Vector3 (0, 0, target_rotation.z - (float) Math.Round (target_rotation.z));
 					gameObject.transform.Rotate (-rotation_gap);
 					timer_rotating = 0;
 				}
