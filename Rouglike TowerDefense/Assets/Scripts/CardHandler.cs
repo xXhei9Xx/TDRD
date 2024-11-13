@@ -574,7 +574,6 @@ public class CardHandler : MonoBehaviour
 					//final tower placement
 					if (transform.GetChild(0).gameObject.activeSelf == false)
 					{
-						Debug.Log ("final placement");
 						Ray mouse_world_ray = card_handler.main_camera.GetComponent<Camera>().ScreenPointToRay (Input.mousePosition);
 						Physics.Raycast (mouse_world_ray, out RaycastHit rayCastHit);
 						var mouse_xz = caller.GetGameGrid().GetXZ (rayCastHit.point);
@@ -590,6 +589,7 @@ public class CardHandler : MonoBehaviour
 						card_handler.MoveCardToGraveyard (gameObject);
 						card_handler.RenameCards ();
 						card_handler.RecenterCards (card_number - 1);
+						transform.GetChild(0).transform.localPosition = transform.GetChild(0).transform.localPosition + new Vector3 (0, 200, 0);
 						mouse_tracking = false;
 					}
 					//returning the card to initial position
