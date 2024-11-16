@@ -11,6 +11,7 @@ TagManager:
   - oil
   - dead
   - tower
+  - enemy blocking
   layers:
   - Default
   - TransparentFX

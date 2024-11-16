@@ -368,7 +368,7 @@ public class GameHandler : MonoBehaviour
 	{
 		[SerializeField] [Range (0.25f, 2)] public float movement_speed_per_second;
 		[SerializeField] [Range (100, 1000)] public int health;
-		[SerializeField] [Range (1, 100)] public int mana_cost;
+		[SerializeField] [Range (0.1f, 10)] public float mana_cost_per_dmg;
 		[SerializeField] [Range (1, 100)] public int max_mana;
 		[SerializeField] [Range (0f, 5f)] public float cooldown;
 		[SerializeField] [Range (0.25f, 5)] public float casting_range;
@@ -431,6 +431,11 @@ public class GameHandler : MonoBehaviour
 		[SerializeField] [Range (0f, 0.75f)] public float electric_resistance;
 		[SerializeField] [Range (0f, 0.75f)] public float poison_resistance;
 		[SerializeField] [Range (0f, 0.75f)] public float magic_resistance;
+		[SerializeField] [Range (1, 100)] public int evolution_distance;
+		[SerializeField] [Range (1, 100)] public int casting_damage;
+		[SerializeField] [Range (1, 100)] public int casting_heal;
+		[SerializeField] [Range (1, 100)] public int casting_max_health_increase;
+		[SerializeField] [Range (1.05f, 1.5f)] public float casting_movement_speed_multiplier;
 	}
 
 	[Serializable] public class SteamWalkerOptions
@@ -1274,7 +1279,10 @@ public class GameHandler : MonoBehaviour
 			{
 				if (object_under_cursor != rayCastHit.collider.gameObject)
 				{
-					SetOutlineMaterial (object_under_cursor, gameplay_options.ui.outline_off_pointer_material);
+					if (rayCastHit.collider.gameObject.TryGetComponent (out MeshRenderer mesh_renderer) == true)
+					{
+						SetOutlineMaterial (object_under_cursor, gameplay_options.ui.outline_off_pointer_material);
+					}
 				}
 			}
 			if ((rayCastHit.collider.tag == "tower" || rayCastHit.collider.tag == "enemy") && object_under_cursor != rayCastHit.collider.gameObject)

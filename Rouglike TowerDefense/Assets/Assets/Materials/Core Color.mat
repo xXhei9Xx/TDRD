@@ -21,12 +21,12 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Core Color
-  m_Shader: {fileID: -6465566751694194690, guid: 2ddb55f0824bbc548afe8b24dc3ab1d5, type: 3}
+  m_Shader: {fileID: -6465566751694194690, guid: 5ea2e43028ad9b34484d715d68c88ae8, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
   m_InvalidKeywords: []
-  m_LightmapFlags: 4
+  m_LightmapFlags: 1
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1

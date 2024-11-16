@@ -322,11 +322,11 @@ public class Enemy
 		switch (type)
 		{
 			case enemy_id.shield_skeleton:
-			//enemy.AddComponent<ShieldSkeleton>();
+			enemy.AddComponent<ShieldSkeleton>().SetVariables (caller);
 			break;
 
 			case enemy_id.goblin_construction_team:
-			enemy.AddComponent <GoblinConstructionTeam>();
+			enemy.AddComponent <GoblinConstructionTeam>().SetVariables (caller);
 			break;
 
 			case enemy_id.brood_mother:
@@ -334,87 +334,87 @@ public class Enemy
 			break;
 
 			case enemy_id.werewolf:
-			enemy.AddComponent <Werewolf>();
+			enemy.AddComponent <Werewolf>().SetVariables (caller);
 			break;
 
 			case enemy_id.steam_walker:
-			enemy.AddComponent <SteamWalker>();
+			enemy.AddComponent <SteamWalker>().SetVariables (caller);
 			break;
 
 			case enemy_id.giant:
-			enemy.AddComponent <Giant>();
+			enemy.AddComponent <Giant>().SetVariables (caller);
 			break;
 
 			case enemy_id.magma_elemental:
-			enemy.AddComponent <MagmaElemental>();
+			enemy.AddComponent <MagmaElemental>().SetVariables (caller);
 			break;
 
 			case enemy_id.alchemist:
-			enemy.AddComponent <Alchemist>();
+			enemy.AddComponent<Alchemist>().SetVariables(caller);
 			break;
 
 			case enemy_id.bio_arsonist:
-			enemy.AddComponent <BioArsonist>();
+			enemy.AddComponent<BioArsonist>().SetVariables(caller);
 			break;
 
 			case enemy_id.fire_elemental:
-			enemy.AddComponent <FireElemental>();
+			enemy.AddComponent<FireElemental>().SetVariables(caller);
 			break;
 
 			case enemy_id.wyrmling:
-			enemy.AddComponent <Wyrmling>();
+			enemy.AddComponent<Wyrmling>().SetVariables(caller);
 			break;
 
 			case enemy_id.corruptor:
-			enemy.AddComponent <Corruptor>();
+			enemy.AddComponent<Corruptor>().SetVariables(caller);
 			break;
 
 			case enemy_id.lich:
-			enemy.AddComponent <Lich>();
+			enemy.AddComponent<Lich>().SetVariables(caller);
 			break;
 
 			case enemy_id.lady_frost:
-			enemy.AddComponent <LadyFrost>();
+			enemy.AddComponent<LadyFrost>().SetVariables(caller);
 			break;
 
 			case enemy_id.ice_consumer:
-			enemy.AddComponent <IceConsumer>();
+			enemy.AddComponent<IceConsumer>().SetVariables(caller);
 			break;
 
 			case enemy_id.dead_grove:
-			enemy.AddComponent <DeadGrove>();
+			enemy.AddComponent<DeadGrove>().SetVariables(caller);
 			break;
 
 			case enemy_id.snow_diver:
-			enemy.AddComponent <SnowDiver>();
+			enemy.AddComponent<SnowDiver>().SetVariables(caller);
 			break;
 
 			case enemy_id.ice_thrall:
-			enemy.AddComponent <IceThrall>();
+			enemy.AddComponent<IceThrall>().SetVariables(caller);
 			break;
 
 			case enemy_id.absorber:
-			enemy.AddComponent <Absorber>();
+			enemy.AddComponent<Absorber>().SetVariables(caller);
 			break;
 
 			case enemy_id.static_charge:
-			enemy.AddComponent <StaticCharge>();
+			enemy.AddComponent<StaticCharge>().SetVariables(caller);
 			break;
 
 			case enemy_id.charge_collector:
-			enemy.AddComponent <ChargeCollector>();
+			enemy.AddComponent<ChargeCollector>().SetVariables(caller);
 			break;
 
 			case enemy_id.zap:
-			enemy.AddComponent <Zap>();
+			enemy.AddComponent<Zap>().SetVariables(caller);
 			break;
 
 			case enemy_id.rocket_goblin:
-			enemy.AddComponent <RocketGoblin>();
+			enemy.AddComponent<RocketGoblin>().SetVariables(caller);
 			break;
 
 			case enemy_id.overcharge:
-			enemy.AddComponent <OverCharge>();
+			enemy.AddComponent<OverCharge>().SetVariables(caller);
 			break;
 
 			case enemy_id.green_belcher:
@@ -422,19 +422,19 @@ public class Enemy
 			break;
 
 			case enemy_id.ooze:
-			enemy.AddComponent <Ooze>();
+			enemy.AddComponent<Ooze>().SetVariables(caller);
 			break;
 
 			case enemy_id.corpse_eater:
-			enemy.AddComponent <CorpseEater>();
+			enemy.AddComponent<CorpseEater>().SetVariables(caller);
 			break;
 
 			case enemy_id.mutant:
-			enemy.AddComponent <Mutant>();
+			enemy.AddComponent<Mutant>().SetVariables(caller);
 			break;
 
 			case enemy_id.grappling_spider:
-			enemy.AddComponent <GrapplingSpider>();
+			enemy.AddComponent<GrapplingSpider>().SetVariables(caller);
 			break;
 
 			case enemy_id.plague_bearer:
@@ -442,27 +442,27 @@ public class Enemy
 			break;
 
 			case enemy_id.shadow_fiend:
-			enemy.AddComponent <Absorber>();
+			enemy.AddComponent<Absorber>().SetVariables(caller);
 			break;
 
 			case enemy_id.shaman:
-			enemy.AddComponent <Shaman>();
+			enemy.AddComponent<Shaman>().SetVariables(caller);
 			break;
 
 			case enemy_id.necromancer:
-			enemy.AddComponent <Necromancer>();
+			enemy.AddComponent<Necromancer>().SetVariables(caller);
 			break;
 
 			case enemy_id.mana_addict:
-			enemy.AddComponent <ManaAddict>();
+			enemy.AddComponent<ManaAddict>().SetVariables(caller);
 			break;
 
 			case enemy_id.phase_shifter:
-			enemy.AddComponent <PhaseShifter>();
+			enemy.AddComponent<PhaseShifter>().SetVariables(caller);
 			break;
 
 			case enemy_id.mind_twister:
-			enemy.AddComponent <MindTwister>();
+			enemy.AddComponent<MindTwister>().SetVariables(caller);
 			break;
 		}
 	}
@@ -592,25 +592,34 @@ public class Enemy
 		private GameObject mana_bar;
 		private GameObject casting_bar;
 		private Action DeathAction = null;
+		private Action<(int physical_damage, int fire_damage, int frost_damage, int electric_damage, int poison_damage, int magic_damage)> BlockingAction = null;
+		private List<Collider> this_enemy_collider_list = new List<Collider>();
 		private (int x, int z) current_position, next_tile;
 		private (int x, int z) [] path_tuple_array;
-		private bool moving = false, unique_action = false, cooldown = false, minion;
+		[SerializeField] private bool moving = false, unique_action = false, cooldown = false, minion, blocking = false, blocked = false, calculate_distance_traveled = false;
 		private int counter;
-		private float mana_timer = 1;
-		private grid_direction direction;
+		private (int physical_damage, int fire_damage, int frost_damage, int electric_damage, int poison_damage, int magic_damage) blocked_damage_tuple = (0, 0, 0, 0, 0, 0);
+		[SerializeField] private float mana_timer = 1, distance_traveled = 0;
+		private Vector3 previous_position;
+		[SerializeField] private grid_direction direction;
 
 		#region stats
 
-		private int health, max_health;
-		private int mana, max_mana;
-		private float healing_multiplier;
-		private float movement_speed;
-		private float physical_resistance;
-		private float fire_resistance;
-		private float frost_resistance;
-		private float electric_resistance;
-		private float poison_resistance;
-		private float magic_resistance;
+		[SerializeField] private int health, max_health;
+		[SerializeField] private int mana, max_mana;
+		[SerializeField] private float healing_multiplier;
+		[SerializeField] private float movement_speed;
+		[SerializeField] private float physical_resistance;
+		[SerializeField] private float fire_resistance;
+		[SerializeField] private float frost_resistance;
+		[SerializeField] private float electric_resistance;
+		[SerializeField] private float poison_resistance;
+		[SerializeField] private float magic_resistance;
+
+		#endregion
+		#region status effects
+
+		private bool oil_status = false;
 
 		#endregion
 
@@ -1138,6 +1147,7 @@ public class Enemy
 			GameObject enemy_bar_canvas = Instantiate (GameObject.Find ("Enemy Bar Canvas") );
 			enemy_bar_canvas.transform.SetParent (transform, true);
 			enemy_bar_canvas.transform.localPosition = new Vector3 (0, 1, 0.25f);
+			enemy_bar_canvas.transform.SetSiblingIndex (2);
 			health_bar = this_test_enemy.transform.GetChild(2).GetChild(0).GetChild(2).gameObject;
 			mana_bar = this_test_enemy.transform.GetChild(2).GetChild(1).GetChild(2).gameObject;
 			casting_bar = this_test_enemy.transform.GetChild(2).GetChild(2).GetChild(2).gameObject;
@@ -1147,6 +1157,13 @@ public class Enemy
 			#endregion
 			SetNewPathfinding ();
 			counter = path_tuple_array.Length - 2;
+			this_enemy_collider_list.Add (GetComponent<Collider> ());
+			foreach (Collider collider in GetComponentsInChildren<Collider> ())
+			{
+				this_enemy_collider_list.Add (collider);
+			}
+			Debug.Log (this_enemy_collider_list.Count + " amount of collider");
+			previous_position = transform.position;
 		}
 
 		private void Update()
@@ -1184,6 +1201,12 @@ public class Enemy
 				{
 					caller.GetGameGrid().SetValue (current_position.x, current_position.z, GameGrid.grid_parameter.enemy, GameGrid.enemy.empty);
 					DeathActionAndSelfDestroy();
+				}
+				//calculating distance traveled
+				if (calculate_distance_traveled == true)
+				{
+					distance_traveled += Vector3.Distance (previous_position, transform.position);
+					previous_position = transform.position;
 				}
 				//action upon reaching the center of the next destination tile
 				if (CheckIfDestinationReached (caller, this_test_enemy, next_tile, direction))
@@ -1245,7 +1268,7 @@ public class Enemy
 		}
 		#endregion
 
-		#region check cooldown and mana, set mana and cooldown, check if moving, check unique action, casting bar update, death action and self destroy
+		#region check cooldown and mana, set mana and cooldown, get mana, check if moving, check unique action, casting bar update, death action and self destroy
 
 		public bool CheckCooldownAndMana (int mana_cost)
 		{
@@ -1266,6 +1289,11 @@ public class Enemy
 				cooldown = false;},
 				cooldown_time, "cooldown", gameObject);
 			}
+		}
+
+		public int GetMana ()
+		{
+			return mana;
 		}
 
 		public bool CheckIfMoving ()
@@ -1307,71 +1335,80 @@ public class Enemy
 
 		#endregion
 
-		#region stat modification & damage calulation
+		#region damage calulation, get blocked damage, set blocking, reset blocked damage, set blocking action, set calculate distance traveled
 
-		public void MovementSpeedMultiplier (float speed_multiplier)
+		public void CalculateIncomingDamage ((int physical_damage, int fire_damage, int frost_damage, int electric_damage, int poison_damage, int magic_damage) damage_tuple)
 		{
-			movement_speed *= speed_multiplier;
+			if (blocking == false)
+			{
+				int physical_damage_after_resistance = (int) Math.Floor (((1 - physical_resistance) * damage_tuple.physical_damage));
+				int fire_damage_after_resistance = (int) Math.Floor (((1 - fire_resistance)  * damage_tuple.fire_damage));
+				int frost_damage_after_resistance = (int) Math.Floor (((1 - frost_resistance) * damage_tuple.frost_damage));
+				int electric_damage_after_resistance = (int) Math.Floor (((1 - electric_resistance) * damage_tuple.electric_damage));
+				int poison_damage_after_resistance = (int) Math.Floor (((1 - poison_resistance) * damage_tuple.poison_damage));
+				int magic_damage_after_resistance = (int) Math.Floor (((1 - magic_resistance) * damage_tuple.magic_damage));
+				int total_damage = physical_damage_after_resistance + fire_damage_after_resistance + frost_damage_after_resistance + electric_damage_after_resistance +
+				poison_damage_after_resistance + magic_damage_after_resistance;
+				caller.GetDamageChart().DamageAddition (physical_damage_after_resistance, fire_damage_after_resistance, frost_damage_after_resistance, electric_damage_after_resistance,
+				poison_damage_after_resistance, magic_damage_after_resistance);
+				HealthAddition (-total_damage);
+			}
+			else
+			{
+				blocking = false;
+				blocked = true;
+				blocked_damage_tuple.physical_damage =+ damage_tuple.physical_damage;
+				blocked_damage_tuple.fire_damage =+ damage_tuple.fire_damage;
+				blocked_damage_tuple.frost_damage =+ damage_tuple.frost_damage;
+				blocked_damage_tuple.electric_damage =+ damage_tuple.electric_damage;
+				blocked_damage_tuple.poison_damage =+ damage_tuple.poison_damage;
+				blocked_damage_tuple.magic_damage =+ damage_tuple.magic_damage;
+				BlockingAction (blocked_damage_tuple);
+			}
 		}
 
-		public void MaxHealthAddition (int max_health_increase)
+		public bool GetBlockedDamageTuple (out (int physical_damage, int fire_damage, int frost_damage, int electric_damage, int poison_damage, int magic_damage) blocked_damage_tuple)
 		{
-			max_health += max_health_increase;
+			blocked_damage_tuple = this.blocked_damage_tuple;
+			if (blocked == true)
+			{
+				return true;
+			}
+			return false;
 		}
 
-		public void PhysicalResistanceAddition (float resistance_increase)
+		public void SetBlocking (bool state)
 		{
-			physical_resistance += resistance_increase;
+			blocking = state;
 		}
 
-		public void FireResistanceAddition (float resistance_increase)
+		public void ResetBlockedDamageTuple ()
 		{
-			fire_resistance += resistance_increase;
+			blocked_damage_tuple = (0, 0, 0, 0, 0, 0);
 		}
 
-		public void FrostResistanceAddition (float resistance_increase)
+		public void SetBlockingAction (Action<(int physical_damage, int fire_damage, int frost_damage, int electric_damage, int poison_damage, int magic_damage)> action)
 		{
-			frost_resistance += resistance_increase;
+			BlockingAction = action;
 		}
 
-		public void ElectricResistanceAddition (float resistance_increase)
+		public float GetDistanceTraveled ()
 		{
-			electric_resistance += resistance_increase;
+			return distance_traveled;
 		}
 
-		public void PoisonResistanceAddition (float resistance_increase)
+		public void ResetDistanceTraveled ()
 		{
-			poison_resistance += resistance_increase;
+			distance_traveled = 0;
 		}
 
-		public void MagicResistanceAddition (float resistance_increase)
+		public void SetCalculateDistanceTraveled (bool state)
 		{
-			magic_resistance += resistance_increase;
+			calculate_distance_traveled = state;
 		}
 
-		public void HealingMultiplier (float healing_multiplier)
+		public void HealthBarUpdate ()
 		{
-			this.healing_multiplier += healing_multiplier;
-		}
-
-		public int CalculateIncomingDamage ((int physical_damage, int fire_damage, int frost_damage, int electric_damage, int poison_damage, int magic_damage) damage_tuple)
-		{
-			int physical_damage_after_resistance = (int) Math.Floor (((1 - physical_resistance) * damage_tuple.physical_damage));
-			int fire_damage_after_resistance = (int) Math.Floor (((1 - fire_resistance)  * damage_tuple.fire_damage));
-			int frost_damage_after_resistance = (int) Math.Floor (((1 - frost_resistance) * damage_tuple.frost_damage));
-			int electric_damage_after_resistance = (int) Math.Floor (((1 - electric_resistance) * damage_tuple.electric_damage));
-			int poison_damage_after_resistance = (int) Math.Floor (((1 - poison_resistance) * damage_tuple.poison_damage));
-			int magic_damage_after_resistance = (int) Math.Floor (((1 - magic_resistance) * damage_tuple.magic_damage));
-			int total_damage = physical_damage_after_resistance + fire_damage_after_resistance + frost_damage_after_resistance + electric_damage_after_resistance +
-			poison_damage_after_resistance + magic_damage_after_resistance;
-			caller.GetDamageChart().DamageAddition (physical_damage_after_resistance, fire_damage_after_resistance, frost_damage_after_resistance, electric_damage_after_resistance,
-			poison_damage_after_resistance, magic_damage_after_resistance);
-			return total_damage;
-		}
-
-		public void HealthAddition (int health_increase)
-		{
-			health += health_increase;
 			if (health > max_health)
 			{
 				health = max_health;
@@ -1409,6 +1446,62 @@ public class Enemy
 			}
 		}
 
+		#endregion
+
+		#region stat modification
+
+		public void MovementSpeedMultiplier (float speed_multiplier)
+		{
+			movement_speed *= speed_multiplier;
+		}
+
+		public void MaxHealthAddition (int max_health_increase)
+		{
+			max_health += max_health_increase;
+			HealthBarUpdate();
+		}
+
+		public void PhysicalResistanceAddition (float resistance_increase)
+		{
+			physical_resistance += resistance_increase;
+		}
+
+		public void FireResistanceAddition (float resistance_increase)
+		{
+			fire_resistance += resistance_increase;
+		}
+
+		public void FrostResistanceAddition (float resistance_increase)
+		{
+			frost_resistance += resistance_increase;
+		}
+
+		public void ElectricResistanceAddition (float resistance_increase)
+		{
+			electric_resistance += resistance_increase;
+		}
+
+		public void PoisonResistanceAddition (float resistance_increase)
+		{
+			poison_resistance += resistance_increase;
+		}
+
+		public void MagicResistanceAddition (float resistance_increase)
+		{
+			magic_resistance += resistance_increase;
+		}
+
+		public void HealingMultiplier (float healing_multiplier)
+		{
+			this.healing_multiplier += healing_multiplier;
+		}
+
+		public void HealthAddition (int health_increase)
+		{
+			health += health_increase;
+			HealthBarUpdate();
+		}
+
 		public void ManaAddition (int mana_increase)
 		{
 			mana += mana_increase;
@@ -1435,12 +1528,19 @@ public class Enemy
 		{
 			max_mana += mana_increase;
 		}
-
 		#endregion
 
 		#region status effects
 
+		public bool GetOilStatus ()
+		{
+			return oil_status;
+		}
 
+		public void SetOilStatus (bool state)
+		{
+			oil_status = state;
+		}
 
 		#endregion
 
@@ -1516,9 +1616,14 @@ public class Enemy
 
 		private void OnTriggerEnter (Collider collider)
 		{
+			TriggerEnterEvent (collider);
+		}
+
+		public void TriggerEnterEvent (Collider collider)
+		{
 			if (collider.gameObject.tag == "test tower projectile")
 			{
-				HealthAddition (-CalculateIncomingDamage (collider.GetComponent<Tower.ShotProjectile>().damage_tuple));
+				CalculateIncomingDamage (collider.GetComponent<Tower.ShotProjectile>().damage_tuple);
 			}
 			if (collider.gameObject.tag == "oil")
 			{
@@ -1527,6 +1632,11 @@ public class Enemy
 		}
 
 		private void OnTriggerExit (Collider collider)
+		{
+			TriggerExitEvent (collider);
+		}
+
+		public void TriggerExitEvent (Collider collider)
 		{
 			if (collider.gameObject.tag == "oil")
 			{
@@ -1549,11 +1659,61 @@ public class Enemy
 		}
 		#endregion
 
-		private void Update()
+		private void Start()
 		{
-			if (GetComponent<BaseEnemy>().CheckCooldownAndMana (caller.enemy_options.physical.shield_skeleton.mana_cost) == true)
+			transform.GetChild(3).AddComponent<Skeleton_Shield>();
+			GetComponent<BaseEnemy>().SetBlockingAction (ProcessShieldBlocking);
+		}
+
+		private void ProcessShieldBlocking
+		((int physical_damage, int fire_damage, int frost_damage, int electric_damage, int poison_damage, int magic_damage) blocked_damage_tuple)
+		{
+			int mana_cost = (int) (caller.enemy_options.physical.shield_skeleton.mana_cost_per_dmg * (blocked_damage_tuple.physical_damage + blocked_damage_tuple.fire_damage + 
+			blocked_damage_tuple.frost_damage + blocked_damage_tuple.electric_damage + blocked_damage_tuple.poison_damage + blocked_damage_tuple.magic_damage));
+			if (GetComponent<BaseEnemy>().CheckCooldownAndMana (mana_cost) == true)
 			{
-				GetComponent<BaseEnemy>().SetManaAndCooldown (caller.enemy_options.physical.shield_skeleton.mana_cost, caller.enemy_options.physical.shield_skeleton.cooldown);
+				GetComponent<BaseEnemy>().SetManaAndCooldown (mana_cost, caller.enemy_options.physical.shield_skeleton.cooldown);
+				GetComponent<BaseEnemy>().ResetBlockedDamageTuple();
+			}
+			else
+			{
+				if (GetComponent<BaseEnemy>().CheckCooldownAndMana (0) == true)
+				{
+					if (GetComponent<BaseEnemy>().GetMana() != 0)
+					{
+						int damage_reduction = mana_cost / GetComponent<BaseEnemy>().GetMana();
+						blocked_damage_tuple.physical_damage *= damage_reduction;
+						blocked_damage_tuple.fire_damage *= damage_reduction;
+						blocked_damage_tuple.frost_damage *= damage_reduction;
+						blocked_damage_tuple.electric_damage *= damage_reduction;
+						blocked_damage_tuple.poison_damage *= damage_reduction;
+						blocked_damage_tuple.magic_damage *= damage_reduction;
+						GetComponent<BaseEnemy>().SetManaAndCooldown (GetComponent<BaseEnemy>().GetMana(), caller.enemy_options.physical.shield_skeleton.cooldown);
+						GetComponent<BaseEnemy>().CalculateIncomingDamage (blocked_damage_tuple);
+						GetComponent<BaseEnemy>().ResetBlockedDamageTuple();
+					}
+				}
+			}
+		}
+
+		public class Skeleton_Shield : MonoBehaviour
+		{
+			#region variable declarations
+
+			#endregion
+
+			private void OnTriggerEnter(Collider other)
+			{
+				if (GetComponentInParent<BaseEnemy>().GetMana() > 0)
+				{
+					GetComponentInParent<BaseEnemy>().SetBlocking (true);
+				}
+				GetComponentInParent<BaseEnemy>().TriggerEnterEvent (other);
+			}
+
+			private void OnTriggerExit(Collider other)
+			{
+				GetComponentInParent<BaseEnemy>().TriggerExitEvent (other);
 			}
 		}
 	}
@@ -1661,11 +1821,26 @@ public class Enemy
 		}
 		#endregion
 
+		private void Start()
+		{
+			GetComponent<BaseEnemy>().SetCalculateDistanceTraveled (true);
+		}
+
 		private void Update()
 		{
-			if (GetComponent<BaseEnemy>().CheckCooldownAndMana (caller.enemy_options.physical.werewolf.mana_cost) == true)
+			if (GetComponent<BaseEnemy>().CheckCooldownAndMana (caller.enemy_options.physical.werewolf.mana_cost) == true &&
+			GetComponent<BaseEnemy>().GetDistanceTraveled() >= caller.enemy_options.physical.werewolf.evolution_distance)
 			{
-				GetComponent<BaseEnemy>().SetManaAndCooldown (caller.enemy_options.physical.werewolf.mana_cost, caller.enemy_options.physical.werewolf.cooldown);
+				GameObject closest_enemy = GetClosestEnemy (gameObject, caller.enemy_options.physical.werewolf.casting_range);
+				if (closest_enemy != null)
+				{
+					closest_enemy.GetComponent<BaseEnemy>().HealthAddition (- caller.enemy_options.physical.werewolf.casting_damage);
+					GetComponent<BaseEnemy>().MaxHealthAddition (caller.enemy_options.physical.werewolf.casting_max_health_increase);
+					GetComponent<BaseEnemy>().HealthAddition (caller.enemy_options.physical.werewolf.casting_heal);
+					GetComponent<BaseEnemy>().MovementSpeedMultiplier (caller.enemy_options.physical.werewolf.casting_movement_speed_multiplier);
+					GetComponent<BaseEnemy>().SetManaAndCooldown (caller.enemy_options.physical.werewolf.mana_cost, caller.enemy_options.physical.werewolf.cooldown);
+					GetComponent<BaseEnemy>().ResetDistanceTraveled();
+				}
 			}
 		}
 	}
@@ -2582,6 +2757,30 @@ public class Enemy
 		}
 		jump_direction = grid_direction.down;
 		return false;
+	}
+
+	private static GameObject GetClosestEnemy (GameObject this_enemy, float range)
+	{
+		Collider[] colliders_in_range = Physics.OverlapSphere(this_enemy.transform.position, range);
+		List<GameObject> enemies_in_range = new List<GameObject>();
+		List<float> enemies_distance = new List<float>();
+		GameObject closest_enemy = null;
+		foreach (Collider collider in colliders_in_range)
+		{
+			if (collider.gameObject.tag == "enemy" && collider.gameObject != this_enemy)
+			{
+				enemies_in_range.Add (collider.gameObject);
+			}
+		}
+		foreach (GameObject enemy in enemies_in_range)
+		{
+			enemies_distance.Add (Vector3.Distance (this_enemy.transform.position, enemy.transform.position));
+		}
+		if (enemies_distance.Count > 0)
+		{
+			closest_enemy = enemies_in_range [enemies_distance.IndexOf(enemies_distance.Min())];
+		}
+		return closest_enemy;
 	}
 
 	public static GameHandler GetGameHandler ()
