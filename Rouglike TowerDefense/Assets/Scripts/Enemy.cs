@@ -1162,7 +1162,6 @@ public class Enemy
 			{
 				this_enemy_collider_list.Add (collider);
 			}
-			Debug.Log (this_enemy_collider_list.Count + " amount of collider");
 			previous_position = transform.position;
 		}
 
@@ -1549,7 +1548,7 @@ public class Enemy
 		{
 			GameObject dead_body = Instantiate (GameObject.Find ("Dead Template") );
 			dead_body.transform.SetParent (GameObject.Find ("Dead Bodies").transform, false);
-			dead_body.transform.position = transform.position;
+			dead_body.transform.position = transform.position - new Vector3 (0, transform.localScale.y / 2, 0);
 			dead_body.transform.Rotate (0, caller.RandomInt (0, 360), 0);
 			dead_body.AddComponent<DeadBody>().SetVariables (caller);
 		}

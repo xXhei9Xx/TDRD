@@ -1589,19 +1589,19 @@ public class GameHandler : MonoBehaviour
 			switch (movement_direction)
 			{
 				case camera_directions.up:
-				camera.transform.position += new Vector3 (0, 0, -Time.deltaTime * gameplay_options.ui.camera_movement_speed);
+				camera.transform.position += new Vector3 (0, 0, -Time.fixedUnscaledDeltaTime * gameplay_options.ui.camera_movement_speed);
 				break;
 
 				case camera_directions.down:
-				camera.transform.position += new Vector3 (0, 0, Time.deltaTime * gameplay_options.ui.camera_movement_speed);
+				camera.transform.position += new Vector3 (0, 0, Time.fixedUnscaledDeltaTime * gameplay_options.ui.camera_movement_speed);
 				break;
 
 				case camera_directions.left:
-				camera.transform.position += new Vector3 (-Time.deltaTime * gameplay_options.ui.camera_movement_speed, 0, 0);
+				camera.transform.position += new Vector3 (-Time.fixedUnscaledDeltaTime * gameplay_options.ui.camera_movement_speed, 0, 0);
 				break;
 
 				case camera_directions.right:
-				camera.transform.position += new Vector3 (Time.deltaTime * gameplay_options.ui.camera_movement_speed, 0, 0);
+				camera.transform.position += new Vector3 (Time.fixedUnscaledDeltaTime * gameplay_options.ui.camera_movement_speed, 0, 0);
 				break;
 			}
 			break;
@@ -1610,19 +1610,19 @@ public class GameHandler : MonoBehaviour
 			switch (movement_direction)
 			{
 				case camera_directions.up:
-				camera.transform.position += new Vector3 (0, 0, Time.deltaTime * gameplay_options.ui.camera_movement_speed);
+				camera.transform.position += new Vector3 (0, 0, Time.fixedUnscaledDeltaTime * gameplay_options.ui.camera_movement_speed);
 				break;
 
 				case camera_directions.down:
-				camera.transform.position += new Vector3 (0, 0, -Time.deltaTime * gameplay_options.ui.camera_movement_speed);
+				camera.transform.position += new Vector3 (0, 0, -Time.fixedUnscaledDeltaTime * gameplay_options.ui.camera_movement_speed);
 				break;
 
 				case camera_directions.left:
-				camera.transform.position += new Vector3 (Time.deltaTime * gameplay_options.ui.camera_movement_speed, 0, 0);
+				camera.transform.position += new Vector3 (Time.fixedUnscaledDeltaTime * gameplay_options.ui.camera_movement_speed, 0, 0);
 				break;
 
 				case camera_directions.right:
-				camera.transform.position += new Vector3 (-Time.deltaTime * gameplay_options.ui.camera_movement_speed, 0, 0);
+				camera.transform.position += new Vector3 (-Time.fixedUnscaledDeltaTime * gameplay_options.ui.camera_movement_speed, 0, 0);
 				break;
 			}
 			break;
@@ -1631,19 +1631,19 @@ public class GameHandler : MonoBehaviour
 			switch (movement_direction)
 			{
 				case camera_directions.up:
-				camera.transform.position += new Vector3 (-Time.deltaTime * gameplay_options.ui.camera_movement_speed, 0, 0);
+				camera.transform.position += new Vector3 (-Time.fixedUnscaledDeltaTime * gameplay_options.ui.camera_movement_speed, 0, 0);
 				break;
 
 				case camera_directions.down:
-				camera.transform.position += new Vector3 (Time.deltaTime * gameplay_options.ui.camera_movement_speed, 0, 0);
+				camera.transform.position += new Vector3 (Time.fixedUnscaledDeltaTime * gameplay_options.ui.camera_movement_speed, 0, 0);
 				break;
 
 				case camera_directions.left:
-				camera.transform.position += new Vector3 (0, 0, Time.deltaTime * gameplay_options.ui.camera_movement_speed);
+				camera.transform.position += new Vector3 (0, 0, Time.fixedUnscaledDeltaTime * gameplay_options.ui.camera_movement_speed);
 				break;
 
 				case camera_directions.right:
-				camera.transform.position += new Vector3 (0, 0, -Time.deltaTime * gameplay_options.ui.camera_movement_speed);
+				camera.transform.position += new Vector3 (0, 0, -Time.fixedUnscaledDeltaTime * gameplay_options.ui.camera_movement_speed);
 				break;
 			}
 			break;
@@ -1652,19 +1652,19 @@ public class GameHandler : MonoBehaviour
 			switch (movement_direction)
 			{
 				case camera_directions.up:
-				camera.transform.position += new Vector3 (Time.deltaTime * gameplay_options.ui.camera_movement_speed, 0, 0);
+				camera.transform.position += new Vector3 (Time.fixedUnscaledDeltaTime * gameplay_options.ui.camera_movement_speed, 0, 0);
 				break;
 
 				case camera_directions.down:
-				camera.transform.position += new Vector3 (-Time.deltaTime * gameplay_options.ui.camera_movement_speed, 0, 0);
+				camera.transform.position += new Vector3 (-Time.fixedUnscaledDeltaTime * gameplay_options.ui.camera_movement_speed, 0, 0);
 				break;
 
 				case camera_directions.left:
-				camera.transform.position += new Vector3 (0, 0, -Time.deltaTime * gameplay_options.ui.camera_movement_speed);
+				camera.transform.position += new Vector3 (0, 0, -Time.fixedUnscaledDeltaTime * gameplay_options.ui.camera_movement_speed);
 				break;
 
 				case camera_directions.right:
-				camera.transform.position += new Vector3 (0, 0, Time.deltaTime * gameplay_options.ui.camera_movement_speed);
+				camera.transform.position += new Vector3 (0, 0, Time.fixedUnscaledDeltaTime * gameplay_options.ui.camera_movement_speed);
 				break;
 			}
 			break;
