@@ -35189,12 +35189,12 @@ MonoBehaviour:
         egg_hatch_time: 2
       werewolf:
         movement_speed_per_second: 0.25
-        health: 0
-        mana_cost: 0
-        max_mana: 0
+        health: 100
+        mana_cost: 1
+        max_mana: 1
         cooldown: 1
         casting_range: 2
-        casting_time: 0
+        casting_time: 0.1
         physical_resistance: 0
         fire_resistance: 0
         frost_resistance: 0
