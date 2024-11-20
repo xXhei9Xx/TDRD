@@ -21,7 +21,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Grass Color
-  m_Shader: {fileID: -6465566751694194690, guid: 11b5ec0b1f78b7347a82b0644b39ea84, type: 3}
+  m_Shader: {fileID: -6465566751694194690, guid: 5ea2e43028ad9b34484d715d68c88ae8, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []

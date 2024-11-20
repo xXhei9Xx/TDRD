@@ -693,7 +693,7 @@ public class Tower
 			{
 				foreach (GameObject enemy in hit_list)
 				{
-					enemy.GetComponent<BaseEnemy>().HealthAddition (- enemy.GetComponent<BaseEnemy>().CalculateIncomingDamage (GetComponent<BaseTower>().GetDamageDealt ()));
+					enemy.GetComponent<BaseEnemy>().CalculateIncomingDamage (GetComponent<BaseTower>().GetDamageDealt ());
 				}
 				GetComponent<BaseTower>().SetCooldown (caller.tower_options.flamethrower.cooldown);
 			}
@@ -811,9 +811,9 @@ public class Tower
 			}
 		}
 
-		private void OnTriggerEnter(Collider other)
+		private void OnTriggerEnter (Collider other)
 		{
-			if (other.gameObject.tag == "enemy")
+			if (other.gameObject.tag == "enemy" || other.gameObject.tag == "enemy blocking")
 			{
 				Destroy (gameObject.transform.GetChild(0).gameObject);
 				Destroy (gameObject);

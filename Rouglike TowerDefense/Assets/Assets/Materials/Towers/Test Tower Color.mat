@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Test Tower Color
-  m_Shader: {fileID: -6465566751694194690, guid: ccfdf94f4a60a254b84d4aeab9a793dc, type: 3}
+  m_Shader: {fileID: -6465566751694194690, guid: 5ea2e43028ad9b34484d715d68c88ae8, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
