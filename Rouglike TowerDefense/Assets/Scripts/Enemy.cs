@@ -1129,11 +1129,6 @@ public class Enemy
 			caller.GetPathfinding().FindPath (transform.position, caller.GetGameGrid(), out path_tuple_array, PathFinding.pathfinding_tile_parameter.empty);
 		}
 
-		public void SetUniqueAction (bool state)
-		{
-			unique_action = state;
-		}
-
 		public void SetDeathAction (Action death_action)
 		{
 			DeathAction = death_action;
@@ -1303,6 +1298,11 @@ public class Enemy
 		public bool CheckUniqueAction ()
 		{
 			return unique_action;
+		}
+
+		public void SetUniqueAction (bool state)
+		{
+			unique_action = state;
 		}
 
 		public void CastingBarUpdate (float timer, float casting_time)
@@ -2278,7 +2278,13 @@ public class Enemy
 		{
 			if (GetComponent<BaseEnemy>().CheckCooldownAndMana (caller.enemy_options.electric.rocket_goblin.mana_cost) == true)
 			{
-				GetComponent<BaseEnemy>().SetManaAndCooldown (caller.enemy_options.electric.rocket_goblin.mana_cost, caller.enemy_options.electric.rocket_goblin.cooldown);
+				if (CheckStraightLineJumpViability (caller, GetComponent<BaseEnemy>().GetCurrentPosition (), caller.enemy_options.electric.rocket_goblin.casting_range,
+				out grid_direction jump_direction))
+				{
+					StraightLineJump (1.5f, caller.enemy_options.electric.rocket_goblin.casting_range, gameObject, jump_direction);
+					GetComponent<BaseEnemy>().SetUniqueAction (true);
+					GetComponent<BaseEnemy>().SetManaAndCooldown (caller.enemy_options.electric.rocket_goblin.mana_cost, caller.enemy_options.electric.rocket_goblin.cooldown);
+				}
 			}
 		}
 	}
@@ -2756,6 +2762,33 @@ public class Enemy
 		}
 		jump_direction = grid_direction.down;
 		return false;
+	}
+
+	public static void StraightLineJump (float peak_jump_height, int jump_distance, GameObject enemy, grid_direction jump_direction)
+	{
+		Rigidbody enemy_rigid_body = enemy.GetComponent<Rigidbody> ();
+		float starting_speed = (float) Math.Pow (2f * 9.81f * (Math.Pow (jump_distance, 2f) / (4 * peak_jump_height) + peak_jump_height), 1f/2f);
+		float sin_jump_angle = peak_jump_height / (float) Math.Pow ( (Math.Pow (jump_distance, 2f) / (4 * peak_jump_height) + Math.Pow (peak_jump_height, 2f)), 1f/2f);
+		float cos_jump_angle = jump_distance / 2f * (float) Math.Pow ( (Math.Pow (jump_distance, 2f) / (4 * peak_jump_height) + Math.Pow (peak_jump_height, 2f)), 1f/2f);
+		enemy_rigid_body.AddRelativeForce (Vector3.up * sin_jump_angle * starting_speed, ForceMode.VelocityChange);
+		switch (jump_direction)
+		{  
+			case grid_direction.down:
+			enemy_rigid_body.AddRelativeForce (Vector3.back * cos_jump_angle * starting_speed, ForceMode.Impulse);
+			break;
+
+			case grid_direction.up:
+			enemy_rigid_body.AddRelativeForce (Vector3.forward * cos_jump_angle * starting_speed, ForceMode.Impulse);
+			break;
+
+			case grid_direction.left:
+			enemy_rigid_body.AddRelativeForce (Vector3.left * cos_jump_angle * starting_speed, ForceMode.Impulse);
+			break;
+
+			case grid_direction.right:
+			enemy_rigid_body.AddRelativeForce (Vector3.right * cos_jump_angle * starting_speed, ForceMode.Impulse);
+			break;
+		}
 	}
 
 	private static GameObject GetClosestEnemy (GameObject this_enemy, float range)

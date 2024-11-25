@@ -788,7 +788,7 @@ public class GameHandler : MonoBehaviour
 		[SerializeField] [Range (1, 100)] public int mana_cost;
 		[SerializeField] [Range (1, 100)] public int max_mana;
 		[SerializeField] [Range (0f, 5f)] public float cooldown;
-		[SerializeField] [Range (0.25f, 5)] public float casting_range;
+		[SerializeField] [Range (1, 5)] public int casting_range;
 		[SerializeField] [Range (0.1f, 5)] public float casting_time;
 		[SerializeField] [Range (0f, 0.75f)] public float physical_resistance;
 		[SerializeField] [Range (0f, 0.75f)] public float fire_resistance;
