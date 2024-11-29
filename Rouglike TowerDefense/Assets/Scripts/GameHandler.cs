@@ -1228,19 +1228,19 @@ public class GameHandler : MonoBehaviour
     void Update()
     {
 		#region moving camera
-		if (Input.GetKey (gameplay_options.controls.move_down) == true && camera.transform.position.z > 2)
+		if (Input.GetKey (gameplay_options.controls.move_down) == true && camera.transform.position.z > 0)
 		{
 			MoveCamera (camera_directions.up);
 		}
-		if (Input.GetKey (gameplay_options.controls.move_up) == true && camera.transform.position.z < gameplay_options.map.width_z - 2)
+		if (Input.GetKey (gameplay_options.controls.move_up) == true && camera.transform.position.z < gameplay_options.map.width_z)
 		{
 			MoveCamera (camera_directions.down);
 		}
-		if (Input.GetKey (gameplay_options.controls.move_left) == true && camera.transform.position.x > 2)
+		if (Input.GetKey (gameplay_options.controls.move_left) == true && camera.transform.position.x > 0)
 		{
 			MoveCamera (camera_directions.left);
 		}
-		if (Input.GetKey (gameplay_options.controls.move_right) == true && camera.transform.position.x < gameplay_options.map.length_x - 2)
+		if (Input.GetKey (gameplay_options.controls.move_right) == true && camera.transform.position.x < gameplay_options.map.length_x)
 		{
 			MoveCamera (camera_directions.right);
 		}

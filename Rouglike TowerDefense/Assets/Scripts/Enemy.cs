@@ -592,6 +592,7 @@ public class Enemy
 		private GameObject mana_bar;
 		private GameObject casting_bar;
 		private Action DeathAction = null;
+		private Action DestinationReachedAction = null;
 		private Action<(int physical_damage, int fire_damage, int frost_damage, int electric_damage, int poison_damage, int magic_damage)> BlockingAction = null;
 		private List<Collider> this_enemy_collider_list = new List<Collider>();
 		private (int x, int z) current_position, next_tile;
@@ -1158,6 +1159,7 @@ public class Enemy
 				this_enemy_collider_list.Add (collider);
 			}
 			previous_position = transform.position;
+			GetComponent<Rigidbody>().useGravity = true;
 		}
 
 		private void Update()
@@ -1217,6 +1219,7 @@ public class Enemy
 						Destroy (gameObject);
 					}
 					moving = false;
+					DestinationReachedAction ();
 				}
 			}
 			else
@@ -1258,7 +1261,7 @@ public class Enemy
 
 		public int GetDistanceFromCore ()
 		{
-			return counter;
+			return counter + 1;
 		}
 		#endregion
 
@@ -1443,6 +1446,15 @@ public class Enemy
 					}
 				}
 			}
+		}
+
+		#endregion
+
+		#region set destination reached action
+
+		public void SetDestinationReachedAction (Action action)
+		{
+			DestinationReachedAction = action;
 		}
 
 		#endregion
@@ -1745,7 +1757,7 @@ public class Enemy
 			}
 			if (GetComponent<BaseEnemy>().CheckCooldownAndMana (caller.enemy_options.physical.goblin_construction_team.mana_cost) == true)
 			{
-				if (CheckStraightLineJumpViability (caller, GetComponent<BaseEnemy>().GetCurrentPosition (), 1, out jump_direction) == true)
+				if (CheckStraightLineJumpViability (caller, GetComponent<BaseEnemy>().GetCurrentPosition (), 1, GetComponent<BaseEnemy>().GetDistanceFromCore(), out jump_direction) == true)
 				{
 					GetComponent<BaseEnemy>().SetManaAndCooldown (caller.enemy_options.physical.goblin_construction_team.mana_cost, caller.enemy_options.physical.goblin_construction_team.cooldown);
 					GetComponent<BaseEnemy>().SetUniqueAction (true);
@@ -2274,18 +2286,21 @@ public class Enemy
 		}
 		#endregion
 
-		private void Update()
+		private void Start()
 		{
+			GetComponent<BaseEnemy>().SetDestinationReachedAction (()=>{
 			if (GetComponent<BaseEnemy>().CheckCooldownAndMana (caller.enemy_options.electric.rocket_goblin.mana_cost) == true)
 			{
+				Debug.Log ("checking jump availability");
 				if (CheckStraightLineJumpViability (caller, GetComponent<BaseEnemy>().GetCurrentPosition (), caller.enemy_options.electric.rocket_goblin.casting_range,
-				out grid_direction jump_direction))
+				GetComponent<BaseEnemy>().GetDistanceFromCore(), out grid_direction jump_direction))
 				{
 					StraightLineJump (1.5f, caller.enemy_options.electric.rocket_goblin.casting_range, gameObject, jump_direction);
 					GetComponent<BaseEnemy>().SetUniqueAction (true);
 					GetComponent<BaseEnemy>().SetManaAndCooldown (caller.enemy_options.electric.rocket_goblin.mana_cost, caller.enemy_options.electric.rocket_goblin.cooldown);
 				}
 			}
+			});
 		}
 	}
 
@@ -2704,40 +2719,40 @@ public class Enemy
 		}
 	}
 
-	public static bool CheckStraightLineJumpViability (GameHandler caller, (int x, int z) position, int range, out grid_direction jump_direction)
+	public static bool CheckStraightLineJumpViability (GameHandler caller, (int x, int z) position, int range, int distance_from_core, out grid_direction jump_direction)
 	{
 		List<grid_direction> directions_to_check_list = new List<grid_direction> ();
 		List<int> direction_path_length_list = new List<int> ();
-		for (int x = position.x - range; x < position.x; x++)
+		if (position.x + range < caller.GetGameGrid().length_x)
 		{
-			if (caller.GetGameGrid().GetValue (x, position.z, grid_parameter.object_type) != caller.GetGameGrid().EnumTranslator (object_type.empty) &&
-			caller.GetGameGrid().GetValue (position.x - (range + 1), position.z, grid_parameter.object_type) == caller.GetGameGrid().EnumTranslator  (object_type.empty) )
+			if (caller.GetGameGrid().GetValue (position.x + range, position.z, grid_parameter.object_type) == caller.GetGameGrid().EnumTranslator (object_type.empty) &&
+			caller.GetGameGrid().GetValue (position.x + 1, position.z, grid_parameter.object_type) != caller.GetGameGrid().EnumTranslator  (object_type.empty) )
 			{
-				directions_to_check_list.Add (grid_direction.down);
+				directions_to_check_list.Add (grid_direction.right);
 			}
 		}
-		for (int x = position.x + range; x > position.x; x--)
+		if (position.x - range >= 0)
 		{
-			if (caller.GetGameGrid().GetValue (x, position.z, grid_parameter.object_type) != caller.GetGameGrid().EnumTranslator (object_type.empty) &&
-			caller.GetGameGrid().GetValue (position.x + (range + 1), position.z, grid_parameter.object_type) == caller.GetGameGrid().EnumTranslator  (object_type.empty) )
-			{
-				directions_to_check_list.Add (grid_direction.up);
-			}
-		}
-		for (int z = position.z - range; z < position.z; z++)
-		{
-			if (caller.GetGameGrid().GetValue (position.x, z, grid_parameter.object_type) != caller.GetGameGrid().EnumTranslator (object_type.empty) &&
-			caller.GetGameGrid().GetValue (position.x, position.z - (range + 1), grid_parameter.object_type) == caller.GetGameGrid().EnumTranslator  (object_type.empty) )
+			if (caller.GetGameGrid().GetValue (position.x - range, position.z, grid_parameter.object_type) == caller.GetGameGrid().EnumTranslator (object_type.empty) &&
+			caller.GetGameGrid().GetValue (position.x - 1, position.z, grid_parameter.object_type) != caller.GetGameGrid().EnumTranslator  (object_type.empty) )
 			{
 				directions_to_check_list.Add (grid_direction.left);
 			}
 		}
-		for (int z = position.z + range; z > position.z; z++)
+		if (position.z + range < caller.GetGameGrid().width_z)
 		{
-			if (caller.GetGameGrid().GetValue (position.x, z, grid_parameter.object_type) != caller.GetGameGrid().EnumTranslator (object_type.empty) &&
-			caller.GetGameGrid().GetValue (position.x, position.z + (range + 1), grid_parameter.object_type) == caller.GetGameGrid().EnumTranslator  (object_type.empty) )
+			if (caller.GetGameGrid().GetValue (position.x, position.z + range, grid_parameter.object_type) == caller.GetGameGrid().EnumTranslator (object_type.empty) &&
+			caller.GetGameGrid().GetValue (position.x, position.z + 1, grid_parameter.object_type) != caller.GetGameGrid().EnumTranslator  (object_type.empty) )
 			{
-				directions_to_check_list.Add (grid_direction.right);
+				directions_to_check_list.Add (grid_direction.up);
+			}
+		}
+		if (position.z - range >= 0)
+		{
+			if (caller.GetGameGrid().GetValue (position.x, position.z - range, grid_parameter.object_type) == caller.GetGameGrid().EnumTranslator (object_type.empty) &&
+			caller.GetGameGrid().GetValue (position.x, position.z - 1, grid_parameter.object_type) != caller.GetGameGrid().EnumTranslator  (object_type.empty) )
+			{
+				directions_to_check_list.Add (grid_direction.down);
 			}
 		}
 		if (directions_to_check_list.Count > 0)
@@ -2745,13 +2760,31 @@ public class Enemy
 			foreach (grid_direction direction in directions_to_check_list)
 			{
 				(int x, int z) [] direction_path_array = new (int x, int z) [] {};
-				if (caller.GetPathfinding().FindPath (position, caller.GetGameGrid(), out direction_path_array, PathFinding.pathfinding_tile_parameter.empty) == true)
+				(int x, int z) position_temp = (0, 0);
+				switch (direction)
 				{
-					direction_path_length_list.Add (direction_path_array.Length);
+					case grid_direction.up:
+					position_temp = (position.x, position.z + range);
+					break;
+
+					case grid_direction.down:
+					position_temp = (position.x, position.z - range);
+					break;
+
+					case grid_direction.left:
+					position_temp = (position.x - range, position.z);
+					break;
+
+					case grid_direction.right:
+					position_temp = (position.x + range, position.z);
+					break;
 				}
-				else
+				if (caller.GetPathfinding().FindPath (position_temp, caller.GetGameGrid(), out direction_path_array, PathFinding.pathfinding_tile_parameter.empty) == true)
 				{
-					directions_to_check_list.Remove (direction);
+					if (direction_path_array.Length < distance_from_core)
+					{
+						direction_path_length_list.Add (direction_path_array.Length);
+					}
 				}
 			}
 			if (direction_path_length_list.Count > 0)

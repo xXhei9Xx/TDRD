@@ -23,6 +23,13 @@ public class PathFinding
 	
 	public bool FindPath (Vector3 position, GameGrid grid, out (int x, int z) [] path_tuple_array, pathfinding_tile_parameter parameter)
 	{
+		for (int x = 0 ; x < grid.length_x; x++)
+		{
+			for (int z = 0 ; z < grid.length_x; z++)
+			{
+				SetPreviousXZ (x, z, 0, 0, grid, false);
+			}
+		}
 		found_path = false;
 		tiles_to_check_list = new List<(int x, int z)> {grid.GetXZ(position)};
 		grid.SetValue(tiles_to_check_list [0].x, tiles_to_check_list [0].z, GameGrid.grid_parameter.simulated, 1);
@@ -45,18 +52,17 @@ public class PathFinding
 							switch (parameter)
 							{
 								case pathfinding_tile_parameter.empty:
-								if ( (grid.GetValue (x, z, GameGrid.grid_parameter.object_type) == grid.EnumTranslator (GameGrid.object_type.empty) ) &&
-									(grid.GetValue (x, z, GameGrid.grid_parameter.terrain) != grid.EnumTranslator (GameGrid.terrain.water) &&
-									 grid.GetValue (x, z, GameGrid.grid_parameter.simulated) == 0) )
+								if (grid.GetValue (x, z, GameGrid.grid_parameter.object_type) == grid.EnumTranslator (GameGrid.object_type.empty) &&
+									grid.GetValue (x, z, GameGrid.grid_parameter.terrain) != grid.EnumTranslator (GameGrid.terrain.water) &&
+									grid.GetValue (x, z, GameGrid.grid_parameter.simulated) == 0)
 								{
 									tiles_to_check_list.Add ((x, z));
 								}
 								break;
 
 								case pathfinding_tile_parameter.any_terrain:
-								if ( (grid.GetValue (x, z, GameGrid.grid_parameter.object_type) != grid.EnumTranslator (GameGrid.object_type.tower) ) &&
-								(grid.GetValue (x, z, GameGrid.grid_parameter.object_type) == grid.EnumTranslator (GameGrid.object_type.core) &&
-								grid.GetValue (x, z, GameGrid.grid_parameter.simulated) == 0) )
+								if (grid.GetValue (x, z, GameGrid.grid_parameter.object_type) != grid.EnumTranslator (GameGrid.object_type.tower) &&
+								    grid.GetValue (x, z, GameGrid.grid_parameter.simulated) == 0)
 								{
 									tiles_to_check_list.Add ((x, z));
 								}
@@ -99,18 +105,18 @@ public class PathFinding
 			grid.GetValue(path_tuple_array [counter].x, path_tuple_array [counter].z, GameGrid.grid_parameter.prev_z))).ToArray();
 			counter++;
 		}
-		for (int x = 0 ; x < grid.length_x; x++)
-		{
-			for (int z = 0 ; z < grid.length_x; z++)
-			{
-					SetPreviousXZ (x, z, 0, 0, grid, false);
-			}
-		}
 		return true;
 	}
 
 	public bool FindPath ((int x, int z) position, GameGrid grid, out (int x, int z) [] path_tuple_array, pathfinding_tile_parameter parameter)
 	{
+		for (int x = 0 ; x < grid.length_x; x++)
+		{
+			for (int z = 0 ; z < grid.length_x; z++)
+			{
+				SetPreviousXZ (x, z, 0, 0, grid, false);
+			}
+		}
 		found_path = false;
 		tiles_to_check_list = new List<(int x, int z)> {position};
 		grid.SetValue(tiles_to_check_list [0].x, tiles_to_check_list [0].z, GameGrid.grid_parameter.simulated, 1);
@@ -133,18 +139,17 @@ public class PathFinding
 							switch (parameter)
 							{
 								case pathfinding_tile_parameter.empty:
-								if ( (grid.GetValue (x, z, GameGrid.grid_parameter.object_type) == grid.EnumTranslator (GameGrid.object_type.empty) ) &&
-									(grid.GetValue (x, z, GameGrid.grid_parameter.terrain) != grid.EnumTranslator (GameGrid.terrain.water) &&
-									 grid.GetValue (x, z, GameGrid.grid_parameter.simulated) == 0) )
+								if (grid.GetValue (x, z, GameGrid.grid_parameter.object_type) == grid.EnumTranslator (GameGrid.object_type.empty) &&
+									grid.GetValue (x, z, GameGrid.grid_parameter.terrain) != grid.EnumTranslator (GameGrid.terrain.water) &&
+									grid.GetValue (x, z, GameGrid.grid_parameter.simulated) == 0)
 								{
 									tiles_to_check_list.Add ((x, z));
 								}
 								break;
 
 								case pathfinding_tile_parameter.any_terrain:
-								if ( (grid.GetValue (x, z, GameGrid.grid_parameter.object_type) != grid.EnumTranslator (GameGrid.object_type.tower) ) &&
-								(grid.GetValue (x, z, GameGrid.grid_parameter.object_type) == grid.EnumTranslator (GameGrid.object_type.core) &&
-								grid.GetValue (x, z, GameGrid.grid_parameter.simulated) == 0) )
+								if (grid.GetValue (x, z, GameGrid.grid_parameter.object_type) != grid.EnumTranslator (GameGrid.object_type.tower) &&
+								    grid.GetValue (x, z, GameGrid.grid_parameter.simulated) == 0)
 								{
 									tiles_to_check_list.Add ((x, z));
 								}
@@ -164,7 +169,6 @@ public class PathFinding
 				}
 			}
 			
-			tiles_to_check_list.RemoveAt(0);
 			tiles_to_check_list.RemoveAt(0);
 			if (tiles_to_check_list.Count == 0)
 			{
@@ -187,13 +191,6 @@ public class PathFinding
 			path_tuple_array [counter].z, GameGrid.grid_parameter.prev_x),
 			grid.GetValue(path_tuple_array [counter].x, path_tuple_array [counter].z, GameGrid.grid_parameter.prev_z))).ToArray();
 			counter++;
-		}
-		for (int x = 0 ; x < grid.length_x; x++)
-		{
-			for (int z = 0 ; z < grid.length_x; z++)
-			{
-					SetPreviousXZ (x, z, 0, 0, grid, false);
-			}
 		}
 		return true;
 	}
