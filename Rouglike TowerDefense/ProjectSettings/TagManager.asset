@@ -12,6 +12,7 @@ TagManager:
   - dead
   - tower
   - enemy blocking
+  - plane
   layers:
   - Default
   - TransparentFX

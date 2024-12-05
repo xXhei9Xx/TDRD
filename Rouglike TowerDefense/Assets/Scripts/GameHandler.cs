@@ -9,6 +9,7 @@ using CodeMonkey.Utils;
 using UnityEngine.UI;
 using TMPro;
 using System.Linq;
+using static GameGrid;
 
 public class GameHandler : MonoBehaviour
 {
@@ -83,6 +84,7 @@ public class GameHandler : MonoBehaviour
 		[SerializeField] public Material outline_on_pointer_material;
 		[SerializeField] [Range (0.1f, 2)] public float card_movement_time = 0.5f;
 		[SerializeField] [Range (0.5f, 4)] public float camera_movement_speed;
+		[SerializeField] [Range (0.5f, 4)] public float tower_pushing_speed;
 		[SerializeField] [Range (4f, 6f)] public float space_between_cards;
 	}
 
@@ -344,6 +346,7 @@ public class GameHandler : MonoBehaviour
 	[Serializable] public class EnemyOptions
 	{
 		[SerializeField] public int mana_reg_per_sec;
+		[SerializeField] [Range (0.5f, 0.9f)] public float max_resistances;
 		[SerializeField] public Physical physical;
 		[SerializeField] public Fire fire;
 		[SerializeField] public Frost frost;
@@ -470,6 +473,8 @@ public class GameHandler : MonoBehaviour
 		[SerializeField] [Range (0f, 0.75f)] public float electric_resistance;
 		[SerializeField] [Range (0f, 0.75f)] public float poison_resistance;
 		[SerializeField] [Range (0f, 0.75f)] public float magic_resistance;
+		[SerializeField] [Range (1, 10)] public int mana_gained_on_hit;
+		[SerializeField] [Range (1, 3)] public int tower_push_distance;
 	}
 
 	#endregion
@@ -499,6 +504,8 @@ public class GameHandler : MonoBehaviour
 		[SerializeField] [Range (0f, 0.75f)] public float electric_resistance;
 		[SerializeField] [Range (0f, 0.75f)] public float poison_resistance;
 		[SerializeField] [Range (0f, 0.75f)] public float magic_resistance;
+		[SerializeField] [Range (0.01f, 0.1f)] public float resistance_increase;
+		[SerializeField] [Range (1f, 10f)] public float time_to_buff_reset;
 	}
 
 	[Serializable] public class AlchemistOptions
@@ -533,6 +540,7 @@ public class GameHandler : MonoBehaviour
 		[SerializeField] [Range (0f, 0.75f)] public float electric_resistance;
 		[SerializeField] [Range (0f, 0.75f)] public float poison_resistance;
 		[SerializeField] [Range (0f, 0.75f)] public float magic_resistance;
+		[SerializeField] [Range (1, 100)] public int tower_damage;
 	}
 
 	[Serializable] public class FireElementalOptions
@@ -1461,7 +1469,7 @@ public class GameHandler : MonoBehaviour
 	}
 
 	#endregion
-	#region enemy: get type to spawn, check for, add to enemy list, remove from enemy list, add to spawn list
+	#region enemy: get type to spawn, check for, add to enemy list, remove from enemy list, add to spawn list, reset pathfinding of all enemies
 
 	public enemy_id GetEnemyTypeToSpawn ()
 	{
@@ -1499,6 +1507,14 @@ public class GameHandler : MonoBehaviour
 	public void AddEnemyToSpawnList (enemy_id id)
 	{
 		enemy_to_spawn_list.Add (id);
+	}
+
+	public void ResetPathfindingOfAllEnemies ()
+	{
+		foreach (GameObject enemy in enemy_list)
+		{
+			enemy.GetComponent<BaseEnemy>().SetNewPathfinding ();
+		}
 	}
 
 	#endregion
@@ -1735,6 +1751,8 @@ public class GameHandler : MonoBehaviour
 		return object_under_cursor;
 	}
 
+	#region TImer
+
 	public class Timer
 	{
 		public static GameObject Create (Action action, float time, string timer_name, GameObject parent)
@@ -1823,4 +1841,6 @@ public class GameHandler : MonoBehaviour
 			}
 		}
 	}
+
+	#endregion
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using System;
+using static GameGrid;
 
 public class PathFinding
 {
@@ -15,6 +16,7 @@ public class PathFinding
 	public enum pathfinding_tile_parameter
 	{
 		empty,
+		any_object,
 		any_terrain,
 		any_tile
 	}
@@ -52,8 +54,17 @@ public class PathFinding
 							switch (parameter)
 							{
 								case pathfinding_tile_parameter.empty:
-								if (grid.GetValue (x, z, GameGrid.grid_parameter.object_type) == grid.EnumTranslator (GameGrid.object_type.empty) &&
-									grid.GetValue (x, z, GameGrid.grid_parameter.terrain) != grid.EnumTranslator (GameGrid.terrain.water) &&
+								if ((grid.GetValue (x, z, grid_parameter.object_type) == grid.EnumTranslator (object_type.empty)) ||
+								    (grid.GetValue(x, z, grid_parameter.object_type) == grid.EnumTranslator (object_type.traversable_tower)) &&
+									 grid.GetValue (x, z, grid_parameter.terrain) != grid.EnumTranslator (terrain.water) &&
+									 grid.GetValue (x, z, grid_parameter.simulated) == 0)
+								{
+									tiles_to_check_list.Add ((x, z));
+								}
+								break;
+
+								case pathfinding_tile_parameter.any_object:
+								if (grid.GetValue (x, z, GameGrid.grid_parameter.terrain) != grid.EnumTranslator (GameGrid.terrain.water) &&
 									grid.GetValue (x, z, GameGrid.grid_parameter.simulated) == 0)
 								{
 									tiles_to_check_list.Add ((x, z));
@@ -61,8 +72,9 @@ public class PathFinding
 								break;
 
 								case pathfinding_tile_parameter.any_terrain:
-								if (grid.GetValue (x, z, GameGrid.grid_parameter.object_type) != grid.EnumTranslator (GameGrid.object_type.tower) &&
-								    grid.GetValue (x, z, GameGrid.grid_parameter.simulated) == 0)
+								if ((grid.GetValue (x, z, grid_parameter.object_type) == grid.EnumTranslator (object_type.empty)) ||
+								    (grid.GetValue(x, z, grid_parameter.object_type) == grid.EnumTranslator (object_type.traversable_tower)) &&
+								     grid.GetValue (x, z, GameGrid.grid_parameter.simulated) == 0)
 								{
 									tiles_to_check_list.Add ((x, z));
 								}
@@ -139,8 +151,17 @@ public class PathFinding
 							switch (parameter)
 							{
 								case pathfinding_tile_parameter.empty:
-								if (grid.GetValue (x, z, GameGrid.grid_parameter.object_type) == grid.EnumTranslator (GameGrid.object_type.empty) &&
-									grid.GetValue (x, z, GameGrid.grid_parameter.terrain) != grid.EnumTranslator (GameGrid.terrain.water) &&
+								if ((grid.GetValue (x, z, grid_parameter.object_type) == grid.EnumTranslator (object_type.empty)) ||
+								    (grid.GetValue(x, z, grid_parameter.object_type) == grid.EnumTranslator (object_type.traversable_tower)) &&
+									 grid.GetValue (x, z, grid_parameter.terrain) != grid.EnumTranslator (terrain.water) &&
+									 grid.GetValue (x, z, grid_parameter.simulated) == 0)
+								{
+									tiles_to_check_list.Add ((x, z));
+								}
+								break;
+
+								case pathfinding_tile_parameter.any_object:
+								if (grid.GetValue (x, z, GameGrid.grid_parameter.terrain) != grid.EnumTranslator (GameGrid.terrain.water) &&
 									grid.GetValue (x, z, GameGrid.grid_parameter.simulated) == 0)
 								{
 									tiles_to_check_list.Add ((x, z));
@@ -148,8 +169,9 @@ public class PathFinding
 								break;
 
 								case pathfinding_tile_parameter.any_terrain:
-								if (grid.GetValue (x, z, GameGrid.grid_parameter.object_type) != grid.EnumTranslator (GameGrid.object_type.tower) &&
-								    grid.GetValue (x, z, GameGrid.grid_parameter.simulated) == 0)
+								if ((grid.GetValue (x, z, grid_parameter.object_type) == grid.EnumTranslator (object_type.empty)) ||
+								    (grid.GetValue(x, z, grid_parameter.object_type) == grid.EnumTranslator (object_type.traversable_tower)) &&
+								     grid.GetValue (x, z, GameGrid.grid_parameter.simulated) == 0)
 								{
 									tiles_to_check_list.Add ((x, z));
 								}

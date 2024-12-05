@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using TMPro;
+using UnityEngine.UIElements;
 
 public class GameGrid 
 {
@@ -66,6 +67,7 @@ public class GameGrid
 		empty,
 		spawner,
 		tower,
+		traversable_tower,
 		core,
 		tree,
 		rock
@@ -83,11 +85,13 @@ public class GameGrid
 
 			case object_type.tower: return 2;
 
-			case object_type.core: return 3;
+			case object_type.traversable_tower: return 3;
 
-			case object_type.tree: return 4;
+			case object_type.core: return 4;
 
-			case object_type.rock: return 5;
+			case object_type.tree: return 5;
+
+			case object_type.rock: return 6;
 		}
 	}
 
@@ -103,11 +107,13 @@ public class GameGrid
 
 			case 2: return object_type.tower;
 
-			case 3: return object_type.core;
+			case 3: return object_type.traversable_tower;
 
-			case 4: return object_type.tree;
+			case 4: return object_type.core;
 
-			case 5: return object_type.rock;
+			case 5: return object_type.tree;
+
+			case 6: return object_type.rock;
 		}
 	}
 	#endregion
@@ -226,7 +232,11 @@ public class GameGrid
 		up,
 		down,
 		left,
-		right
+		right,
+		top_left,
+		top_right,
+		bottom_left,
+		bottom_right
 	}
 
 	public grid_direction GetMovementDirection (Vector3 starting_position, (int x, int z) destination)
@@ -565,6 +575,11 @@ public class GameGrid
 		return grid_array[x, z, EnumTranslator(parameter)];
 	}
 
+	public int GetValue ((int x, int z) position, grid_parameter parameter)
+	{
+		return grid_array[position.x, position.z, EnumTranslator(parameter)];
+	}
+
 	public int RandomInt (int lower_range, int upper_range)
 	{
 		return (int) Math.Floor(UnityEngine.Random.Range((float) lower_range, (float) upper_range + 1));
@@ -599,6 +614,53 @@ public class GameGrid
 					return (x, z);
 				}
 			}
+		}
+		return (-1, -1);
+	}
+
+	public (int x, int z) GetClosestEmptyTile (Vector3 reference_position)
+	{
+		(int x, int z) ref_position = GetXZ (reference_position);
+		int range = 1;
+		while (range <= 5)
+		{
+			for (int x = ref_position.x - range; x <= ref_position.x + range; x++)
+			{
+				for (int z = ref_position.z - range; z <= ref_position.z + range; z++)
+				{
+					if (x >= 0 && x < length_x && z >= 0 && z < width_z)
+					{
+						if (GetValue(x, z, grid_parameter.object_type) == EnumTranslator(object_type.empty) && (x != 0 || z != 0))
+						{
+							return (x, z);
+						}
+					}
+				}
+			}
+			range++;
+		}
+		return (-1, -1);
+	}
+
+	public (int x, int z) GetClosestEmptyTile ((int x, int z) reference_position)
+	{
+		int range = 1;
+		while (range <= 5)
+		{
+			for (int x = reference_position.x - range; x <= reference_position.x + range; x++)
+			{
+				for (int z = reference_position.z - range; z <= reference_position.z + range; z++)
+				{
+					if (x >= 0 && x < length_x && z >= 0 && z < width_z)
+					{
+						if (GetValue(x, z, grid_parameter.object_type) == EnumTranslator(object_type.empty) && (x != 0 || z != 0))
+						{
+							return (x, z);
+						}
+					}
+				}
+			}
+			range++;
 		}
 		return (-1, -1);
 	}

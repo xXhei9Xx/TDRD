@@ -113,12 +113,12 @@ public class MapCreator : MonoBehaviour
 				terrain.transform.parent = GameObject.Find ("Terrain").transform;
 				terrain.transform.position = grid.GetWorldTileCenter (x, z, 0);
 				terrain.name = "terrain " + x.ToString() + "," + z.ToString();
-				terrain.AddComponent<TerrainTile>();
+				//terrain.AddComponent<TerrainTile>();
 				GameObject spawn_zone = Instantiate (spawn_zone_template);
 				spawn_zone.transform.parent = GameObject.Find ("Spawn Zone").transform;
 				spawn_zone.transform.position = grid.GetWorldTileCenter (x, z, 0);
 				spawn_zone.name = "spawn_zone " + x.ToString() + "," + z.ToString();
-				spawn_zone.AddComponent<SpawnZoneTile>();
+				//spawn_zone.AddComponent<SpawnZoneTile>();
 			}
 		}
 		#region board center tupple
@@ -153,17 +153,19 @@ public class MapCreator : MonoBehaviour
 		camera.transform.position = new Vector3 (board_center_position_tuple.x, board_center_position_tuple.y, board_center_position_tuple.z);
     }
 
-    public class TerrainTile : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+    public class Tile : MonoBehaviour
 	{
 		#region variable declarations
 
 		private MapCreator caller;
 		private bool mouse_on_card = false;
+		new GameObject camera;
 
 		#endregion
 
 		private void Start()
 		{
+			camera = GameObject.Find("Main Camera");
 			caller = GameObject.Find ("MapCreator").GetComponent<MapCreator>();
 			terrain terrain = caller.grid.TerrainTranslator (caller.grid.GetValue (caller.grid.GetXZ(transform.position).x,
 			caller.grid.GetXZ(transform.position).z, grid_parameter.terrain));
@@ -181,6 +183,8 @@ public class MapCreator : MonoBehaviour
 
 		private void Update()
 		{
+			Ray mouse_world_ray = camera.GetComponent<Camera>().ScreenPointToRay (Input.mousePosition);
+			Physics.Raycast (mouse_world_ray, out RaycastHit rayCastHit);
 			if (mouse_on_card == true && Input.GetMouseButtonDown (0))
 			{
 				caller.grid.SetValue (caller.grid.GetXZ(transform.position).x, caller.grid.GetXZ(transform.position).z,
@@ -196,76 +200,6 @@ public class MapCreator : MonoBehaviour
 					case terrain.sand: gameObject.GetComponent<MeshRenderer>().material = caller.sand_material; break;
 				}
 			}
-		}
-
-		public void OnPointerEnter(PointerEventData eventData)
-		{
-			Debug.Log ("terrain");
-			mouse_on_card = true;
-		}
-
-		public void OnPointerExit(PointerEventData eventData)
-		{
-			mouse_on_card = false;
-		}
-	}
-
-	public class SpawnZoneTile : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
-	{
-		#region variable declarations
-
-		private MapCreator caller;
-		private bool mouse_on_card = false;
-
-		#endregion
-
-		private void Start()
-		{
-			caller = GameObject.Find ("MapCreator").GetComponent<MapCreator>();
-			spawn_zone spawn_zone = caller.grid.SpawnZoneTranslator (caller.grid.GetValue (caller.grid.GetXZ(transform.position).x,
-			caller.grid.GetXZ(transform.position).z, grid_parameter.spawn_zone));
-			switch (spawn_zone)
-			{
-				case spawn_zone.empty: gameObject.GetComponent<MeshRenderer>().material = caller.empty_material; break;
-
-				case spawn_zone.spawner: gameObject.GetComponent<MeshRenderer>().material = caller.spawner_material; break;
-
-				case spawn_zone.core: gameObject.GetComponent<MeshRenderer>().material = caller.core_material; break;
-			}
-		}
-
-		private void Update()
-		{
-			if (mouse_on_card == true && Input.GetMouseButtonDown (0))
-			{
-				caller.grid.SetValue (caller.grid.GetXZ(transform.position).x, caller.grid.GetXZ(transform.position).z,
-				grid_parameter.spawn_zone, caller.grid.EnumTranslator(caller.chosen_spawn_zone));
-				switch (caller.chosen_spawn_zone)
-			{
-				case spawn_zone.empty: gameObject.GetComponent<MeshRenderer>().material = caller.empty_material; break;
-
-				case spawn_zone.spawner: gameObject.GetComponent<MeshRenderer>().material = caller.spawner_material; break;
-
-				case spawn_zone.core: gameObject.GetComponent<MeshRenderer>().material = caller.core_material; break;
-			}
-			}
-			if (mouse_on_card == true && Input.GetMouseButtonDown (1))
-			{
-				caller.grid.SetValue (caller.grid.GetXZ(transform.position).x, caller.grid.GetXZ(transform.position).z,
-				grid_parameter.spawn_zone, caller.grid.EnumTranslator(spawn_zone.empty));
-				gameObject.GetComponent<MeshRenderer>().material = caller.empty_material;
-			}
-		}
-
-		public void OnPointerEnter(PointerEventData eventData)
-		{
-			Debug.Log ("spawn_zone");
-			mouse_on_card = true;
-		}
-
-		public void OnPointerExit(PointerEventData eventData)
-		{
-			mouse_on_card = false;
 		}
 	}
 

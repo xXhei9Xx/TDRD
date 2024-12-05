@@ -9,10 +9,13 @@ using UnityEngine.UIElements;
 using Image = UnityEngine.UI.Image;
 using static GameGrid;
 using Unity.VisualScripting;
+using static PathFinding;
 
 public class Enemy
 {
 	#region enum declarations
+
+	#region enemy id, minion id
 
 	public enum enemy_id
 	{
@@ -55,13 +58,117 @@ public class Enemy
 		mind_twister
 	}
 
+	public static GameObject GetEnemyTemplate (enemy_id type)
+	{
+		switch (type)
+		{
+			case enemy_id.shield_skeleton: return GameObject.Find ("Shield Skeleton Template");
+
+			case enemy_id.goblin_construction_team: return GameObject.Find ("Goblin Construction Team Template");
+
+			case enemy_id.brood_mother: return GameObject.Find ("Brood Mother Template");
+
+			case enemy_id.werewolf: return GameObject.Find ("Werewolf Template");
+
+			case enemy_id.steam_walker: return GameObject.Find ("Steam Walker Template");
+
+			case enemy_id.giant: return GameObject.Find ("Giant Template");
+
+			case enemy_id.magma_elemental: return GameObject.Find ("Magma Elemental Template");
+
+			case enemy_id.alchemist: return GameObject.Find ("Alchemist Template");
+
+			case enemy_id.bio_arsonist: return GameObject.Find ("Bio Arsonist Template");
+
+			case enemy_id.fire_elemental: return GameObject.Find ("Fire Elemental Template");
+
+			case enemy_id.wyrmling: return GameObject.Find ("Wyrmling Template");
+
+			case enemy_id.corruptor: return GameObject.Find ("Corruptor Template");
+
+			case enemy_id.lich: return GameObject.Find ("Lich Template");
+
+			case enemy_id.lady_frost: return GameObject.Find ("Lady Frost Template");
+
+			case enemy_id.ice_consumer: return GameObject.Find ("ice Consumer Template");
+
+			case enemy_id.dead_grove: return GameObject.Find ("dead Grove Template");
+
+			case enemy_id.snow_diver: return GameObject.Find ("Snow Diver Template");
+
+			case enemy_id.ice_thrall: return GameObject.Find ("Ice Thrall Template");
+
+			case enemy_id.absorber: return GameObject.Find ("Absorber Template");
+
+			case enemy_id.static_charge: return GameObject.Find ("Static Charge Template");
+
+			case enemy_id.charge_collector: return GameObject.Find ("Charge Collector Template");
+
+			case enemy_id.zap: return GameObject.Find ("Zap Template");
+
+			case enemy_id.rocket_goblin: return GameObject.Find ("Rocket Goblin Template");
+
+			case enemy_id.overcharge: return GameObject.Find ("Overcharge Template");
+
+			case enemy_id.green_belcher: return GameObject.Find ("Green Belcher Template");
+
+			case enemy_id.ooze: return GameObject.Find ("Ooze Template");
+
+			case enemy_id.corpse_eater: return GameObject.Find ("Corpse Eater Template");
+
+			case enemy_id.mutant: return GameObject.Find ("Mutant Template");
+
+			case enemy_id.grappling_spider: return GameObject.Find ("Grappling Spider Template");
+
+			case enemy_id.plague_bearer: return GameObject.Find ("Plague Bearer Template");
+
+			case enemy_id.shadow_fiend: return GameObject.Find ("Shadow Fiend Template");
+
+			case enemy_id.shaman: return GameObject.Find ("Shaman Template");
+
+			case enemy_id.necromancer: return GameObject.Find ("Necromancer Template");
+
+			case enemy_id.mana_addict: return GameObject.Find ("Mana AddictTemplate");
+
+			case enemy_id.phase_shifter: return GameObject.Find ("Phase Shifter Template");
+
+			case enemy_id.mind_twister: return GameObject.Find ("Mind Twister Template");
+
+			default: return null;
+		}
+	}
+
 	public enum minion_id
 	{
 		spider,
+		ember,
 		treant,
-		zombie
+		whisp,
+		zombie,
+		skeleton
 	}
 
+	public static GameObject GetEnemyTemplate (minion_id type)
+	{
+		switch (type)
+		{
+			case minion_id.spider: return GameObject.Find ("Spider Template");
+
+			case minion_id.ember: return GameObject.Find ("Ember Template");
+
+			case minion_id.treant: return GameObject.Find ("Treant Template");
+
+			case minion_id.whisp: return GameObject.Find ("Whisp Template");
+
+			case minion_id.zombie: return GameObject.Find ("Zombie Template");
+
+			case minion_id.skeleton: return GameObject.Find ("Skeleton Template");
+
+			default: return null;
+		}
+	}
+
+	#endregion
 	#region enemy types
 	public enum enemy_type
 	{
@@ -205,99 +312,6 @@ public class Enemy
 	}
 	#endregion
 
-	public static GameObject GetEnemyTemplate (enemy_id type)
-	{
-		switch (type)
-		{
-			case enemy_id.shield_skeleton: return GameObject.Find ("Shield Skeleton Template");
-
-			case enemy_id.goblin_construction_team: return GameObject.Find ("Goblin Construction Team Template");
-
-			case enemy_id.brood_mother: return GameObject.Find ("Brood Mother Template");
-
-			case enemy_id.werewolf: return GameObject.Find ("Werewolf Template");
-
-			case enemy_id.steam_walker: return GameObject.Find ("Steam Walker Template");
-
-			case enemy_id.giant: return GameObject.Find ("Giant Template");
-
-			case enemy_id.magma_elemental: return GameObject.Find ("Magma Elemental Template");
-
-			case enemy_id.alchemist: return GameObject.Find ("Alchemist Template");
-
-			case enemy_id.bio_arsonist: return GameObject.Find ("Bio Arsonist Template");
-
-			case enemy_id.fire_elemental: return GameObject.Find ("Fire Elemental Template");
-
-			case enemy_id.wyrmling: return GameObject.Find ("Wyrmling Template");
-
-			case enemy_id.corruptor: return GameObject.Find ("Corruptor Template");
-
-			case enemy_id.lich: return GameObject.Find ("Lich Template");
-
-			case enemy_id.lady_frost: return GameObject.Find ("Lady Frost Template");
-
-			case enemy_id.ice_consumer: return GameObject.Find ("ice Consumer Template");
-
-			case enemy_id.dead_grove: return GameObject.Find ("dead Grove Template");
-
-			case enemy_id.snow_diver: return GameObject.Find ("Snow Diver Template");
-
-			case enemy_id.ice_thrall: return GameObject.Find ("Ice Thrall Template");
-
-			case enemy_id.absorber: return GameObject.Find ("Absorber Template");
-
-			case enemy_id.static_charge: return GameObject.Find ("Static Charge Template");
-
-			case enemy_id.charge_collector: return GameObject.Find ("Charge Collector Template");
-
-			case enemy_id.zap: return GameObject.Find ("Zap Template");
-
-			case enemy_id.rocket_goblin: return GameObject.Find ("Rocket Goblin Template");
-
-			case enemy_id.overcharge: return GameObject.Find ("Overcharge Template");
-
-			case enemy_id.green_belcher: return GameObject.Find ("Green Belcher Template");
-
-			case enemy_id.ooze: return GameObject.Find ("Ooze Template");
-
-			case enemy_id.corpse_eater: return GameObject.Find ("Corpse Eater Template");
-
-			case enemy_id.mutant: return GameObject.Find ("Mutant Template");
-
-			case enemy_id.grappling_spider: return GameObject.Find ("Grappling Spider Template");
-
-			case enemy_id.plague_bearer: return GameObject.Find ("Plague Bearer Template");
-
-			case enemy_id.shadow_fiend: return GameObject.Find ("Shadow Fiend Template");
-
-			case enemy_id.shaman: return GameObject.Find ("Shaman Template");
-
-			case enemy_id.necromancer: return GameObject.Find ("Necromancer Template");
-
-			case enemy_id.mana_addict: return GameObject.Find ("Mana AddictTemplate");
-
-			case enemy_id.phase_shifter: return GameObject.Find ("Phase Shifter Template");
-
-			case enemy_id.mind_twister: return GameObject.Find ("Mind Twister Template");
-
-			default: return null;
-		}
-	}
-
-	public static GameObject GetEnemyTemplate (minion_id type)
-	{
-		switch (type)
-		{
-			case minion_id.spider: return GameObject.Find ("Spider Template");
-
-			case minion_id.treant: return GameObject.Find ("Treant Template");
-
-			case minion_id.zombie: return GameObject.Find ("Zombie Template");
-
-			default: return null;
-		}
-	}
 	#endregion
 
 	//spawner constructor
@@ -480,12 +494,24 @@ public class Enemy
 			
 			break;
 
+			case minion_id.ember:
+
+			break;
+
 			case minion_id.treant:
 			
 			break;
 
+			case minion_id.whisp:
+
+			break;
+
 			case minion_id.zombie:
 			
+			break;
+
+			case minion_id.skeleton:
+
 			break;
 		}
 	}
@@ -593,16 +619,18 @@ public class Enemy
 		private GameObject casting_bar;
 		private Action DeathAction = null;
 		private Action DestinationReachedAction = null;
+		private Action OnHitAction = null;
 		private Action<(int physical_damage, int fire_damage, int frost_damage, int electric_damage, int poison_damage, int magic_damage)> BlockingAction = null;
 		private List<Collider> this_enemy_collider_list = new List<Collider>();
-		private (int x, int z) current_position, next_tile;
+		[SerializeField] private (int x, int z) current_position, next_tile;
 		private (int x, int z) [] path_tuple_array;
-		[SerializeField] private bool moving = false, unique_action = false, cooldown = false, minion, blocking = false, blocked = false, calculate_distance_traveled = false;
+		[SerializeField] private bool moving = false, unique_action = false, cooldown = false, minion, mana_regen = true, blocking = false, blocked = false, calculate_distance_traveled = false, in_air = false;
 		private int counter;
 		private (int physical_damage, int fire_damage, int frost_damage, int electric_damage, int poison_damage, int magic_damage) blocked_damage_tuple = (0, 0, 0, 0, 0, 0);
 		[SerializeField] private float mana_timer = 1, distance_traveled = 0;
 		private Vector3 previous_position;
 		[SerializeField] private grid_direction direction;
+		private pathfinding_tile_parameter last_pathfinding_parameter;
 
 		#region stats
 
@@ -1127,7 +1155,15 @@ public class Enemy
 
 		public void SetNewPathfinding ()
 		{
-			caller.GetPathfinding().FindPath (transform.position, caller.GetGameGrid(), out path_tuple_array, PathFinding.pathfinding_tile_parameter.empty);
+			caller.GetPathfinding().FindPath (transform.position, caller.GetGameGrid(), out path_tuple_array, last_pathfinding_parameter);
+			counter = path_tuple_array.Length - 2;
+		}
+
+		public void SetNewPathfinding (pathfinding_tile_parameter tile_parameter)
+		{
+			last_pathfinding_parameter = tile_parameter;
+			caller.GetPathfinding().FindPath (transform.position, caller.GetGameGrid(), out path_tuple_array, tile_parameter);
+			counter = path_tuple_array.Length - 2;
 		}
 
 		public void SetDeathAction (Action death_action)
@@ -1151,7 +1187,7 @@ public class Enemy
 			ManaBarToggle (false);
 			CastingBarToggle (false);
 			#endregion
-			SetNewPathfinding ();
+			SetNewPathfinding (pathfinding_tile_parameter.empty);
 			counter = path_tuple_array.Length - 2;
 			this_enemy_collider_list.Add (GetComponent<Collider> ());
 			foreach (Collider collider in GetComponentsInChildren<Collider> ())
@@ -1165,7 +1201,7 @@ public class Enemy
 		private void Update()
 		{
 			//mana regen
-			if (mana < max_mana)
+			if (mana < max_mana && mana_regen == true)
 			{
 				mana_timer -= Time.deltaTime;
 				if (mana_timer < 0 )
@@ -1187,6 +1223,41 @@ public class Enemy
 					caller.GetGameGrid().SetValue (current_position.x, current_position.z, GameGrid.grid_parameter.enemy, GameGrid.enemy.occupied);
 					next_tile = path_tuple_array [counter];
 					direction = caller.GetGameGrid().GetMovementDirection (next_tile, current_position);
+					//rotating enemy to match movement direction
+					switch (direction)
+					{
+						case grid_direction.up:
+						transform.Rotate (- transform.rotation.eulerAngles.x, - transform.rotation.eulerAngles.y, - transform.rotation.eulerAngles.z);
+						break;
+
+						case grid_direction.down:
+						transform.Rotate (- transform.rotation.eulerAngles.x, - transform.rotation.eulerAngles.y + 180, - transform.rotation.eulerAngles.z);
+						break;
+
+						case grid_direction.left:
+						transform.Rotate (- transform.rotation.eulerAngles.x, - transform.rotation.eulerAngles.y - 90, - transform.rotation.eulerAngles.z);
+						break;
+
+						case grid_direction.right:
+						transform.Rotate (- transform.rotation.eulerAngles.x, - transform.rotation.y + 90, - transform.rotation.eulerAngles.z);
+						break;
+
+						case grid_direction.top_left:
+						transform.Rotate (- transform.rotation.eulerAngles.x, - transform.rotation.eulerAngles.y - 45, - transform.rotation.eulerAngles.z);
+						break;
+
+						case grid_direction.top_right:
+						transform.Rotate (- transform.rotation.eulerAngles.x, - transform.rotation.eulerAngles.y + 45, - transform.rotation.eulerAngles.z);
+						break;
+
+						case grid_direction.bottom_left:
+						transform.Rotate (- transform.rotation.eulerAngles.x, - transform.rotation.eulerAngles.y - 135, - transform.rotation.eulerAngles.z);
+						break;
+
+						case grid_direction.bottom_right:
+						transform.Rotate (- transform.rotation.eulerAngles.x, - transform.rotation.y + 135, - transform.rotation.eulerAngles.z);
+						break;
+					}
 					moving = true;
 					counter--;
 				}
@@ -1219,7 +1290,11 @@ public class Enemy
 						Destroy (gameObject);
 					}
 					moving = false;
-					DestinationReachedAction ();
+					//action made after reaching the center of the next tile in path
+					if (DestinationReachedAction != null)
+					{
+						DestinationReachedAction ();
+					}
 				}
 			}
 			else
@@ -1354,6 +1429,10 @@ public class Enemy
 				caller.GetDamageChart().DamageAddition (physical_damage_after_resistance, fire_damage_after_resistance, frost_damage_after_resistance, electric_damage_after_resistance,
 				poison_damage_after_resistance, magic_damage_after_resistance);
 				HealthAddition (-total_damage);
+				if (OnHitAction != null)
+				{
+					OnHitAction ();
+				}
 			}
 			else
 			{
@@ -1450,11 +1529,36 @@ public class Enemy
 
 		#endregion
 
-		#region set destination reached action
+		#region set destination reached action, get next tile, set on hit action, get resistances, set in air
 
 		public void SetDestinationReachedAction (Action action)
 		{
 			DestinationReachedAction = action;
+		}
+
+		public (int x, int z) GetNextTile ()
+		{
+			return path_tuple_array [counter];
+		}
+
+		public void SetOnHitAction (Action action)
+		{
+			OnHitAction = action;
+		}
+
+		public void SetManaRegen (bool state)
+		{
+			mana_regen = state;
+		}
+
+		public (float physical, float fire, float frost, float electric, float poison, float magic) GetResistances ()
+		{
+			return (physical_resistance, fire_resistance, frost_resistance, electric_resistance, poison_resistance, magic_resistance);
+		}
+
+		public void SetInAir (bool state)
+		{
+			in_air = state;
 		}
 
 		#endregion
@@ -1640,6 +1744,15 @@ public class Enemy
 			{
 				MovementSpeedMultiplier (caller.tower_options.oil.slow_amount);
 			}
+			if (collider.gameObject.tag == "plane" && in_air == true)
+			{
+				transform.position = caller.GetGameGrid().GetWorldTileCenter(caller.GetGameGrid().GetXZ(transform.position), transform.localScale.y + 0.01f);
+				current_position = caller.GetGameGrid().GetXZ(transform.position);
+				unique_action = false;
+				in_air = false;
+				SetNewPathfinding(pathfinding_tile_parameter.empty);
+				GetComponent<Rigidbody> ().freezeRotation = false;
+			}
 		}
 
 		private void OnTriggerExit (Collider collider)
@@ -1743,6 +1856,20 @@ public class Enemy
 		}
 		#endregion
 
+		private void Start()
+		{
+			GetComponent<BaseEnemy>().SetDestinationReachedAction (()=>{
+				if (GetComponent<BaseEnemy>().CheckCooldownAndMana (caller.enemy_options.physical.goblin_construction_team.mana_cost) == true)
+				{
+					if (CheckStraightLineJumpViability (caller, GetComponent<BaseEnemy>().GetCurrentPosition (), 2, GetComponent<BaseEnemy>().GetDistanceFromCore(), out jump_direction) == true)
+					{
+						GetComponent<BaseEnemy>().SetManaAndCooldown (caller.enemy_options.physical.goblin_construction_team.mana_cost, caller.enemy_options.physical.goblin_construction_team.cooldown);
+						GetComponent<BaseEnemy>().SetUniqueAction (true);
+					}
+				}
+			});
+		}
+
 		private void Update()
 		{
 			if (GetComponent<BaseEnemy>().CheckUniqueAction() == true)
@@ -1751,16 +1878,9 @@ public class Enemy
 				if (building_timer > 1)
 				{
 					(int x, int z) scaffolding_position = AddDirectionToPosition (jump_direction, GetComponent<BaseEnemy>().GetCurrentPosition());
-					caller.GetGameGrid().SetValue (scaffolding_position, grid_parameter.object_type, object_type.empty);
+					caller.GetGameGrid().SetValue (scaffolding_position, grid_parameter.object_type, object_type.traversable_tower);
 					GetComponent<BaseEnemy>().SetUniqueAction (false);
-				}
-			}
-			if (GetComponent<BaseEnemy>().CheckCooldownAndMana (caller.enemy_options.physical.goblin_construction_team.mana_cost) == true)
-			{
-				if (CheckStraightLineJumpViability (caller, GetComponent<BaseEnemy>().GetCurrentPosition (), 1, GetComponent<BaseEnemy>().GetDistanceFromCore(), out jump_direction) == true)
-				{
-					GetComponent<BaseEnemy>().SetManaAndCooldown (caller.enemy_options.physical.goblin_construction_team.mana_cost, caller.enemy_options.physical.goblin_construction_team.cooldown);
-					GetComponent<BaseEnemy>().SetUniqueAction (true);
+					caller.ResetPathfindingOfAllEnemies ();
 				}
 			}
 		}
@@ -1868,12 +1988,34 @@ public class Enemy
 		}
 		#endregion
 
-		private void Update()
+		private void Start()
 		{
+			GetComponent<BaseEnemy>().SetNewPathfinding (pathfinding_tile_parameter.any_object);
+			GetComponent<BaseEnemy>().SetDestinationReachedAction (()=>{
 			if (GetComponent<BaseEnemy>().CheckCooldownAndMana (caller.enemy_options.physical.steam_walker.mana_cost) == true)
 			{
-				GetComponent<BaseEnemy>().SetManaAndCooldown (caller.enemy_options.physical.steam_walker.mana_cost, caller.enemy_options.physical.steam_walker.cooldown);
+				GetComponent<BaseEnemy>().SetNewPathfinding (pathfinding_tile_parameter.any_object);
 			}
+			if (caller.GetGameGrid().GetValue (GetComponent<BaseEnemy>().GetNextTile(), grid_parameter.object_type) != caller.GetGameGrid().EnumTranslator (object_type.empty))
+			{
+				if (GetComponent<BaseEnemy>().CheckCooldownAndMana (caller.enemy_options.physical.steam_walker.mana_cost) == true)
+				{
+					GetComponent<BaseEnemy>().SetManaAndCooldown (caller.enemy_options.physical.steam_walker.mana_cost, caller.enemy_options.physical.steam_walker.cooldown);
+					GetComponent<Rigidbody>().useGravity = false;
+					transform.position = new Vector3 (transform.position.x, 1.5f, transform.position.z);
+				}
+				else
+				{
+					GetComponent<BaseEnemy>().SetNewPathfinding (pathfinding_tile_parameter.empty);
+				}
+			}
+			if (caller.GetGameGrid().GetValue (GetComponent<BaseEnemy>().GetCurrentPosition(), grid_parameter.object_type) == caller.GetGameGrid().EnumTranslator (object_type.empty) &&
+				caller.GetGameGrid().GetValue (GetComponent<BaseEnemy>().GetNextTile(), grid_parameter.object_type) == caller.GetGameGrid().EnumTranslator (object_type.empty))
+			{
+				GetComponent<Rigidbody>().useGravity = true;
+				transform.position = new Vector3 (transform.position.x, transform.localScale.y + 0.01f, transform.position.z);
+			}
+			});
 		}
 	}
 	
@@ -1889,12 +2031,101 @@ public class Enemy
 		}
 		#endregion
 
-		private void Update()
+		private void Start()
 		{
+			GetComponent<BaseEnemy>().SetOnHitAction (()=>{
+				GetComponent<BaseEnemy>().ManaAddition (caller.enemy_options.physical.giant.mana_gained_on_hit);
+			});
+			GetComponent<BaseEnemy>().SetManaRegen (false);
+			//GetComponent<BaseEnemy>().ManaAddition (- GetComponent<BaseEnemy>().GetCurrentMana());
+			GetComponent<BaseEnemy>().SetDestinationReachedAction (()=>{
 			if (GetComponent<BaseEnemy>().CheckCooldownAndMana (caller.enemy_options.physical.giant.mana_cost) == true)
 			{
-				GetComponent<BaseEnemy>().SetManaAndCooldown (caller.enemy_options.physical.giant.mana_cost, caller.enemy_options.physical.giant.cooldown);
+				Collider[] colliders_in_range = Physics.OverlapSphere (transform.position, caller.enemy_options.physical.giant.casting_range);
+				List<GameObject> towers_in_range = new List<GameObject>();
+				List<GameObject> interactable_towers = new List<GameObject>();
+				List<float> tower_distance = new List<float>();
+				GameObject target_tower = null;
+				foreach (Collider collider in colliders_in_range)
+				{
+					if (collider.gameObject.tag == "tower")
+					{
+						towers_in_range.Add (collider.gameObject);
+					}
+				}
+				foreach (GameObject tower in towers_in_range)
+				{
+					(int x, int z) giant_to_tower_shift = (caller.GetGameGrid().GetXZ (tower.transform.position).x - caller.GetGameGrid().GetXZ (transform.position).x,
+					caller.GetGameGrid().GetXZ (tower.transform.position).z - caller.GetGameGrid().GetXZ (transform.position).z);
+					if ((giant_to_tower_shift.x == 0 || giant_to_tower_shift.z == 0) && caller.GetGameGrid().GetValue ((caller.GetGameGrid().GetXZ 
+					(tower.transform.position).x + giant_to_tower_shift.x, caller.GetGameGrid().GetXZ (tower.transform.position).z + giant_to_tower_shift.z),
+					grid_parameter.object_type) == caller.GetGameGrid().EnumTranslator (object_type.empty))
+					{
+						interactable_towers.Add (tower);
+					}
+					if ((giant_to_tower_shift.x != 0 && giant_to_tower_shift.z != 0) && caller.GetGameGrid().GetValue ((caller.GetGameGrid().GetXZ
+					(tower.transform.position).x + giant_to_tower_shift.x, caller.GetGameGrid().GetXZ (tower.transform.position).z + giant_to_tower_shift.z),
+					grid_parameter.object_type) == caller.GetGameGrid().EnumTranslator (object_type.empty) &&
+					caller.GetGameGrid().GetValue ((caller.GetGameGrid().GetXZ (tower.transform.position).x, caller.GetGameGrid().GetXZ (tower.transform.position).z
+					+ giant_to_tower_shift.z), grid_parameter.object_type) == caller.GetGameGrid().EnumTranslator (object_type.empty) &&
+					caller.GetGameGrid().GetValue ((caller.GetGameGrid().GetXZ (tower.transform.position).x + giant_to_tower_shift.x,
+					caller.GetGameGrid().GetXZ (tower.transform.position).z), grid_parameter.object_type) == caller.GetGameGrid().EnumTranslator (object_type.empty))
+					{
+						interactable_towers.Add (tower);
+					}
+				}
+				foreach (GameObject tower in interactable_towers)
+				{
+					tower_distance.Add (Vector3.Distance (transform.position, tower.transform.position));
+				}
+				if (tower_distance.Count > 0)
+				{
+					target_tower = towers_in_range [tower_distance.IndexOf(tower_distance.Min())];
+				}
+				if (target_tower != null)
+				{
+					(int x, int z) tower_shift = (caller.GetGameGrid().GetXZ (target_tower.transform.position).x - caller.GetGameGrid().GetXZ (transform.position).x,
+					caller.GetGameGrid().GetXZ (target_tower.transform.position).z - caller.GetGameGrid().GetXZ (transform.position).z);
+					grid_direction moving_direction = grid_direction.up;
+					switch (tower_shift)
+					{
+						case (1, 0):
+						moving_direction = grid_direction.right;
+						break;
+
+						case (-1, 0):
+						moving_direction = grid_direction.left;
+						break;
+
+						case (0, 1):
+						moving_direction = grid_direction.up;
+						break;
+
+						case (0, -1):
+						moving_direction = grid_direction.down;
+						break;
+
+						case (1, 1):
+						moving_direction = grid_direction.top_right;
+						break;
+
+						case (-1, 1):
+						moving_direction = grid_direction.top_left;
+						break;
+
+						case (1, -1):
+						moving_direction = grid_direction.bottom_right;
+						break;
+
+						case (-1, -1):
+						moving_direction = grid_direction.bottom_left;
+						break;
+					}
+					target_tower.GetComponentInParent<Tower.BaseTower>().SetMovingTower (gameObject, caller.enemy_options.physical.giant.tower_push_distance, moving_direction);
+					GetComponent<BaseEnemy>().SetManaAndCooldown (caller.enemy_options.physical.giant.mana_cost, caller.enemy_options.physical.giant.cooldown);
+				}
 			}
+			});
 		}
 	}
 	#endregion
@@ -1904,6 +2135,13 @@ public class Enemy
 		#region variable declarations
 
 		GameHandler caller;
+		[SerializeField] float buff_end_timer = 0;
+		float physical_resistance_increase = 0;
+		float fire_resistance_increase = 0;
+		float frost_resistance_increase = 0;
+		float electric_resistance_increase = 0;
+		float poison_resistance_increase = 0;
+		float magic_resistance_increase = 0;
 
 		public void SetVariables (GameHandler caller)
 		{
@@ -1911,11 +2149,95 @@ public class Enemy
 		}
 		#endregion
 
+		private void Start()
+		{
+			GetComponent<BaseEnemy>().SetOnHitAction (()=>{
+				buff_end_timer = 0;
+				if (GetComponent<BaseEnemy>().CheckCooldownAndMana (caller.enemy_options.fire.magma_elemental.mana_cost) == true)
+				{
+					if (GetComponent<BaseEnemy>().GetResistances().physical < caller.enemy_options.max_resistances)
+					{
+						float resistance_overflow = (GetComponent<BaseEnemy>().GetResistances().physical + caller.enemy_options.fire.magma_elemental.resistance_increase) - caller.enemy_options.max_resistances;
+						if (resistance_overflow < 0)
+						{
+							resistance_overflow = 0;
+						}
+						GetComponent<BaseEnemy>().PhysicalResistanceAddition (caller.enemy_options.fire.magma_elemental.resistance_increase - resistance_overflow);
+						physical_resistance_increase += caller.enemy_options.fire.magma_elemental.resistance_increase - resistance_overflow;
+					}
+					if (GetComponent<BaseEnemy>().GetResistances().fire < caller.enemy_options.max_resistances)
+					{
+						float resistance_overflow = (GetComponent<BaseEnemy>().GetResistances().fire + caller.enemy_options.fire.magma_elemental.resistance_increase) - caller.enemy_options.max_resistances;
+						if (resistance_overflow < 0)
+						{
+							resistance_overflow = 0;
+						}
+						GetComponent<BaseEnemy>().FireResistanceAddition (caller.enemy_options.fire.magma_elemental.resistance_increase - resistance_overflow);
+						fire_resistance_increase += caller.enemy_options.fire.magma_elemental.resistance_increase - resistance_overflow;
+					}
+					if (GetComponent<BaseEnemy>().GetResistances().frost < caller.enemy_options.max_resistances)
+					{
+						float resistance_overflow = (GetComponent<BaseEnemy>().GetResistances().frost + caller.enemy_options.fire.magma_elemental.resistance_increase) - caller.enemy_options.max_resistances;
+						if (resistance_overflow < 0)
+						{
+							resistance_overflow = 0;
+						}
+						GetComponent<BaseEnemy>().FrostResistanceAddition (caller.enemy_options.fire.magma_elemental.resistance_increase - resistance_overflow);
+						frost_resistance_increase += caller.enemy_options.fire.magma_elemental.resistance_increase - resistance_overflow;
+					}
+					if (GetComponent<BaseEnemy>().GetResistances().electric < caller.enemy_options.max_resistances)
+					{
+						float resistance_overflow = (GetComponent<BaseEnemy>().GetResistances().electric + caller.enemy_options.fire.magma_elemental.resistance_increase) - caller.enemy_options.max_resistances;
+						if (resistance_overflow < 0)
+						{
+							resistance_overflow = 0;
+						}
+						GetComponent<BaseEnemy>().ElectricResistanceAddition (caller.enemy_options.fire.magma_elemental.resistance_increase - resistance_overflow);
+						electric_resistance_increase += caller.enemy_options.fire.magma_elemental.resistance_increase - resistance_overflow;
+					}
+					if (GetComponent<BaseEnemy>().GetResistances().poison < caller.enemy_options.max_resistances)
+					{
+						float resistance_overflow = (GetComponent<BaseEnemy>().GetResistances().poison + caller.enemy_options.fire.magma_elemental.resistance_increase) - caller.enemy_options.max_resistances;
+						if (resistance_overflow < 0)
+						{
+							resistance_overflow = 0;
+						}
+						GetComponent<BaseEnemy>().PoisonResistanceAddition (caller.enemy_options.fire.magma_elemental.resistance_increase - resistance_overflow);
+						poison_resistance_increase += caller.enemy_options.fire.magma_elemental.resistance_increase - resistance_overflow;
+					}
+					if (GetComponent<BaseEnemy>().GetResistances().magic < caller.enemy_options.max_resistances)
+					{
+						float resistance_overflow = (GetComponent<BaseEnemy>().GetResistances().magic + caller.enemy_options.fire.magma_elemental.resistance_increase) - caller.enemy_options.max_resistances;
+						if (resistance_overflow < 0)
+						{
+							resistance_overflow = 0;
+						}
+						GetComponent<BaseEnemy>().MagicResistanceAddition (caller.enemy_options.fire.magma_elemental.resistance_increase - resistance_overflow);
+						magic_resistance_increase += caller.enemy_options.fire.magma_elemental.resistance_increase - resistance_overflow;
+					}
+					GetComponent<BaseEnemy>().SetManaAndCooldown (caller.enemy_options.fire.magma_elemental.mana_cost, caller.enemy_options.fire.magma_elemental.cooldown);
+				}
+			});
+		}
+
 		private void Update()
 		{
-			if (GetComponent<BaseEnemy>().CheckCooldownAndMana (caller.enemy_options.fire.magma_elemental.mana_cost) == true)
+			buff_end_timer += Time.deltaTime;
+			if (buff_end_timer >= caller.enemy_options.fire.magma_elemental.time_to_buff_reset)
 			{
-				GetComponent<BaseEnemy>().SetManaAndCooldown (caller.enemy_options.fire.magma_elemental.mana_cost, caller.enemy_options.fire.magma_elemental.cooldown);
+				buff_end_timer = 0;
+				GetComponent<BaseEnemy>().PhysicalResistanceAddition (- physical_resistance_increase);
+				GetComponent<BaseEnemy>().FireResistanceAddition (- fire_resistance_increase);
+				GetComponent<BaseEnemy>().FrostResistanceAddition (- frost_resistance_increase);
+				GetComponent<BaseEnemy>().ElectricResistanceAddition (- electric_resistance_increase);
+				GetComponent<BaseEnemy>().PoisonResistanceAddition (- poison_resistance_increase);
+				GetComponent<BaseEnemy>().MagicResistanceAddition (- magic_resistance_increase);
+				physical_resistance_increase = 0;
+				fire_resistance_increase = 0;
+				frost_resistance_increase = 0;
+				electric_resistance_increase = 0;
+				poison_resistance_increase = 0;
+				magic_resistance_increase = 0;
 			}
 		}
 	}
@@ -1946,6 +2268,9 @@ public class Enemy
 		#region variable declarations
 
 		GameHandler caller;
+		GameObject target_body = null;
+		float casting_timer = 0;
+		int dead_bodies_loaded = 0;
 
 		public void SetVariables (GameHandler caller)
 		{
@@ -1955,9 +2280,44 @@ public class Enemy
 
 		private void Update()
 		{
-			if (GetComponent<BaseEnemy>().CheckCooldownAndMana (caller.enemy_options.fire.bio_arsonist.mana_cost) == true)
+			if (GetComponent <BaseEnemy>().CheckUniqueAction() == true)
 			{
-				GetComponent<BaseEnemy>().SetManaAndCooldown (caller.enemy_options.fire.bio_arsonist.mana_cost, caller.enemy_options.fire.bio_arsonist.cooldown);
+				casting_timer += Time.deltaTime;
+				GetComponent <BaseEnemy>().CastingBarUpdate (casting_timer, caller.enemy_options.fire.bio_arsonist.casting_time);
+				if (casting_timer > caller.enemy_options.fire.bio_arsonist.casting_time)
+				{
+					casting_timer = 0;
+					GetComponent <BaseEnemy>().SetUniqueAction (false); 
+					Destroy (target_body);
+					target_body = null;
+					dead_bodies_loaded++;
+				}
+			}
+			if (GetComponent <BaseEnemy>().CheckUniqueAction() == false)
+			{
+				target_body = GetClosestDeadBody (transform.position, caller.enemy_options.physical.brood_mother.casting_range);
+				if (target_body != null)
+				{
+					GetComponent <BaseEnemy>().SetUniqueAction (true);
+					target_body.GetComponent<BaseEnemy.DeadBody>().SetUsed (true);
+				}
+				else
+				{
+					if (GetComponent<BaseEnemy>().CheckCooldownAndMana (caller.enemy_options.fire.bio_arsonist.mana_cost) == true && dead_bodies_loaded > 0)
+					{
+						Debug.Log ("looking for towers");
+						GameObject target_tower = GetClosestTower (gameObject, caller.enemy_options.fire.bio_arsonist.casting_range);
+						if (target_tower != null)
+						{
+							GameObject enemy_object = Instantiate (GetEnemyTemplate (minion_id.ember));
+							target_tower.GetComponentInParent<Tower.BaseTower>().HealthAddition (- caller.enemy_options.fire.bio_arsonist.tower_damage);
+							(int x, int z) target_tile = caller.GetGameGrid().GetClosestEmptyTile (target_tower.transform.position);
+							Enemy enemy = new Enemy (minion_id.ember, caller.GetGameGrid().GetWorldTileCenter (target_tile), caller, enemy_object);
+							dead_bodies_loaded--;
+							GetComponent<BaseEnemy>().SetManaAndCooldown (caller.enemy_options.fire.bio_arsonist.mana_cost, caller.enemy_options.fire.bio_arsonist.cooldown);
+						}
+					}
+				}
 			}
 		}
 	}
@@ -2291,12 +2651,12 @@ public class Enemy
 			GetComponent<BaseEnemy>().SetDestinationReachedAction (()=>{
 			if (GetComponent<BaseEnemy>().CheckCooldownAndMana (caller.enemy_options.electric.rocket_goblin.mana_cost) == true)
 			{
-				Debug.Log ("checking jump availability");
 				if (CheckStraightLineJumpViability (caller, GetComponent<BaseEnemy>().GetCurrentPosition (), caller.enemy_options.electric.rocket_goblin.casting_range,
 				GetComponent<BaseEnemy>().GetDistanceFromCore(), out grid_direction jump_direction))
 				{
 					StraightLineJump (1.5f, caller.enemy_options.electric.rocket_goblin.casting_range, gameObject, jump_direction);
 					GetComponent<BaseEnemy>().SetUniqueAction (true);
+					GetComponent<BaseEnemy>().SetInAir (true);
 					GetComponent<BaseEnemy>().SetManaAndCooldown (caller.enemy_options.electric.rocket_goblin.mana_cost, caller.enemy_options.electric.rocket_goblin.cooldown);
 				}
 			}
@@ -2800,28 +3160,29 @@ public class Enemy
 	public static void StraightLineJump (float peak_jump_height, int jump_distance, GameObject enemy, grid_direction jump_direction)
 	{
 		Rigidbody enemy_rigid_body = enemy.GetComponent<Rigidbody> ();
-		float starting_speed = (float) Math.Pow (2f * 9.81f * (Math.Pow (jump_distance, 2f) / (4 * peak_jump_height) + peak_jump_height), 1f/2f);
-		float sin_jump_angle = peak_jump_height / (float) Math.Pow ( (Math.Pow (jump_distance, 2f) / (4 * peak_jump_height) + Math.Pow (peak_jump_height, 2f)), 1f/2f);
-		float cos_jump_angle = jump_distance / 2f * (float) Math.Pow ( (Math.Pow (jump_distance, 2f) / (4 * peak_jump_height) + Math.Pow (peak_jump_height, 2f)), 1f/2f);
-		enemy_rigid_body.AddRelativeForce (Vector3.up * sin_jump_angle * starting_speed, ForceMode.VelocityChange);
+		float sin_alpha = 4 * peak_jump_height / (float) Math.Pow ((Math.Pow (peak_jump_height, 2) + Math.Pow (jump_distance, 2)), 0.5f);
+		float cos_alpha = jump_distance / (float) Math.Pow ((Math.Pow (peak_jump_height, 2) + Math.Pow (jump_distance, 2)), 0.5f);
+		float starting_speed = (float) Math.Pow ((2 * peak_jump_height * 9.81f / Math.Pow (sin_alpha, 2)), 0.5f);
+		enemy_rigid_body.AddRelativeForce (Vector3.up * sin_alpha * starting_speed, ForceMode.Impulse);
 		switch (jump_direction)
 		{  
 			case grid_direction.down:
-			enemy_rigid_body.AddRelativeForce (Vector3.back * cos_jump_angle * starting_speed, ForceMode.Impulse);
+			enemy_rigid_body.AddRelativeForce (Vector3.back * cos_alpha * starting_speed, ForceMode.Impulse);
 			break;
 
 			case grid_direction.up:
-			enemy_rigid_body.AddRelativeForce (Vector3.forward * cos_jump_angle * starting_speed, ForceMode.Impulse);
+			enemy_rigid_body.AddRelativeForce (Vector3.forward * cos_alpha * starting_speed, ForceMode.Impulse);
 			break;
 
 			case grid_direction.left:
-			enemy_rigid_body.AddRelativeForce (Vector3.left * cos_jump_angle * starting_speed, ForceMode.Impulse);
+			enemy_rigid_body.AddRelativeForce (Vector3.left * cos_alpha * starting_speed, ForceMode.Impulse);
 			break;
 
 			case grid_direction.right:
-			enemy_rigid_body.AddRelativeForce (Vector3.right * cos_jump_angle * starting_speed, ForceMode.Impulse);
+			enemy_rigid_body.AddRelativeForce (Vector3.right * cos_alpha * starting_speed, ForceMode.Impulse);
 			break;
 		}
+		enemy_rigid_body.freezeRotation = true;
 	}
 
 	private static GameObject GetClosestEnemy (GameObject this_enemy, float range)
@@ -2846,6 +3207,30 @@ public class Enemy
 			closest_enemy = enemies_in_range [enemies_distance.IndexOf(enemies_distance.Min())];
 		}
 		return closest_enemy;
+	}
+
+	private static GameObject GetClosestTower (GameObject this_enemy, float range)
+	{
+		Collider[] colliders_in_range = Physics.OverlapSphere(this_enemy.transform.position, range);
+		List<GameObject> towers_in_range = new List<GameObject>();
+		List<float> towers_distance = new List<float>();
+		GameObject closest_tower = null;
+		foreach (Collider collider in colliders_in_range)
+		{
+			if (collider.gameObject.tag == "tower")
+			{
+				towers_in_range.Add (collider.gameObject);
+			}
+		}
+		foreach (GameObject tower in towers_in_range)
+		{
+			towers_distance.Add (Vector3.Distance (this_enemy.transform.position, tower.transform.position));
+		}
+		if (towers_distance.Count > 0)
+		{
+			closest_tower = towers_in_range [towers_distance.IndexOf(towers_distance.Min())];
+		}
+		return closest_tower;
 	}
 
 	public static GameHandler GetGameHandler ()
