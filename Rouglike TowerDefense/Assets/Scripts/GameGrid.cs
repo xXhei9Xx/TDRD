@@ -122,7 +122,6 @@ public class GameGrid
 	{
 		grass,
 		sand,
-		rock,
 		water,
 		swamp
 	}
@@ -396,15 +395,7 @@ public class GameGrid
 				text_objects_array[i, j].transform.Rotate (90, 0, 0);
 				text_objects_array [i, j].GetComponent<TextMeshProUGUI>().alignment = TextAlignmentOptions.CenterGeoAligned;
 				text_objects_array [i, j].GetComponent<RectTransform>().sizeDelta = new Vector2 (1, 1);
-				for(int k = 0; k < Enum.GetNames(typeof(grid_parameter)).Length; k++)
-				{
-					grid_array [i,j,k] = 0;
-					text_objects_array [i, j].GetComponent<TextMeshProUGUI>().text += grid_array [i,j,k] + " ";
-					if (k > 0 && k % 6 == 0)
-					{
-						text_objects_array [i, j].GetComponent<TextMeshProUGUI>().text += System.Environment.NewLine;
-					}
-				}
+				GridTextTileUpdate (i, j);
 			}
 		}
 
@@ -677,6 +668,36 @@ public class GameGrid
 	public bool CheckIfNotDiagonal (int original_x, int original_z, int x, int z)
 	{
 		if ((x == original_x && z != original_z) || (x != original_x && z == original_z))
+		{
+			return true;
+		}
+		return false;
+	}
+
+	public bool CheckIfValidSpawnZone (int x, int z)
+	{
+		if (GetValue (x, z, grid_parameter.terrain) != EnumTranslator(terrain.water) &&
+		GetValue (x, z, grid_parameter.object_type) == EnumTranslator(object_type.empty))
+		{
+			return true;
+		}
+		return false;
+	}
+	public bool CheckIfValidSpawnZone ((int x, int z) position)
+	{
+		if (GetValue (position.x, position.z, grid_parameter.terrain) != EnumTranslator(terrain.water) &&
+		GetValue (position.x, position.z, grid_parameter.object_type) == EnumTranslator(object_type.empty))
+		{
+			return true;
+		}
+		return false;
+	}
+
+	public bool CheckIfValidSpawnZone (Vector3 vector_position)
+	{
+		(int x, int z) position = GetXZ (vector_position);
+		if (GetValue (position.x, position.z, grid_parameter.terrain) != EnumTranslator (terrain.water) &&
+		GetValue (position.x, position.z, grid_parameter.object_type) == EnumTranslator (object_type.empty))
 		{
 			return true;
 		}

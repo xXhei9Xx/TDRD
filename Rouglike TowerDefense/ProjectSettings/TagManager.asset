@@ -13,6 +13,8 @@ TagManager:
   - tower
   - enemy blocking
   - plane
+  - spawn zone
+  - terrain
   layers:
   - Default
   - TransparentFX
