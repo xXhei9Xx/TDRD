@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using static UnityEditor.Experimental.AssetDatabaseExperimental.AssetDatabaseCounters;
 
 public class InspectorHandler : MonoBehaviour
 {
@@ -50,6 +51,11 @@ public class InspectorHandler : MonoBehaviour
 	private TextMeshProUGUI description_text;
 
 	private GameHandler caller;
+
+	int counter = 0;
+	int stat_block_height_shift = 80;
+
+	Vector3 first_stat_position = new Vector3 (-345, 310, 0);
 
 	#endregion
 
@@ -101,10 +107,10 @@ public class InspectorHandler : MonoBehaviour
 		SetInspectorWindowVisibility (false);
 		};
 		GameObject.Find ("General Window Button").GetComponent<Button_UI>().ClickFunc = () => {
-		
+		SetInspectorWindowVisibility (true, inspector_window_tab.general);
 		};
 		GameObject.Find ("Advanced Window Button").GetComponent<Button_UI>().ClickFunc = () => {
-		
+		SetInspectorWindowVisibility (true, inspector_window_tab.advanced);
 		};
 
 		#endregion
@@ -122,6 +128,11 @@ public class InspectorHandler : MonoBehaviour
 			{
 				transform.GetChild (i).gameObject.SetActive (state);
 			}
+			if ((open_tab == inspector_window_tab.general && transform.GetChild (i).gameObject.name == "Advanced Window") || 
+			(open_tab == inspector_window_tab.advanced && transform.GetChild (i).gameObject.name == "General Window"))
+			{
+				transform.GetChild (i).gameObject.SetActive (!state);
+			}
 		}
 	}
 
@@ -131,43 +142,67 @@ public class InspectorHandler : MonoBehaviour
 	{
 		SetInspectorWindowVisibility (true, inspector_window_tab.general);
 		name_text.text = id.ToString ();
-		int counter = 0;
-		stat_block_physical_damage.transform.localPosition = new Vector3 (-330, 380 - (30 * counter));
-		stat_block_physical_damage.transform.GetChild (1).GetComponent<TextMeshProUGUI> ().text = base_tower_base_stats_tuple.physical_damage.ToString();
-		stat_block_physical_damage.transform.GetChild (2).GetComponent<TextMeshProUGUI> ().text = base_tower_stats_tuple.physical_damage.ToString();
-		counter++;
-		stat_block_fire_damage.transform.localPosition = new Vector3 (-330, 380 - (30 * counter));
-		stat_block_fire_damage.transform.GetChild (1).GetComponent<TextMeshProUGUI> ().text = base_tower_base_stats_tuple.fire_damage.ToString();
-		stat_block_fire_damage.transform.GetChild (2).GetComponent<TextMeshProUGUI> ().text = base_tower_stats_tuple.fire_damage.ToString();
-		counter++;
-		stat_block_frost_damage.transform.localPosition = new Vector3 (-330, 380 - (30 * counter));
-		stat_block_frost_damage.transform.GetChild (1).GetComponent<TextMeshProUGUI> ().text = base_tower_base_stats_tuple.frost_damage.ToString();
-		stat_block_frost_damage.transform.GetChild (2).GetComponent<TextMeshProUGUI> ().text = base_tower_stats_tuple.frost_damage.ToString();
-		counter++;
-		stat_block_electric_damage.transform.localPosition = new Vector3 (-330, 380 - (30 * counter));
-		stat_block_electric_damage.transform.GetChild (1).GetComponent<TextMeshProUGUI> ().text = base_tower_base_stats_tuple.electric_damage.ToString();
-		stat_block_electric_damage.transform.GetChild (2).GetComponent<TextMeshProUGUI> ().text = base_tower_stats_tuple.electric_damage.ToString();
-		counter++;
-		stat_block_poison_damage.transform.localPosition = new Vector3 (-330, 380 - (30 * counter));
-		stat_block_poison_damage.transform.GetChild (1).GetComponent<TextMeshProUGUI> ().text = base_tower_base_stats_tuple.poison_damage.ToString();
-		stat_block_poison_damage.transform.GetChild (2).GetComponent<TextMeshProUGUI> ().text = base_tower_stats_tuple.poison_damage.ToString();
-		counter++;
-		stat_block_magic_damage.transform.localPosition = new Vector3 (-330, 380 - (30 * counter));
-		stat_block_magic_damage.transform.GetChild (1).GetComponent<TextMeshProUGUI> ().text = base_tower_base_stats_tuple.magic_damage.ToString();
-		stat_block_magic_damage.transform.GetChild (2).GetComponent<TextMeshProUGUI> ().text = base_tower_stats_tuple.magic_damage.ToString();
-		counter++;
-		stat_block_range.transform.localPosition = new Vector3 (-330, 380 - (30 * counter));
-		stat_block_range.transform.GetChild (1).GetComponent<TextMeshProUGUI> ().text = base_tower_base_stats_tuple.range.ToString();
-		stat_block_range.transform.GetChild (2).GetComponent<TextMeshProUGUI> ().text = base_tower_stats_tuple.range.ToString();
-		counter++;
-		stat_block_cooldown.transform.localPosition = new Vector3 (-330, 380 - (30 * counter));
-		stat_block_cooldown.transform.GetChild (1).GetComponent<TextMeshProUGUI> ().text = base_tower_base_stats_tuple.cooldown.ToString();
-		stat_block_cooldown.transform.GetChild (2).GetComponent<TextMeshProUGUI> ().text = base_tower_stats_tuple.cooldown.ToString();
-		counter++;
+		StatLineConstructor (stat_block_physical_damage, base_tower_base_stats_tuple.physical_damage, base_tower_stats_tuple.physical_damage, true);
+		StatLineConstructor (stat_block_fire_damage, base_tower_base_stats_tuple.fire_damage, base_tower_stats_tuple.fire_damage);
+		StatLineConstructor (stat_block_frost_damage, base_tower_base_stats_tuple.frost_damage, base_tower_stats_tuple.frost_damage);
+		StatLineConstructor (stat_block_electric_damage, base_tower_base_stats_tuple.electric_damage, base_tower_stats_tuple.electric_damage);
+		StatLineConstructor (stat_block_poison_damage, base_tower_base_stats_tuple.poison_damage, base_tower_stats_tuple.poison_damage);
+		StatLineConstructor (stat_block_magic_damage, base_tower_base_stats_tuple.magic_damage, base_tower_stats_tuple.magic_damage);
+		StatLineConstructor (stat_block_range, base_tower_base_stats_tuple.range, base_tower_stats_tuple.range);
+		StatLineConstructor (stat_block_cooldown, base_tower_base_stats_tuple.cooldown, base_tower_stats_tuple.cooldown);
+		switch (id)
+		{
+			case Tower.tower_id.test:
+
+			break;
+
+			case Tower.tower_id.mana:
+
+			break;
+
+			case Tower.tower_id.blizzard:
+
+			break;
+
+			case Tower.tower_id.oil:
+
+			break;
+
+			case Tower.tower_id.lightning:
+
+			break;
+
+			case Tower.tower_id.flamethrower:
+
+			break;
+		}
 	}
 
 	public void ConstructEnemyInspector (Enemy.enemy_id id)
 	{
+	}
 
+	private void StatLineConstructor (GameObject stat_block_object, int base_stat, int modified_stat, bool reset_counter = false)
+	{
+		if (reset_counter == true)
+		{
+			counter = 0;
+		}
+		stat_block_object.transform.localPosition = first_stat_position - new Vector3 (0, (stat_block_height_shift * counter));
+		stat_block_object.transform.GetChild (1).GetComponent<TextMeshProUGUI> ().text = base_stat.ToString();
+		stat_block_object.transform.GetChild (2).GetComponent<TextMeshProUGUI> ().text = modified_stat.ToString();
+		counter++;
+	}
+
+	private void StatLineConstructor (GameObject stat_block_object, float base_stat, float modified_stat, bool reset_counter = false)
+	{
+		if (reset_counter == true)
+		{
+			counter = 0;
+		}
+		stat_block_object.transform.localPosition = first_stat_position - new Vector3 (0, (stat_block_height_shift * counter));
+		stat_block_object.transform.GetChild (1).GetComponent<TextMeshProUGUI> ().text = base_stat.ToString();
+		stat_block_object.transform.GetChild (2).GetComponent<TextMeshProUGUI> ().text = modified_stat.ToString();
+		counter++;
 	}
 }

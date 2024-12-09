@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using TMPro;
+using UnityEngine.UIElements;
 
 public class GameGrid 
 {
@@ -66,6 +67,7 @@ public class GameGrid
 		empty,
 		spawner,
 		tower,
+		traversable_tower,
 		core,
 		tree,
 		rock
@@ -83,11 +85,35 @@ public class GameGrid
 
 			case object_type.tower: return 2;
 
-			case object_type.core: return 3;
+			case object_type.traversable_tower: return 3;
 
-			case object_type.tree: return 4;
+			case object_type.core: return 4;
 
-			case object_type.rock: return 5;
+			case object_type.tree: return 5;
+
+			case object_type.rock: return 6;
+		}
+	}
+
+	public object_type ObjectTypeTranslator (int parameter)
+	{
+		switch (parameter)
+		{
+			default: return 0;
+
+			case 0: return object_type.empty;
+
+			case 1: return object_type.spawner;
+
+			case 2: return object_type.tower;
+
+			case 3: return object_type.traversable_tower;
+
+			case 4: return object_type.core;
+
+			case 5: return object_type.tree;
+
+			case 6: return object_type.rock;
 		}
 	}
 	#endregion
@@ -96,7 +122,6 @@ public class GameGrid
 	{
 		grass,
 		sand,
-		rock,
 		water,
 		swamp
 	}
@@ -187,6 +212,18 @@ public class GameGrid
 			case enemy.occupied: return 1;
 		}
 	}
+
+	public enemy EnemyTranslator (int parameter)
+	{
+		switch (parameter)
+		{
+			default: return enemy.empty;
+
+			case 0: return enemy.empty;
+
+			case 1: return enemy.occupied;
+		}
+	}
 	#endregion
 	#region grid direction
 	public enum grid_direction
@@ -194,7 +231,11 @@ public class GameGrid
 		up,
 		down,
 		left,
-		right
+		right,
+		top_left,
+		top_right,
+		bottom_left,
+		bottom_right
 	}
 
 	public grid_direction GetMovementDirection (Vector3 starting_position, (int x, int z) destination)
@@ -269,6 +310,18 @@ public class GameGrid
 			case mana.connected: return 1;
 		}
 	}
+
+	public mana ManaTranslator (int parameter)
+	{
+		switch (parameter)
+		{
+			default: return mana.unconnected;
+
+			case 0: return mana.unconnected;
+
+			case 1: return mana.connected;
+		}
+	}
 	#endregion
 	#region tile effect
 	public enum tile_effect
@@ -289,6 +342,20 @@ public class GameGrid
 			case tile_effect.oil: return 1;
 
 			case tile_effect.fire: return 2;
+		}
+	}
+
+	public tile_effect TileEffectTranslator (int parameter)
+	{
+		switch (parameter)
+		{
+			default: return tile_effect.ice;
+
+			case 0: return tile_effect.ice;
+
+			case 1: return tile_effect.oil;
+
+			case 2: return tile_effect.fire;
 		}
 	}
 	#endregion
@@ -323,20 +390,12 @@ public class GameGrid
 				array_of_characters_on_tile_lists [i, j] = new List<GameObject> ();
 				text_objects_array[i, j] = new GameObject("text " + i + "," + j);
 				text_objects_array[i, j].transform.SetParent(GameObject.Find("Text Collection").transform);
-				text_objects_array [i, j].AddComponent<TextMeshProUGUI>().fontSize = 0.1f;
+				text_objects_array [i, j].AddComponent<TextMeshProUGUI>().fontSize = 0.05f;
 				text_objects_array[i, j].transform.position = GetWorldTileCenter(i, j, 0);
 				text_objects_array[i, j].transform.Rotate (90, 0, 0);
 				text_objects_array [i, j].GetComponent<TextMeshProUGUI>().alignment = TextAlignmentOptions.CenterGeoAligned;
 				text_objects_array [i, j].GetComponent<RectTransform>().sizeDelta = new Vector2 (1, 1);
-				for(int k = 0; k < Enum.GetNames(typeof(grid_parameter)).Length; k++)
-				{
-					grid_array [i,j,k] = 0;
-					text_objects_array [i, j].GetComponent<TextMeshProUGUI>().text += grid_array [i,j,k] + " ";
-					if (k > 0 && k % 6 == 0)
-					{
-						text_objects_array [i, j].GetComponent<TextMeshProUGUI>().text += System.Environment.NewLine;
-					}
-				}
+				GridTextTileUpdate (i, j);
 			}
 		}
 
@@ -371,13 +430,41 @@ public class GameGrid
 
 	public void GridTextTileUpdate (int x, int z)
 	{
-		text_objects_array [x, z].GetComponent<TextMeshProUGUI>().text = "";
-		for(int k = 0; k < Enum.GetNames(typeof(grid_parameter)).Length; k++)
+		text_objects_array [x, z].GetComponent<TextMeshProUGUI>().text = "tile - " + x + "," + z + System.Environment.NewLine;
+		var parameter_names = Enum.GetNames(typeof(grid_parameter));
+		for(int k = 0; k < parameter_names.Length; k++)
 		{
-			text_objects_array [x, z].GetComponent<TextMeshProUGUI>().text += grid_array [x,z,k] + ",";
-			if (k > 0 && k % 6 == 0)
+			if (parameter_names[k] == grid_parameter.prev_x.ToString())
 			{
-				text_objects_array [x, z].GetComponent<TextMeshProUGUI>().text += System.Environment.NewLine;
+				text_objects_array [x, z].GetComponent<TextMeshProUGUI>().text += "prev_tile - " + grid_array [x,z,k] + "," + grid_array [x,z,k + 1] + System.Environment.NewLine;
+			}
+			if (parameter_names[k] == grid_parameter.object_type.ToString())
+			{
+				text_objects_array [x, z].GetComponent<TextMeshProUGUI>().text += parameter_names[k] + " - " + ObjectTypeTranslator (grid_array [x,z,k]).ToString() + System.Environment.NewLine;
+			}
+			if (parameter_names[k] == grid_parameter.terrain.ToString())
+			{
+				text_objects_array [x, z].GetComponent<TextMeshProUGUI>().text += parameter_names[k] + " - " + TerrainTranslator (grid_array [x,z,k]).ToString() + System.Environment.NewLine;
+			}
+			if (parameter_names[k] == grid_parameter.spawn_zone.ToString())
+			{
+				text_objects_array [x, z].GetComponent<TextMeshProUGUI>().text += parameter_names[k] + " - " + SpawnZoneTranslator (grid_array [x,z,k]).ToString() + System.Environment.NewLine;
+			}
+			if (parameter_names[k] == grid_parameter.enemy.ToString())
+			{
+				text_objects_array [x, z].GetComponent<TextMeshProUGUI>().text += parameter_names[k] + " - " + EnemyTranslator (grid_array [x,z,k]).ToString() + System.Environment.NewLine;
+			}
+			if (parameter_names[k] == grid_parameter.mana.ToString())
+			{
+				text_objects_array [x, z].GetComponent<TextMeshProUGUI>().text += parameter_names[k] + " - " + ManaTranslator (grid_array [x,z,k]).ToString() + System.Environment.NewLine;
+			}
+			if (parameter_names[k] == grid_parameter.tile_effect.ToString())
+			{
+				text_objects_array [x, z].GetComponent<TextMeshProUGUI>().text += parameter_names[k] + " - " + TileEffectTranslator (grid_array [x,z,k]).ToString() + System.Environment.NewLine;
+			}
+			if (parameter_names[k] == grid_parameter.amount_of_dead.ToString() || parameter_names[k] == grid_parameter.simulated.ToString() || parameter_names[k] == grid_parameter.object_id.ToString())
+			{
+				text_objects_array [x, z].GetComponent<TextMeshProUGUI>().text += parameter_names[k] + " - " + grid_array [x,z,k] + System.Environment.NewLine;
 			}
 		}
 	}
@@ -479,6 +566,11 @@ public class GameGrid
 		return grid_array[x, z, EnumTranslator(parameter)];
 	}
 
+	public int GetValue ((int x, int z) position, grid_parameter parameter)
+	{
+		return grid_array[position.x, position.z, EnumTranslator(parameter)];
+	}
+
 	public int RandomInt (int lower_range, int upper_range)
 	{
 		return (int) Math.Floor(UnityEngine.Random.Range((float) lower_range, (float) upper_range + 1));
@@ -517,6 +609,53 @@ public class GameGrid
 		return (-1, -1);
 	}
 
+	public (int x, int z) GetClosestEmptyTile (Vector3 reference_position)
+	{
+		(int x, int z) ref_position = GetXZ (reference_position);
+		int range = 1;
+		while (range <= 5)
+		{
+			for (int x = ref_position.x - range; x <= ref_position.x + range; x++)
+			{
+				for (int z = ref_position.z - range; z <= ref_position.z + range; z++)
+				{
+					if (x >= 0 && x < length_x && z >= 0 && z < width_z)
+					{
+						if (GetValue(x, z, grid_parameter.object_type) == EnumTranslator(object_type.empty) && (x != 0 || z != 0))
+						{
+							return (x, z);
+						}
+					}
+				}
+			}
+			range++;
+		}
+		return (-1, -1);
+	}
+
+	public (int x, int z) GetClosestEmptyTile ((int x, int z) reference_position)
+	{
+		int range = 1;
+		while (range <= 5)
+		{
+			for (int x = reference_position.x - range; x <= reference_position.x + range; x++)
+			{
+				for (int z = reference_position.z - range; z <= reference_position.z + range; z++)
+				{
+					if (x >= 0 && x < length_x && z >= 0 && z < width_z)
+					{
+						if (GetValue(x, z, grid_parameter.object_type) == EnumTranslator(object_type.empty) && (x != 0 || z != 0))
+						{
+							return (x, z);
+						}
+					}
+				}
+			}
+			range++;
+		}
+		return (-1, -1);
+	}
+
 	public bool CheckIfInsideGrid (int x, int z)
 	{
 		if (x >= 0 && x < length_x && z >= 0 && z < width_z)
@@ -529,6 +668,36 @@ public class GameGrid
 	public bool CheckIfNotDiagonal (int original_x, int original_z, int x, int z)
 	{
 		if ((x == original_x && z != original_z) || (x != original_x && z == original_z))
+		{
+			return true;
+		}
+		return false;
+	}
+
+	public bool CheckIfValidSpawnZone (int x, int z)
+	{
+		if (GetValue (x, z, grid_parameter.terrain) != EnumTranslator(terrain.water) &&
+		GetValue (x, z, grid_parameter.object_type) == EnumTranslator(object_type.empty))
+		{
+			return true;
+		}
+		return false;
+	}
+	public bool CheckIfValidSpawnZone ((int x, int z) position)
+	{
+		if (GetValue (position.x, position.z, grid_parameter.terrain) != EnumTranslator(terrain.water) &&
+		GetValue (position.x, position.z, grid_parameter.object_type) == EnumTranslator(object_type.empty))
+		{
+			return true;
+		}
+		return false;
+	}
+
+	public bool CheckIfValidSpawnZone (Vector3 vector_position)
+	{
+		(int x, int z) position = GetXZ (vector_position);
+		if (GetValue (position.x, position.z, grid_parameter.terrain) != EnumTranslator (terrain.water) &&
+		GetValue (position.x, position.z, grid_parameter.object_type) == EnumTranslator (object_type.empty))
 		{
 			return true;
 		}

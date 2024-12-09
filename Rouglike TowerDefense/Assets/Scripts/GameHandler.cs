@@ -9,6 +9,7 @@ using CodeMonkey.Utils;
 using UnityEngine.UI;
 using TMPro;
 using System.Linq;
+using static GameGrid;
 
 public class GameHandler : MonoBehaviour
 {
@@ -83,6 +84,7 @@ public class GameHandler : MonoBehaviour
 		[SerializeField] public Material outline_on_pointer_material;
 		[SerializeField] [Range (0.1f, 2)] public float card_movement_time = 0.5f;
 		[SerializeField] [Range (0.5f, 4)] public float camera_movement_speed;
+		[SerializeField] [Range (0.5f, 4)] public float tower_pushing_speed;
 		[SerializeField] [Range (4f, 6f)] public float space_between_cards;
 	}
 
@@ -344,6 +346,7 @@ public class GameHandler : MonoBehaviour
 	[Serializable] public class EnemyOptions
 	{
 		[SerializeField] public int mana_reg_per_sec;
+		[SerializeField] [Range (0.5f, 0.9f)] public float max_resistances;
 		[SerializeField] public Physical physical;
 		[SerializeField] public Fire fire;
 		[SerializeField] public Frost frost;
@@ -470,6 +473,8 @@ public class GameHandler : MonoBehaviour
 		[SerializeField] [Range (0f, 0.75f)] public float electric_resistance;
 		[SerializeField] [Range (0f, 0.75f)] public float poison_resistance;
 		[SerializeField] [Range (0f, 0.75f)] public float magic_resistance;
+		[SerializeField] [Range (1, 10)] public int mana_gained_on_hit;
+		[SerializeField] [Range (1, 3)] public int tower_push_distance;
 	}
 
 	#endregion
@@ -499,6 +504,8 @@ public class GameHandler : MonoBehaviour
 		[SerializeField] [Range (0f, 0.75f)] public float electric_resistance;
 		[SerializeField] [Range (0f, 0.75f)] public float poison_resistance;
 		[SerializeField] [Range (0f, 0.75f)] public float magic_resistance;
+		[SerializeField] [Range (0.01f, 0.1f)] public float resistance_increase;
+		[SerializeField] [Range (1f, 10f)] public float time_to_buff_reset;
 	}
 
 	[Serializable] public class AlchemistOptions
@@ -533,6 +540,7 @@ public class GameHandler : MonoBehaviour
 		[SerializeField] [Range (0f, 0.75f)] public float electric_resistance;
 		[SerializeField] [Range (0f, 0.75f)] public float poison_resistance;
 		[SerializeField] [Range (0f, 0.75f)] public float magic_resistance;
+		[SerializeField] [Range (1, 100)] public int tower_damage;
 	}
 
 	[Serializable] public class FireElementalOptions
@@ -788,7 +796,7 @@ public class GameHandler : MonoBehaviour
 		[SerializeField] [Range (1, 100)] public int mana_cost;
 		[SerializeField] [Range (1, 100)] public int max_mana;
 		[SerializeField] [Range (0f, 5f)] public float cooldown;
-		[SerializeField] [Range (0.25f, 5)] public float casting_range;
+		[SerializeField] [Range (1, 5)] public int casting_range;
 		[SerializeField] [Range (0.1f, 5)] public float casting_time;
 		[SerializeField] [Range (0f, 0.75f)] public float physical_resistance;
 		[SerializeField] [Range (0f, 0.75f)] public float fire_resistance;
@@ -1223,52 +1231,11 @@ public class GameHandler : MonoBehaviour
 
 		#endregion
 		camera.transform.position = new Vector3 (board_center_position_tuple.x, board_center_position_tuple.y, board_center_position_tuple.z);
+		camera.AddComponent<CameraMovement>().SetVariables (this);
     }
 
     void Update()
     {
-		#region moving camera
-		if (Input.GetKey (gameplay_options.controls.move_down) == true && camera.transform.position.z > 2)
-		{
-			MoveCamera (camera_directions.up);
-		}
-		if (Input.GetKey (gameplay_options.controls.move_up) == true && camera.transform.position.z < gameplay_options.map.width_z - 2)
-		{
-			MoveCamera (camera_directions.down);
-		}
-		if (Input.GetKey (gameplay_options.controls.move_left) == true && camera.transform.position.x > 2)
-		{
-			MoveCamera (camera_directions.left);
-		}
-		if (Input.GetKey (gameplay_options.controls.move_right) == true && camera.transform.position.x < gameplay_options.map.length_x - 2)
-		{
-			MoveCamera (camera_directions.right);
-		}
-		if (Input.GetKeyDown (gameplay_options.controls.rotate_left) == true)
-		{
-			RotateCamera (90);
-			if (testing_options.display_grid_text == true)
-			{
-				RotateGridText (90);
-			}
-		}
-		if (Input.GetKeyDown (gameplay_options.controls.rotate_right) == true)
-		{
-			RotateCamera (-90);
-			if (testing_options.display_grid_text == true)
-			{
-				RotateGridText (-90);
-			}
-		}
-		if (Input.GetAxis ("Mouse ScrollWheel") > 0 && camera.transform.position.y > gameplay_options.map.cell_length_x * 2)
-		{
-			camera.transform.position += new Vector3 (0, -1, 0);
-		}
-		if (Input.GetAxis ("Mouse ScrollWheel") < 0 && camera.transform.position.y < gameplay_options.map.length_x + (gameplay_options.map.cell_length_x * 2) )
-		{
-			camera.transform.position += new Vector3 (0, 1, 0);
-		}
-		#endregion
 		#region changing outline color
 
 		if (inspector_window_open == false)
@@ -1461,7 +1428,7 @@ public class GameHandler : MonoBehaviour
 	}
 
 	#endregion
-	#region enemy: get type to spawn, check for, add to enemy list, remove from enemy list, add to spawn list
+	#region enemy: get type to spawn, check for, add to enemy list, remove from enemy list, add to spawn list, reset pathfinding of all enemies
 
 	public enemy_id GetEnemyTypeToSpawn ()
 	{
@@ -1501,6 +1468,14 @@ public class GameHandler : MonoBehaviour
 		enemy_to_spawn_list.Add (id);
 	}
 
+	public void ResetPathfindingOfAllEnemies ()
+	{
+		foreach (GameObject enemy in enemy_list)
+		{
+			enemy.GetComponent<BaseEnemy>().SetNewPathfinding ();
+		}
+	}
+
 	#endregion
 	#region Spawner: pathfinding, add to spawner list
 
@@ -1529,155 +1504,6 @@ public class GameHandler : MonoBehaviour
 	{
 		wave_number++;
 		wave_display_text.text = "Wave " + wave_number.ToString();
-	}
-
-	#endregion
-	#region camera: rotate, move, rotate grid text
-
-	private void RotateCamera (float angle_z)
-	{
-		camera.transform.Rotate (0, 0, angle_z);
-		if (angle_z < 0)
-		{
-			switch (camera_direction)
-			{
-				case camera_directions.up:
-				camera_direction = camera_directions.left;
-				break;
-
-				case camera_directions.down:
-				camera_direction = camera_directions.right;
-				break;
-
-				case camera_directions.left:
-				camera_direction = camera_directions.down;
-				break;
-
-				case camera_directions.right:
-				camera_direction = camera_directions.up;
-				break;
-			}
-		}
-		if (angle_z > 0)
-		{
-			switch (camera_direction)
-			{
-				case camera_directions.up:
-				camera_direction = camera_directions.right;
-				break;
-
-				case camera_directions.down:
-				camera_direction = camera_directions.left;
-				break;
-
-				case camera_directions.left:
-				camera_direction = camera_directions.up;
-				break;
-
-				case camera_directions.right:
-				camera_direction = camera_directions.down;
-				break;
-			}
-		}
-	}
-
-	private void MoveCamera (camera_directions movement_direction)
-	{
-		switch (camera_direction)
-		{
-			case camera_directions.up:
-			switch (movement_direction)
-			{
-				case camera_directions.up:
-				camera.transform.position += new Vector3 (0, 0, -Time.fixedUnscaledDeltaTime * gameplay_options.ui.camera_movement_speed);
-				break;
-
-				case camera_directions.down:
-				camera.transform.position += new Vector3 (0, 0, Time.fixedUnscaledDeltaTime * gameplay_options.ui.camera_movement_speed);
-				break;
-
-				case camera_directions.left:
-				camera.transform.position += new Vector3 (-Time.fixedUnscaledDeltaTime * gameplay_options.ui.camera_movement_speed, 0, 0);
-				break;
-
-				case camera_directions.right:
-				camera.transform.position += new Vector3 (Time.fixedUnscaledDeltaTime * gameplay_options.ui.camera_movement_speed, 0, 0);
-				break;
-			}
-			break;
-
-			case camera_directions.down:
-			switch (movement_direction)
-			{
-				case camera_directions.up:
-				camera.transform.position += new Vector3 (0, 0, Time.fixedUnscaledDeltaTime * gameplay_options.ui.camera_movement_speed);
-				break;
-
-				case camera_directions.down:
-				camera.transform.position += new Vector3 (0, 0, -Time.fixedUnscaledDeltaTime * gameplay_options.ui.camera_movement_speed);
-				break;
-
-				case camera_directions.left:
-				camera.transform.position += new Vector3 (Time.fixedUnscaledDeltaTime * gameplay_options.ui.camera_movement_speed, 0, 0);
-				break;
-
-				case camera_directions.right:
-				camera.transform.position += new Vector3 (-Time.fixedUnscaledDeltaTime * gameplay_options.ui.camera_movement_speed, 0, 0);
-				break;
-			}
-			break;
-
-			case camera_directions.left:
-			switch (movement_direction)
-			{
-				case camera_directions.up:
-				camera.transform.position += new Vector3 (-Time.fixedUnscaledDeltaTime * gameplay_options.ui.camera_movement_speed, 0, 0);
-				break;
-
-				case camera_directions.down:
-				camera.transform.position += new Vector3 (Time.fixedUnscaledDeltaTime * gameplay_options.ui.camera_movement_speed, 0, 0);
-				break;
-
-				case camera_directions.left:
-				camera.transform.position += new Vector3 (0, 0, Time.fixedUnscaledDeltaTime * gameplay_options.ui.camera_movement_speed);
-				break;
-
-				case camera_directions.right:
-				camera.transform.position += new Vector3 (0, 0, -Time.fixedUnscaledDeltaTime * gameplay_options.ui.camera_movement_speed);
-				break;
-			}
-			break;
-
-			case camera_directions.right:
-			switch (movement_direction)
-			{
-				case camera_directions.up:
-				camera.transform.position += new Vector3 (Time.fixedUnscaledDeltaTime * gameplay_options.ui.camera_movement_speed, 0, 0);
-				break;
-
-				case camera_directions.down:
-				camera.transform.position += new Vector3 (-Time.fixedUnscaledDeltaTime * gameplay_options.ui.camera_movement_speed, 0, 0);
-				break;
-
-				case camera_directions.left:
-				camera.transform.position += new Vector3 (0, 0, -Time.fixedUnscaledDeltaTime * gameplay_options.ui.camera_movement_speed);
-				break;
-
-				case camera_directions.right:
-				camera.transform.position += new Vector3 (0, 0, Time.fixedUnscaledDeltaTime * gameplay_options.ui.camera_movement_speed);
-				break;
-			}
-			break;
-		}
-	}
-
-	private void RotateGridText (float angle_z)
-	{
-		RectTransform [] grid_text_transform_array = GameObject.Find("Text Collection").GetComponentsInChildren<RectTransform>();
-		for (int i = 1; i < grid_text_transform_array.Length; i++)
-		{
-			grid_text_transform_array[i].Rotate (0, 0, angle_z);
-		}
 	}
 
 	#endregion
@@ -1734,6 +1560,8 @@ public class GameHandler : MonoBehaviour
 	{
 		return object_under_cursor;
 	}
+
+	#region TImer
 
 	public class Timer
 	{
@@ -1823,4 +1651,6 @@ public class GameHandler : MonoBehaviour
 			}
 		}
 	}
+
+	#endregion
 }

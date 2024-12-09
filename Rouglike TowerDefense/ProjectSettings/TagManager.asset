@@ -12,6 +12,9 @@ TagManager:
   - dead
   - tower
   - enemy blocking
+  - plane
+  - spawn zone
+  - terrain
   layers:
   - Default
   - TransparentFX
@@ -19,10 +22,10 @@ TagManager:
   - 
   - Water
   - UI
+  - Towers
+  - Enemies
   - 
-  - 
-  - 
-  - 
+  - No Contact
   - Dead Bodies
   - 
   - 

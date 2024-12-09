@@ -118,12 +118,16 @@ public class Tower
 	{
 		#region variable declarations
 
-		private bool connected_to_mana = false, cooldown = false, set_xz = false;
+		[SerializeField] private bool connected_to_mana = false, cooldown = false, set_xz = false, moving = false;
 		public int x, z;
 		private GameHandler caller;
 		private GameObject this_tower_object, tower_template;
 		public tower_id tower_id;
 		public targeting_priority this_tower_targeting_priority = targeting_priority.most_progress;
+		[SerializeField] private int target_moving_distance = 0;
+		[SerializeField] private grid_direction moving_direction;
+		[SerializeField] private float movement_timer = 0;
+
 
 		#region stats
 
@@ -302,6 +306,159 @@ public class Tower
 			this_tower_object.transform.name = tower_template.name.ToString() + " Object";
 			this_tower_object.transform.position = transform.position;
 		}
+
+		private void Update()
+		{
+			if (moving == true)
+			{
+				movement_timer += Time.deltaTime * caller.gameplay_options.ui.tower_pushing_speed;
+				if (target_moving_distance > 0)
+				{
+					switch (moving_direction)
+					{
+						case grid_direction.up:
+						transform.position += new Vector3 (0, 0, 1) * Time.deltaTime * caller.gameplay_options.ui.tower_pushing_speed;
+						break;
+
+						case grid_direction.down:
+						transform.position += new Vector3 (0, 0, -1) * Time.deltaTime * caller.gameplay_options.ui.tower_pushing_speed;
+						break;
+
+						case grid_direction.left:
+						transform.position += new Vector3 (-1, 0, 0) * Time.deltaTime * caller.gameplay_options.ui.tower_pushing_speed;
+						break;
+
+						case grid_direction.right:
+						transform.position += new Vector3 (1, 0, 0) * Time.deltaTime * caller.gameplay_options.ui.tower_pushing_speed;
+						break;
+
+						case grid_direction.top_left:
+						transform.position += new Vector3 (-1, 0, 1) * Time.deltaTime * caller.gameplay_options.ui.tower_pushing_speed;
+						break;
+
+						case grid_direction.top_right:
+						transform.position += new Vector3 (1, 0, 1) * Time.deltaTime * caller.gameplay_options.ui.tower_pushing_speed;
+						break;
+
+						case grid_direction.bottom_left:
+						transform.position += new Vector3 (-1, 0, -1) * Time.deltaTime * caller.gameplay_options.ui.tower_pushing_speed;
+						break;
+
+						case grid_direction.bottom_right:
+						transform.position += new Vector3 (1, 0, -1) * Time.deltaTime * caller.gameplay_options.ui.tower_pushing_speed;
+						break;
+					}
+				}
+				if (movement_timer > 1)
+				{
+					transform.position = caller.GetGameGrid().GetWorldTileCenter (caller.GetGameGrid().GetXZ (transform.position), transform.localScale.y);
+					target_moving_distance--;
+					movement_timer = 0;
+					switch (moving_direction)
+					{
+						case grid_direction.up:
+						if (!(caller.GetGameGrid().GetValue ((caller.GetGameGrid().GetXZ (transform.position).x, caller.GetGameGrid().GetXZ
+						(transform.position).z + 1), grid_parameter.object_type) == caller.GetGameGrid().EnumTranslator (object_type.empty)))
+						{
+							moving = false;
+						}
+						break;
+
+						case grid_direction.down:
+						if (!(caller.GetGameGrid().GetValue ((caller.GetGameGrid().GetXZ (transform.position).x, caller.GetGameGrid().GetXZ
+						(transform.position).z - 1), grid_parameter.object_type) == caller.GetGameGrid().EnumTranslator (object_type.empty)))
+						{
+							moving = false;
+						}
+						break;
+
+						case grid_direction.left:
+						if (!(caller.GetGameGrid().GetValue ((caller.GetGameGrid().GetXZ (transform.position).x - 1, caller.GetGameGrid().GetXZ
+						(transform.position).z), grid_parameter.object_type) == caller.GetGameGrid().EnumTranslator (object_type.empty)))
+						{
+							moving = false;
+						}
+						break;
+
+						case grid_direction.right:
+						if (!(caller.GetGameGrid().GetValue ((caller.GetGameGrid().GetXZ (transform.position).x + 1, caller.GetGameGrid().GetXZ
+						(transform.position).z), grid_parameter.object_type) == caller.GetGameGrid().EnumTranslator (object_type.empty)))
+						{
+							moving = false;
+						}
+						break;
+
+						case grid_direction.top_left:
+						if (!(caller.GetGameGrid().GetValue ((caller.GetGameGrid().GetXZ (transform.position).x - 1, caller.GetGameGrid().GetXZ
+						(transform.position).z + 1), grid_parameter.object_type) == caller.GetGameGrid().EnumTranslator (object_type.empty) &&
+						caller.GetGameGrid().GetValue ((caller.GetGameGrid().GetXZ (transform.position).x, caller.GetGameGrid().GetXZ
+						(transform.position).z + 1), grid_parameter.object_type) == caller.GetGameGrid().EnumTranslator (object_type.empty) &&
+						caller.GetGameGrid().GetValue ((caller.GetGameGrid().GetXZ (transform.position).x - 1, caller.GetGameGrid().GetXZ
+						(transform.position).z), grid_parameter.object_type) == caller.GetGameGrid().EnumTranslator (object_type.empty)))
+						{
+							moving = false;
+						}
+						break;
+
+						case grid_direction.top_right:
+						if (!(caller.GetGameGrid().GetValue ((caller.GetGameGrid().GetXZ (transform.position).x + 1, caller.GetGameGrid().GetXZ
+						(transform.position).z + 1), grid_parameter.object_type) == caller.GetGameGrid().EnumTranslator (object_type.empty) &&
+						caller.GetGameGrid().GetValue ((caller.GetGameGrid().GetXZ (transform.position).x, caller.GetGameGrid().GetXZ
+						(transform.position).z + 1), grid_parameter.object_type) == caller.GetGameGrid().EnumTranslator (object_type.empty) &&
+						caller.GetGameGrid().GetValue ((caller.GetGameGrid().GetXZ (transform.position).x + 1, caller.GetGameGrid().GetXZ
+						(transform.position).z), grid_parameter.object_type) == caller.GetGameGrid().EnumTranslator (object_type.empty)))
+						{
+							moving = false;
+						}
+						break;
+
+						case grid_direction.bottom_left:
+						if (!(caller.GetGameGrid().GetValue ((caller.GetGameGrid().GetXZ (transform.position).x - 1, caller.GetGameGrid().GetXZ
+						(transform.position).z - 1), grid_parameter.object_type) == caller.GetGameGrid().EnumTranslator (object_type.empty) &&
+						caller.GetGameGrid().GetValue ((caller.GetGameGrid().GetXZ (transform.position).x, caller.GetGameGrid().GetXZ
+						(transform.position).z - 1), grid_parameter.object_type) == caller.GetGameGrid().EnumTranslator (object_type.empty) &&
+						caller.GetGameGrid().GetValue ((caller.GetGameGrid().GetXZ (transform.position).x - 1, caller.GetGameGrid().GetXZ
+						(transform.position).z), grid_parameter.object_type) == caller.GetGameGrid().EnumTranslator (object_type.empty)))
+						{
+							moving = false;
+						}
+						break;
+
+						case grid_direction.bottom_right:
+						if (!(caller.GetGameGrid().GetValue ((caller.GetGameGrid().GetXZ (transform.position).x + 1, caller.GetGameGrid().GetXZ
+						(transform.position).z - 1), grid_parameter.object_type) == caller.GetGameGrid().EnumTranslator (object_type.empty) &&
+						caller.GetGameGrid().GetValue ((caller.GetGameGrid().GetXZ (transform.position).x, caller.GetGameGrid().GetXZ
+						(transform.position).z - 1), grid_parameter.object_type) == caller.GetGameGrid().EnumTranslator (object_type.empty) &&
+						caller.GetGameGrid().GetValue ((caller.GetGameGrid().GetXZ (transform.position).x + 1, caller.GetGameGrid().GetXZ
+						(transform.position).z), grid_parameter.object_type) == caller.GetGameGrid().EnumTranslator (object_type.empty)))
+						{
+							moving = false;
+						}
+						break;
+					}
+					if (target_moving_distance == 0)
+					{
+						moving = false;
+					}
+				}
+			}
+		}
+
+		public void SetMovingTower (GameObject enemy, int distance, grid_direction push_direction)
+		{
+			moving_direction = push_direction;
+			target_moving_distance = distance;
+			moving = true;
+		}
+
+		#region stat modification
+
+		public void HealthAddition (int health_increase)
+		{
+			health += health_increase;
+		}
+
+		#endregion
 
 		public (int physical_damage, int fire_damage, int frost_damage, int electric_damage, int poison_damage, int magic_damage) GetDamageDealt ()
 		{
