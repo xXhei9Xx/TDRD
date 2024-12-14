@@ -263,7 +263,7 @@ public class CardHandler : MonoBehaviour
 				}
 			}
 			//picking a random card from the deck
-			int card_index = caller.RandomInt (0, card_objects_in_deck_list.Count - 1);
+			int card_index = UnityEngine.Random.Range (0, card_objects_in_deck_list.Count);
 			card_objects_list.Add (card_objects_in_deck_list [card_index]);
 			card_objects_in_deck_list [card_index].name = "card " + card_objects_list.Count;
 			card_objects_in_deck_list [card_index].GetComponent<Card>().card_number = card_objects_list.Count;
@@ -348,7 +348,7 @@ public class CardHandler : MonoBehaviour
 		}
 		for (int i = 0; i < caller.deck_options.amount_of_new_cards_to_choose; i++)
 		{
-			int number = caller.RandomInt (0, cards_to_pick_indexes.Count - 1);
+			int number = UnityEngine.Random.Range (0, cards_to_pick_indexes.Count);
 			int index = cards_to_pick_indexes [number];
 			GameObject card = Instantiate (GetCardTemplate ((card_id)index));
 			card.transform.SetParent (GameObject.Find ("Camera Screen").transform);
@@ -375,7 +375,7 @@ public class CardHandler : MonoBehaviour
 		var upgrades_to_pick_enum_var = GetCardUpgrades (card.card_id, card.card_upgrades);
 		for (int i = 0; i < caller.deck_options.amount_of_upgrades_to_choose; i++)
 		{
-			int number = caller.RandomInt (0, upgrades_to_pick_enum_var.Count - 1);
+			int number = UnityEngine.Random.Range (0, upgrades_to_pick_enum_var.Count);
 			var upgrade_enum = (upgrade_id)number;
 			GameObject upgrade = Instantiate (upgrade_template);
 			upgrade.GetComponentInChildren<TextMeshProUGUI>().text = upgrade_enum.ToString();
@@ -409,6 +409,7 @@ public class CardHandler : MonoBehaviour
 		public card_id card_id;
 		public tower_id tower_id;
 		public List<upgrade_id> card_upgrades = null;
+		private float time_since_last_pathfinding = 0;
 
 		#endregion
 
@@ -544,6 +545,7 @@ public class CardHandler : MonoBehaviour
 				//moving the tower with the mouse position
 				if (transform.GetChild(0).gameObject.activeSelf == false)
 				{
+					time_since_last_pathfinding += Time.deltaTime;
 					Ray mouse_world_ray = card_handler.main_camera.GetComponent<Camera>().ScreenPointToRay (Input.mousePosition);
 					Physics.Raycast (mouse_world_ray, out RaycastHit rayCastHit);
 					var mouse_xz = caller.GetGameGrid().GetXZ (rayCastHit.point);
@@ -551,6 +553,7 @@ public class CardHandler : MonoBehaviour
 					caller.GetGameGrid().GetValue (mouse_xz.x, mouse_xz.z, GameGrid.grid_parameter.object_type) == 0)
 					{
 						SetTowerPositionXZ (mouse_xz.x, mouse_xz.z);
+						//caller.SetAllSpawnerPathfinding ();
 					}
 				}
 				//transforming the card into tower
@@ -567,7 +570,6 @@ public class CardHandler : MonoBehaviour
 					}
 					Tower tower = new Tower (tower_id, 
 					caller.GetGameGrid().GetWorldTileCenter(mouse_xz.x, mouse_xz.z, 1), caller, card_upgrades, out tower_object);
-					
 				}
 				if (!Input.GetMouseButton(caller.gameplay_options.controls.MouseButtonTranslator(caller.gameplay_options.controls.drag_card)))
 				{
@@ -591,6 +593,7 @@ public class CardHandler : MonoBehaviour
 						card_handler.RecenterCards (card_number - 1);
 						transform.GetChild(0).transform.localPosition = transform.GetChild(0).transform.localPosition + new Vector3 (0, 200, 0);
 						mouse_tracking = false;
+						caller.SetAllSpawnerPathfinding ();
 					}
 					//returning the card to initial position
 					else

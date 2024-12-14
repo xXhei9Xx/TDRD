@@ -241,55 +241,91 @@ public class GameGrid
 	public grid_direction GetMovementDirection (Vector3 starting_position, (int x, int z) destination)
 	{
 		(int x, int z) direction = (destination.x - (int) Math.Floor (starting_position.x), destination.z - (int) Math.Floor (starting_position.z));
-		if (direction.x != 0)
+		switch (direction.x)
 		{
-			if (direction.x == -1)
+			case 0:
+			switch (direction.z)
 			{
-				return grid_direction.right;
-			}
-			else
-			{
-				return grid_direction.left;
-			}
-		}
-		else
-		{
-			if (direction.z == -1)
-			{
+				case > 0:
 				return grid_direction.up;
-			}
-			else
-			{
+
+				case <0:
 				return grid_direction.down;
 			}
+			break;
+
+			case > 0:
+			switch (direction.z)
+			{
+				case 0:
+				return grid_direction.right;
+
+				case > 0:
+				return grid_direction.top_right;
+
+				case < 0:
+				return grid_direction.bottom_right;
+			}
+
+			case < 0:
+			switch (direction.z)
+			{
+				case 0:
+				return grid_direction.left;
+
+				case > 0:
+				return grid_direction.top_left;
+
+				case < 0:
+				return grid_direction.bottom_left;
+			}
 		}
+		return grid_direction.up;
 	}
 
 	public grid_direction GetMovementDirection ((int x, int z) starting_position, (int x, int z) destination)
 	{
 		(int x, int z) direction = (destination.x - starting_position.x, destination.z - starting_position.z);
-		if (direction.x != 0)
+		switch (direction.x)
 		{
-			if (direction.x == -1)
+			case 0:
+			switch (direction.z)
 			{
-				return grid_direction.right;
-			}
-			else
-			{
-				return grid_direction.left;
-			}
-		}
-		else
-		{
-			if (direction.z == -1)
-			{
+				case > 0:
 				return grid_direction.up;
-			}
-			else
-			{
+
+				case <0:
 				return grid_direction.down;
 			}
+			break;
+
+			case > 0:
+			switch (direction.z)
+			{
+				case 0:
+				return grid_direction.right;
+
+				case > 0:
+				return grid_direction.top_right;
+
+				case < 0:
+				return grid_direction.bottom_right;
+			}
+
+			case < 0:
+			switch (direction.z)
+			{
+				case 0:
+				return grid_direction.left;
+
+				case > 0:
+				return grid_direction.top_left;
+
+				case < 0:
+				return grid_direction.bottom_left;
+			}
 		}
+		return grid_direction.up;
 	}
 	#endregion
 	#region mana
@@ -369,6 +405,48 @@ public class GameGrid
 
 		this.length_x = length_x;
 		this.width_z = width_z;
+		this.cell_length_x = cell_length_x;
+		this.cell_width_z = cell_width_z;
+		this.display_text = display_text;
+
+		#endregion
+
+		text_objects_array = new GameObject [length_x, width_z];
+
+		grid_array = new int [length_x, width_z, Enum.GetNames(typeof(grid_parameter)).Length];
+		array_of_characters_on_tile_lists = new List<GameObject> [length_x, width_z];
+		GameObject.Find("Text Collection").GetComponent<RectTransform>().sizeDelta = new Vector2 (length_x, width_z);
+
+		for (int i = 0; i < length_x; i++)
+		{
+			for (int j = 0; j < width_z; j++)
+			{
+				Debug.DrawLine (GetWorldPosition (i, j, 0) , GetWorldPosition (i + 1, j, 0), Color.white, 10000);
+				Debug.DrawLine (GetWorldPosition (i, j, 0) , GetWorldPosition (i, j + 1, 0), Color.white, 10000);
+				array_of_characters_on_tile_lists [i, j] = new List<GameObject> ();
+				text_objects_array[i, j] = new GameObject("text " + i + "," + j);
+				text_objects_array[i, j].transform.SetParent(GameObject.Find("Text Collection").transform);
+				text_objects_array [i, j].AddComponent<TextMeshProUGUI>().fontSize = 0.05f;
+				text_objects_array[i, j].transform.position = GetWorldTileCenter(i, j, 0);
+				text_objects_array[i, j].transform.Rotate (90, 0, 0);
+				text_objects_array [i, j].GetComponent<TextMeshProUGUI>().alignment = TextAlignmentOptions.CenterGeoAligned;
+				text_objects_array [i, j].GetComponent<RectTransform>().sizeDelta = new Vector2 (1, 1);
+				GridTextTileUpdate (i, j);
+			}
+		}
+
+		Debug.DrawLine (GetWorldPosition (length_x, 0, 0) , GetWorldPosition (length_x, width_z, 0), Color.white, 10000);
+		Debug.DrawLine (GetWorldPosition (0, width_z, 0) , GetWorldPosition (length_x, width_z, 0), Color.white, 10000);
+		GridTextToggle (display_text);
+	}
+
+	public GameGrid ((int length_x, int width_z) dimentions, float cell_length_x, float cell_width_z, bool display_text = true)
+	{
+
+		#region saving arguments
+
+		this.length_x = dimentions.length_x;
+		this.width_z = dimentions.width_z;
 		this.cell_length_x = cell_length_x;
 		this.cell_width_z = cell_width_z;
 		this.display_text = display_text;
@@ -571,23 +649,30 @@ public class GameGrid
 		return grid_array[position.x, position.z, EnumTranslator(parameter)];
 	}
 
-	public int RandomInt (int lower_range, int upper_range)
-	{
-		return (int) Math.Floor(UnityEngine.Random.Range((float) lower_range, (float) upper_range + 1));
-	}
-
 	public (int x, int z) RandomTile (object_type type)
 	{
-		int x, z;
 		if (GetAnyEmptyTile() != (-1, -1))
 		{
+			List <(int x, int z)> tiles_tuple_list = new List <(int x, int z)> ();
+			for (int x = 0; x < length_x; x++)
+			{
+				for (int z = 0; z < length_x; z++)
+				{
+					tiles_tuple_list.Add ((x, z));
+				}
+			}
 			bool found = false;
 			while (found == false)
 			{
-				x = RandomInt (0, length_x - 1); z = RandomInt (0, width_z - 1);
-				if (GetValue(x, z, grid_parameter.object_type) == EnumTranslator(type))
+				int random_int = UnityEngine.Random.Range (0, tiles_tuple_list.Count);
+				(int x, int z) random_tile = tiles_tuple_list [random_int];
+				if (GetValue(random_tile.x, random_tile.z, grid_parameter.object_type) == EnumTranslator(type))
 				{
-					return (x, z);
+					return (random_tile.x, random_tile.z);
+				}
+				else
+				{
+					tiles_tuple_list.RemoveAt (random_int);
 				}
 			}
 		}

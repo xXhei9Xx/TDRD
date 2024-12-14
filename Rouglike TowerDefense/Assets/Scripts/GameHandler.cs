@@ -10,6 +10,7 @@ using UnityEngine.UI;
 using TMPro;
 using System.Linq;
 using static GameGrid;
+using System.IO;
 
 public class GameHandler : MonoBehaviour
 {
@@ -33,6 +34,7 @@ public class GameHandler : MonoBehaviour
 	private TextMeshProUGUI wave_display_text;
 	private CardHandler card_handler;
 	private GameGrid grid;
+	private SaveHandler save_handler;
 	private EnemyPicker enemy_picker;
 	private DamageChart damage_chart;
 	private bool wave_active = false, inspector_window_open = false;
@@ -43,6 +45,8 @@ public class GameHandler : MonoBehaviour
 	private Color time_button_color_enter, time_button_color_exit;
 	private camera_directions camera_direction = camera_directions.up;
 	private InspectorHandler inspector_handler;
+	private bool set_pathfinding = false;
+	private float time_since_pathfinding = 0;
 
 	#region testing options
 	[Serializable] public class TestingOptions
@@ -71,6 +75,7 @@ public class GameHandler : MonoBehaviour
 	[Serializable] public class MapOptions
 	{
 		[SerializeField] public bool load_save = false;
+		[SerializeField] public bool random_save = false;
 		[SerializeField] public string save_name;
 		[SerializeField] [Range (10, 30)] public int length_x = 10;
 		[SerializeField] [Range (10, 30)] public int width_z = 10;
@@ -1116,12 +1121,27 @@ public class GameHandler : MonoBehaviour
 
 	void Start()
     {
-		
-		#region initializing enemy picker, grid, pathfinding
+		#region initializing enemy picker, grid, pathfinding, save handler
 
 		enemy_picker = new EnemyPicker (this);
 		GameObject.Find ("Damage Chart").AddComponent<DamageChart>().SetDamageChart (enemy_picker);
-		 grid = new GameGrid (gameplay_options.map.length_x, gameplay_options.map.width_z, gameplay_options.map.cell_length_x, gameplay_options.map.cell_width_z, testing_options.display_grid_text);
+		if (gameplay_options.map.load_save == true)
+		{
+			save_handler = new SaveHandler();
+			var info = new DirectoryInfo (Application.dataPath + "/Map Saves/");
+				var fileInfo = info.GetFiles();
+			if (gameplay_options.map.random_save == true && fileInfo.Count() > 0)
+			{
+				gameplay_options.map.save_name = fileInfo [UnityEngine.Random.Range (0, fileInfo.Count() / 2)].Name.Replace (".json", "");
+			}
+			grid = new GameGrid (save_handler.GetGridDimensions (this,gameplay_options.map.save_name), gameplay_options.map.cell_length_x, gameplay_options.map.cell_width_z, testing_options.display_grid_text);
+			save_handler.SaveTerrainLoad (this, gameplay_options.map.save_name);
+			MapConstructor map_constructor = new MapConstructor (this);
+		}
+		else
+		{
+			grid = new GameGrid (gameplay_options.map.length_x, gameplay_options.map.width_z, gameplay_options.map.cell_length_x, gameplay_options.map.cell_width_z, testing_options.display_grid_text);
+		}
 		pathfinding = new PathFinding ();
 
 		#endregion
@@ -1168,7 +1188,7 @@ public class GameHandler : MonoBehaviour
 		time_button_color_exit = new Color (0.4156863f, 0.4156863f, 0.4156863f);
 
 		#endregion
-       
+		
 		//creating core in preset position
 		if (testing_options.random_spawner_positions == false)
 		{
@@ -1194,12 +1214,6 @@ public class GameHandler : MonoBehaviour
 			{
 				new Enemy (grid.GetWorldTileCenter (grid.RandomTile (GameGrid.object_type.empty), 1), this);
 			}
-		}
-		SaveHandler save_handler = new SaveHandler();
-		if (gameplay_options.map.load_save == true)
-		{
-			save_handler.SaveTerrainLoad (this, gameplay_options.map.save_name);
-			MapConstructor map_constructor = new MapConstructor (this);
 		}
 		SetManaOutlineTimer ();
 		#region board center tupple
@@ -1236,6 +1250,20 @@ public class GameHandler : MonoBehaviour
 
     void Update()
     {
+		#region spawner pathfinding
+
+		time_since_pathfinding += Time.deltaTime;
+		if (set_pathfinding == true && time_since_pathfinding > 0.25f)
+		{
+			set_pathfinding = false;
+			time_since_pathfinding = 0;
+			foreach (GameObject spawner in spawner_list)
+			{
+				spawner.GetComponent<Spawner>().SetNewPathfinding ();
+			}
+		}
+
+		#endregion
 		#region changing outline color
 
 		if (inspector_window_open == false)
@@ -1434,7 +1462,7 @@ public class GameHandler : MonoBehaviour
 	{
 		if (enemy_to_spawn_list.Count > 0)
 		{
-			int enemy_index = grid.RandomInt (0, enemy_to_spawn_list.Count - 1);
+			int enemy_index = UnityEngine.Random.Range (0, enemy_to_spawn_list.Count);
 			enemy_id type = enemy_to_spawn_list [enemy_index];
 			enemy_to_spawn_list.RemoveAt (enemy_index);
 			return type;
@@ -1481,10 +1509,7 @@ public class GameHandler : MonoBehaviour
 
 	public void SetAllSpawnerPathfinding ()
 	{
-		foreach (GameObject spawner in spawner_list)
-		{
-			spawner.GetComponent<Spawner>().SetNewPathfinding ();
-		}
+		set_pathfinding = true;
 	}
 
 	public void AddSpawnerToSpawnerList (GameObject spawner)
@@ -1530,11 +1555,6 @@ public class GameHandler : MonoBehaviour
 
 		button_object.transform.GetChild (0).GetComponent<Image>().color = time_button_color_enter;
 		button_object.GetComponent<Button_UI> ().enabled = false;
-	}
-
-	public int RandomInt (int lower_range, int upper_range)
-	{
-		return (int) Math.Floor(UnityEngine.Random.Range((float) lower_range, (float) upper_range + 1));
 	}
 
 	public void SetOutlineMaterial (GameObject game_object, Material new_outline_material)
