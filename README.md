@@ -4,7 +4,7 @@
 
 ### About
 
-about project
+about project, all files of project are in [__project-files__](./project-files/) dir
 
 ### How to run it
 
