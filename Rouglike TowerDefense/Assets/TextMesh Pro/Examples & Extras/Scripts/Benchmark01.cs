@@ -110,7 +110,7 @@ namespace TMPro.Examples
 
 
         /*
-        void Update()
+        void FixedUpdate()
         {
             if (BenchmarkType == 0)
             {

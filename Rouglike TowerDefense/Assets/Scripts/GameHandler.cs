@@ -11,6 +11,7 @@ using TMPro;
 using System.Linq;
 using static GameGrid;
 using System.IO;
+using static Core;
 
 public class GameHandler : MonoBehaviour
 {
@@ -24,7 +25,7 @@ public class GameHandler : MonoBehaviour
 	new GameObject camera;
 	private (float x, float y, float z) board_center_position_tuple;
 	private int wave_number = 0, tower_counter = 0, enemy_counter = 0, spawner_counter = 0, core_counter = 0, mana_amount = 0;
-	private List<(int x, int z, GameGrid.grid_direction direction)> mana_outline_tuple_list = new List<(int x, int z, GameGrid.grid_direction direction)> ();
+	private List<(int x, int z, grid_direction direction)> mana_outline_tuple_list = new List<(int x, int z, grid_direction direction)> ();
 	private GameObject wave_button;
 	private GameObject time_buttons, time_button_pause, time_button_0_25, time_button_0_5, time_button_1, time_button_2, time_button_4;
 	private GameObject add_card_button;
@@ -37,16 +38,16 @@ public class GameHandler : MonoBehaviour
 	private SaveHandler save_handler;
 	private EnemyPicker enemy_picker;
 	private DamageChart damage_chart;
-	private bool wave_active = false, inspector_window_open = false;
+	private bool wave_active = false, inspector_window_open = false, first_path = false;
 	private List<enemy_id> enemy_to_spawn_list = new List<enemy_id> {};
+	private List<CoreObject> cores_list = new List<CoreObject> ();
 	private List<GameObject> enemy_list = new List<GameObject> ();
 	private List<GameObject> spawner_list = new List<GameObject> ();
 	private PathFinding pathfinding;
 	private Color time_button_color_enter, time_button_color_exit;
 	private camera_directions camera_direction = camera_directions.up;
 	private InspectorHandler inspector_handler;
-	private bool set_pathfinding = false;
-	private float time_since_pathfinding = 0;
+	private float pathfinding_timer = 0;
 
 	#region testing options
 	[Serializable] public class TestingOptions
@@ -80,7 +81,7 @@ public class GameHandler : MonoBehaviour
 		[SerializeField] [Range (10, 30)] public int length_x = 10;
 		[SerializeField] [Range (10, 30)] public int width_z = 10;
 		[SerializeField] [Range (1, 3)] public float cell_length_x = 1;
-		[SerializeField] [Range (1, 3)]public float cell_width_z = 1;
+		[SerializeField] [Range (1, 3)] public float cell_width_z = 1;
 	}
 
 	[Serializable] public class UIOptions
@@ -1246,21 +1247,17 @@ public class GameHandler : MonoBehaviour
 		#endregion
 		camera.transform.position = new Vector3 (board_center_position_tuple.x, board_center_position_tuple.y, board_center_position_tuple.z);
 		camera.AddComponent<CameraMovement>().SetVariables (this);
+		pathfinding.FindPath (grid, cores_list);
     }
 
-    void Update()
+	private void FixedUpdate()
     {
-		#region spawner pathfinding
-
-		time_since_pathfinding += Time.deltaTime;
-		if (set_pathfinding == true && time_since_pathfinding > 0.25f)
+		#region pathfinding
+		pathfinding_timer += Time.deltaTime;
+		if (pathfinding_timer > 1f && first_path == false)
 		{
-			set_pathfinding = false;
-			time_since_pathfinding = 0;
-			foreach (GameObject spawner in spawner_list)
-			{
-				spawner.GetComponent<Spawner>().SetNewPathfinding ();
-			}
+			
+			first_path = true;
 		}
 
 		#endregion
@@ -1496,25 +1493,17 @@ public class GameHandler : MonoBehaviour
 		enemy_to_spawn_list.Add (id);
 	}
 
-	public void ResetPathfindingOfAllEnemies ()
-	{
-		foreach (GameObject enemy in enemy_list)
-		{
-			enemy.GetComponent<BaseEnemy>().SetNewPathfinding ();
-		}
-	}
-
 	#endregion
 	#region Spawner: pathfinding, add to spawner list
-
-	public void SetAllSpawnerPathfinding ()
-	{
-		set_pathfinding = true;
-	}
 
 	public void AddSpawnerToSpawnerList (GameObject spawner)
 	{
 		spawner_list.Add (spawner);
+	}
+
+	public void SetNewPathfinding ()
+	{
+		pathfinding.FindPath (grid, cores_list);
 	}
 
 	#endregion
@@ -1579,6 +1568,11 @@ public class GameHandler : MonoBehaviour
 	public GameObject GetObjectUnderCursor ()
 	{
 		return object_under_cursor;
+	}
+
+	public void AddCoreToCoresList (CoreObject core)
+	{
+		cores_list.Add (core);
 	}
 
 	#region TImer
@@ -1660,7 +1654,7 @@ public class GameHandler : MonoBehaviour
 				this.action = action;
 			}
 
-			private void Update()
+			private void FixedUpdate()
 			{
 				time -= Time.deltaTime;
 				if (time < 0)

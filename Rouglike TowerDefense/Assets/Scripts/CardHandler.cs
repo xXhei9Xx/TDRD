@@ -188,7 +188,7 @@ public class CardHandler : MonoBehaviour
 		current_card.transform.localPosition = card_draw_starting_position;
 	}
 
-    void Update()
+    void FixedUpdate()
     {
 		//draw phase of the turn
 		if ((cards_in_hand >= target_amount_of_cards && drawing == true && timer > (caller.gameplay_options.ui.card_movement_time + extra_time_between_actions)) ||
@@ -419,7 +419,7 @@ public class CardHandler : MonoBehaviour
 			tower_id = GetTowerTypeFromCardId (card_id);
 		}
 
-		private void Update()
+		private void FixedUpdate()
 		{
 			//moving from starting position to the card hand position
 			if (auto_moving == true)
@@ -593,12 +593,12 @@ public class CardHandler : MonoBehaviour
 						card_handler.RecenterCards (card_number - 1);
 						transform.GetChild(0).transform.localPosition = transform.GetChild(0).transform.localPosition + new Vector3 (0, 200, 0);
 						mouse_tracking = false;
-						caller.SetAllSpawnerPathfinding ();
+						caller.SetNewPathfinding ();
 					}
 					//returning the card to initial position
 					else
 					{
-						caller.SetAllSpawnerPathfinding ();
+						caller.SetNewPathfinding ();
 						transform.GetChild(0).transform.localPosition = transform.GetChild(0).transform.localPosition + new Vector3 (0, 200, 0);
 						gameObject.transform.Rotate(0, 0, target_rotation.z);
 						transform.localPosition = target_position;
@@ -611,7 +611,7 @@ public class CardHandler : MonoBehaviour
 					if (tower_object != null)
 					{
 						tower_object.GetComponent<BaseTower>().DestroyThisTower ();
-						caller.SetAllSpawnerPathfinding ();
+						caller.SetNewPathfinding ();
 						card_handler.ToggleHandCardsVisibility ();
 					}
 					transform.GetChild(0).transform.localPosition = transform.GetChild(0).transform.localPosition + new Vector3 (0, 200, 0);
@@ -656,7 +656,7 @@ public class CardHandler : MonoBehaviour
 
 		#endregion
 
-		private void Update()
+		private void FixedUpdate()
 		{
 			if (mouse_on_card == true && Input.GetMouseButtonDown (caller.gameplay_options.controls.MouseButtonTranslator (caller.gameplay_options.controls.drag_card)))
 			{
@@ -702,7 +702,7 @@ public class CardHandler : MonoBehaviour
 
 		#endregion
 
-		private void Update()
+		private void FixedUpdate()
 		{
 			if (mouse_on_card == true && Input.GetMouseButtonDown (caller.gameplay_options.controls.MouseButtonTranslator (caller.gameplay_options.controls.drag_card)))
 			{

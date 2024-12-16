@@ -16,6 +16,7 @@ public class Core
 		GameGrid.grid_parameter.object_type, GameGrid.object_type.core);
 		core.AddComponent<CoreObject>().position = position;
 		core.transform.parent = GameObject.Find ("Core Initialized").transform;
+		caller.AddCoreToCoresList (core.GetComponent<CoreObject>());
 	}
 
 	public class CoreObject : MonoBehaviour

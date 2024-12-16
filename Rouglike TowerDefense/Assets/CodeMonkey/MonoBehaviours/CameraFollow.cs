@@ -65,7 +65,7 @@ namespace CodeMonkey.MonoBehaviours {
         }
 
 
-        private void Update() {
+        private void FixedUpdate() {
             HandleMovement();
             HandleZoom();
         }

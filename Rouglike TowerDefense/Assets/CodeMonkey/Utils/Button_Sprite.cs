@@ -137,7 +137,7 @@ namespace CodeMonkey.Utils {
                 if (MouseRightDownOnceFunc != null) MouseRightDownOnceFunc();
             }
         }
-        void Update() {
+        void FixedUpdate() {
             if (draggingMouseRight) {
                 if (MouseRightDragUpdateFunc != null) MouseRightDragUpdateFunc(mouseRightDragStart, GetWorldPositionFromUI());
             }

@@ -526,14 +526,12 @@ public class Enemy
 		private GameHandler caller;
 		private	GameObject path_timer;
 		private GameObject spawner_template, this_spawner, enemy_object;
-		private (int x, int z) [] path_tuple_array = new (int x, int z) [0];
 
 		public void SetVariables (Vector3 position, GameHandler caller)
 		{
 			cooldown = caller.testing_options.spawner_cooldown;
 			this.caller = caller;
 			this.position = position;
-			SetNewPathfinding ();
 		}
 
 		#endregion
@@ -545,6 +543,7 @@ public class Enemy
 			this_spawner.name = "Spawner Object";
 			this_spawner.transform.position = position;
 			this_spawner.transform.parent = transform;
+			//DrawPathLines();
 		}
 
 		public void SpawnEnemy (Spawner parent)
@@ -585,25 +584,28 @@ public class Enemy
 		//continusly draws the path from the spawner to the core
 		public void DrawPathLines ()
 		{
-			path_timer = GameHandler.Timer.Create (() => {
-			for (int i = 0; i < path_tuple_array.Length - 1; i++)
+			path_timer = GameHandler.Timer.Create(() =>
 			{
-				Debug.DrawLine (caller.GetGameGrid().GetWorldTileCenter(path_tuple_array [i].x, path_tuple_array [i].z, 0),
-				caller.GetGameGrid().GetWorldTileCenter(path_tuple_array [i + 1].x, path_tuple_array [i + 1].z, 0), Color.red, 0.25f);
-			}
-			DrawPathLines ();
+				(int x, int z) current_position = caller.GetGameGrid().GetXZ (position);
+				(int x, int z) next_position = (caller.GetGameGrid().GetValue (current_position, grid_parameter.prev_x_empty),
+				caller.GetGameGrid().GetValue (current_position, grid_parameter.prev_z_empty));
+				if (caller.GetPathfinding().CheckPath (current_position, caller.GetGameGrid(), pathfinding_tile_parameter.empty, out int path_length))
+				{
+					while (path_length != 0)
+					{
+						Debug.DrawLine(caller.GetGameGrid().GetWorldTileCenter (current_position),
+						caller.GetGameGrid().GetWorldTileCenter (next_position), Color.red, 0.3f);
+						if (caller.GetGameGrid().GetValue (next_position, grid_parameter.object_type) == caller.GetGameGrid().EnumTranslator (object_type.core))
+						{
+							break;
+						}
+						current_position = next_position;
+						next_position = (caller.GetGameGrid().GetValue (next_position, grid_parameter.prev_x_empty),
+						caller.GetGameGrid().GetValue (next_position, grid_parameter.prev_z_empty));
+					}
+				}
+				DrawPathLines();
 			}, 0.25f, "draw path", gameObject);
-		}
-
-		//determines which core is the closest and establishes the shortest path to it
-		public void SetNewPathfinding ()
-		{
-			caller.GetPathfinding().FindPath (position, caller.GetGameGrid(), out path_tuple_array, pathfinding_tile_parameter.empty);
-			if (draw_path == false)
-			{
-				DrawPathLines ();
-				draw_path = true;
-			}
 		}
 	}
 
@@ -622,14 +624,12 @@ public class Enemy
 		private Action<(int physical_damage, int fire_damage, int frost_damage, int electric_damage, int poison_damage, int magic_damage)> BlockingAction = null;
 		private List<Collider> this_enemy_collider_list = new List<Collider>();
 		[SerializeField] private (int x, int z) current_position, next_tile;
-		private (int x, int z) [] path_tuple_array;
 		[SerializeField] private bool moving = false, unique_action = false, cooldown = false, minion, mana_regen = true, blocking = false, blocked = false, calculate_distance_traveled = false, in_air = false;
-		private int counter;
 		private (int physical_damage, int fire_damage, int frost_damage, int electric_damage, int poison_damage, int magic_damage) blocked_damage_tuple = (0, 0, 0, 0, 0, 0);
 		[SerializeField] private float mana_timer = 1, distance_traveled = 0;
 		private Vector3 previous_position;
 		[SerializeField] private grid_direction direction;
-		private pathfinding_tile_parameter last_pathfinding_parameter;
+		[SerializeField] private pathfinding_tile_parameter pathfinding_parameter;
 
 		#region stats
 
@@ -1152,19 +1152,6 @@ public class Enemy
 			health = max_health;
 		}
 
-		public void SetNewPathfinding ()
-		{
-			caller.GetPathfinding().FindPath (transform.position, caller.GetGameGrid(), out path_tuple_array, last_pathfinding_parameter);
-			counter = path_tuple_array.Length - 2;
-		}
-
-		public void SetNewPathfinding (pathfinding_tile_parameter tile_parameter)
-		{
-			last_pathfinding_parameter = tile_parameter;
-			caller.GetPathfinding().FindPath (transform.position, caller.GetGameGrid(), out path_tuple_array, tile_parameter);
-			counter = path_tuple_array.Length - 2;
-		}
-
 		public void SetDeathAction (Action death_action)
 		{
 			DeathAction = death_action;
@@ -1186,8 +1173,6 @@ public class Enemy
 			ManaBarToggle (false);
 			CastingBarToggle (false);
 			#endregion
-			SetNewPathfinding (pathfinding_tile_parameter.empty);
-			counter = path_tuple_array.Length - 2;
 			this_enemy_collider_list.Add (GetComponent<Collider> ());
 			foreach (Collider collider in GetComponentsInChildren<Collider> ())
 			{
@@ -1198,7 +1183,7 @@ public class Enemy
 			GetComponent<Rigidbody> ().freezeRotation = true;
 		}
 
-		private void Update()
+		private void FixedUpdate()
 		{
 			//mana regen
 			if (mana < max_mana && mana_regen == true)
@@ -1221,7 +1206,8 @@ public class Enemy
 				{
 					//choosing the next destination tile
 					caller.GetGameGrid().SetValue (current_position.x, current_position.z, GameGrid.grid_parameter.enemy, GameGrid.enemy.occupied);
-					next_tile = path_tuple_array [counter];
+					next_tile = (caller.GetGameGrid().GetValue (next_tile, grid_parameter.prev_x_empty),
+					caller.GetGameGrid().GetValue (next_tile, grid_parameter.prev_z_empty));
 					direction = caller.GetGameGrid().GetMovementDirection (current_position, next_tile);
 					//rotating enemy to match movement direction
 					switch (direction)
@@ -1259,7 +1245,6 @@ public class Enemy
 						break;
 					}
 					moving = true;
-					counter--;
 				}
 				//moving enemy object
 				this_test_enemy.transform.position += GetDirectionVector (direction, movement_speed);
@@ -1281,7 +1266,7 @@ public class Enemy
 					//changing tile parameter values
 					caller.GetGameGrid().SetValue (current_position.x, current_position.z, GameGrid.grid_parameter.enemy, GameGrid.enemy.empty);
 					current_position = next_tile;
-					if (counter == -1)
+					if (caller.GetGameGrid().GetValue (current_position, grid_parameter.object_type) == caller.GetGameGrid().EnumTranslator (object_type.core))
 					{
 						//action triggered when enemy reaches core
 						caller.testing_options.core_health--;
@@ -1334,10 +1319,7 @@ public class Enemy
 			return max_mana;
 		}
 
-		public int GetDistanceFromCore ()
-		{
-			return counter + 1;
-		}
+	
 		#endregion
 
 		#region check cooldown and mana, set mana and cooldown, get mana, check if moving, check unique action, casting bar update, death action and self destroy
@@ -1529,7 +1511,7 @@ public class Enemy
 
 		#endregion
 
-		#region set destination reached action, get next tile, set on hit action, get resistances, set in air, get path tuple array, get movement speed, get movement direction
+		#region set destination reached action, get next tile, set on hit action, get resistances, set in air, set pathfinding parameter, get movement speed, get movement direction
 
 		public void SetDestinationReachedAction (Action action)
 		{
@@ -1538,7 +1520,7 @@ public class Enemy
 
 		public (int x, int z) GetNextTile ()
 		{
-			return path_tuple_array [counter];
+			return next_tile;
 		}
 
 		public void SetOnHitAction (Action action)
@@ -1561,9 +1543,9 @@ public class Enemy
 			in_air = state;
 		}
 
-		public (int x, int z) [] GetPathTupleArray ()
+		public void SetPathfindingParameter (pathfinding_tile_parameter parameter)
 		{
-			return path_tuple_array;
+			pathfinding_parameter = parameter;
 		}
 
 		public float GetMovementSpeed ()
@@ -1708,7 +1690,7 @@ public class Enemy
 				return used;
 			}
 
-			private void Update()
+			private void FixedUpdate()
 			{
 				if (caller.CheckIfWaveActive () == false)
 				{
@@ -1765,7 +1747,6 @@ public class Enemy
 				current_position = caller.GetGameGrid().GetXZ(transform.position);
 				unique_action = false;
 				in_air = false;
-				SetNewPathfinding(pathfinding_tile_parameter.empty);
 			}
 		}
 
@@ -1875,7 +1856,7 @@ public class Enemy
 			GetComponent<BaseEnemy>().SetDestinationReachedAction (()=>{
 				if (GetComponent<BaseEnemy>().CheckCooldownAndMana (caller.enemy_options.physical.goblin_construction_team.mana_cost) == true)
 				{
-					if (CheckStraightLineJumpViability (caller, GetComponent<BaseEnemy>().GetCurrentPosition (), 2, GetComponent<BaseEnemy>().GetDistanceFromCore(), out jump_direction) == true)
+					if (CheckStraightLineJumpViability (caller, GetComponent<BaseEnemy>().GetCurrentPosition (), 2, out jump_direction) == true)
 					{
 						GetComponent<BaseEnemy>().SetManaAndCooldown (caller.enemy_options.physical.goblin_construction_team.mana_cost, caller.enemy_options.physical.goblin_construction_team.cooldown);
 						GetComponent<BaseEnemy>().SetUniqueAction (true);
@@ -1884,7 +1865,7 @@ public class Enemy
 			});
 		}
 
-		private void Update()
+		private void FixedUpdate()
 		{
 			if (GetComponent<BaseEnemy>().CheckUniqueAction() == true)
 			{
@@ -1894,7 +1875,7 @@ public class Enemy
 					(int x, int z) scaffolding_position = AddDirectionToPosition (jump_direction, GetComponent<BaseEnemy>().GetCurrentPosition());
 					caller.GetGameGrid().SetValue (scaffolding_position, grid_parameter.object_type, object_type.traversable_tower);
 					GetComponent<BaseEnemy>().SetUniqueAction (false);
-					caller.ResetPathfindingOfAllEnemies ();
+					caller.SetNewPathfinding ();
 				}
 			}
 		}
@@ -1920,7 +1901,7 @@ public class Enemy
 		}
 		#endregion
 
-		private void Update()
+		private void FixedUpdate()
 		{
 			if (GetComponent <BaseEnemy>().CheckUniqueAction() == true)
 			{
@@ -1971,7 +1952,7 @@ public class Enemy
 			GetComponent<BaseEnemy>().SetCalculateDistanceTraveled (true);
 		}
 
-		private void Update()
+		private void FixedUpdate()
 		{
 			if (GetComponent<BaseEnemy>().CheckCooldownAndMana (caller.enemy_options.physical.werewolf.mana_cost) == true &&
 			GetComponent<BaseEnemy>().GetDistanceTraveled() >= caller.enemy_options.physical.werewolf.evolution_distance)
@@ -2004,11 +1985,11 @@ public class Enemy
 
 		private void Start()
 		{
-			GetComponent<BaseEnemy>().SetNewPathfinding (pathfinding_tile_parameter.any_object);
+			GetComponent<BaseEnemy>().SetPathfindingParameter (pathfinding_tile_parameter.any_object);
 			GetComponent<BaseEnemy>().SetDestinationReachedAction (()=>{
 			if (GetComponent<BaseEnemy>().CheckCooldownAndMana (caller.enemy_options.physical.steam_walker.mana_cost) == true)
 			{
-				GetComponent<BaseEnemy>().SetNewPathfinding (pathfinding_tile_parameter.any_object);
+				GetComponent<BaseEnemy>().SetPathfindingParameter (pathfinding_tile_parameter.any_object);
 			}
 			if (caller.GetGameGrid().GetValue (GetComponent<BaseEnemy>().GetNextTile(), grid_parameter.object_type) != caller.GetGameGrid().EnumTranslator (object_type.empty))
 			{
@@ -2020,7 +2001,7 @@ public class Enemy
 				}
 				else
 				{
-					GetComponent<BaseEnemy>().SetNewPathfinding (pathfinding_tile_parameter.empty);
+					GetComponent<BaseEnemy>().SetPathfindingParameter (pathfinding_tile_parameter.empty);
 				}
 			}
 			if (caller.GetGameGrid().GetValue (GetComponent<BaseEnemy>().GetCurrentPosition(), grid_parameter.object_type) == caller.GetGameGrid().EnumTranslator (object_type.empty) &&
@@ -2234,7 +2215,7 @@ public class Enemy
 			});
 		}
 
-		private void Update()
+		private void FixedUpdate()
 		{
 			buff_end_timer += Time.deltaTime;
 			if (buff_end_timer >= caller.enemy_options.fire.magma_elemental.time_to_buff_reset)
@@ -2268,7 +2249,7 @@ public class Enemy
 		}
 		#endregion
 
-		private void Update()
+		private void FixedUpdate()
 		{
 			if (GetComponent<BaseEnemy>().CheckCooldownAndMana (caller.enemy_options.fire.alchemist.mana_cost) == true)
 			{
@@ -2292,7 +2273,7 @@ public class Enemy
 		}
 		#endregion
 
-		private void Update()
+		private void FixedUpdate()
 		{
 			if (GetComponent <BaseEnemy>().CheckUniqueAction() == true)
 			{
@@ -2348,7 +2329,7 @@ public class Enemy
 		}
 		#endregion
 
-		private void Update()
+		private void FixedUpdate()
 		{
 			if (GetComponent<BaseEnemy>().CheckCooldownAndMana (caller.enemy_options.fire.fire_elemental.mana_cost) == true)
 			{
@@ -2369,7 +2350,7 @@ public class Enemy
 		}
 		#endregion
 
-		private void Update()
+		private void FixedUpdate()
 		{
 			if (GetComponent<BaseEnemy>().CheckCooldownAndMana (caller.enemy_options.fire.wyrmling.mana_cost) == true)
 			{
@@ -2390,7 +2371,7 @@ public class Enemy
 		}
 		#endregion
 
-		private void Update()
+		private void FixedUpdate()
 		{
 			if (GetComponent<BaseEnemy>().CheckCooldownAndMana (caller.enemy_options.fire.corruptor.mana_cost) == true)
 			{
@@ -2415,7 +2396,7 @@ public class Enemy
 
 		#endregion
 
-		private void Update()
+		private void FixedUpdate()
 		{
 			if (GetComponent<BaseEnemy>().GetCurrentHealth() <= (caller.enemy_options.frost.lich.life_steal_threshold * 
 			GetComponent<BaseEnemy>().GetMaxHealth() ) && in_life_steal_threshold == false)
@@ -2470,7 +2451,7 @@ public class Enemy
 		}
 		#endregion
 
-		private void Update()
+		private void FixedUpdate()
 		{
 			if (GetComponent<BaseEnemy>().CheckCooldownAndMana (caller.enemy_options.frost.lady_frost.mana_cost) == true)
 			{
@@ -2491,7 +2472,7 @@ public class Enemy
 		}
 		#endregion
 
-		private void Update()
+		private void FixedUpdate()
 		{
 			if (GetComponent<BaseEnemy>().CheckCooldownAndMana (caller.enemy_options.frost.ice_consumer.mana_cost) == true)
 			{
@@ -2512,7 +2493,7 @@ public class Enemy
 		}
 		#endregion
 
-		private void Update()
+		private void FixedUpdate()
 		{
 			if (GetComponent<BaseEnemy>().CheckCooldownAndMana (caller.enemy_options.frost.dead_grove.mana_cost) == true)
 			{
@@ -2533,7 +2514,7 @@ public class Enemy
 		}
 		#endregion
 
-		private void Update()
+		private void FixedUpdate()
 		{
 			if (GetComponent<BaseEnemy>().CheckCooldownAndMana (caller.enemy_options.frost.snow_diver.mana_cost) == true)
 			{
@@ -2554,7 +2535,7 @@ public class Enemy
 		}
 		#endregion
 
-		private void Update()
+		private void FixedUpdate()
 		{
 			if (GetComponent<BaseEnemy>().CheckCooldownAndMana (caller.enemy_options.frost.ice_thrall.mana_cost) == true)
 			{
@@ -2576,7 +2557,7 @@ public class Enemy
 		}
 		#endregion
 
-		private void Update()
+		private void FixedUpdate()
 		{
 			if (GetComponent<BaseEnemy>().CheckCooldownAndMana (caller.enemy_options.electric.absorber.mana_cost) == true)
 			{
@@ -2597,7 +2578,7 @@ public class Enemy
 		}
 		#endregion
 
-		private void Update()
+		private void FixedUpdate()
 		{
 			if (GetComponent<BaseEnemy>().CheckCooldownAndMana (caller.enemy_options.electric.static_charge.mana_cost) == true)
 			{
@@ -2618,7 +2599,7 @@ public class Enemy
 		}
 		#endregion
 
-		private void Update()
+		private void FixedUpdate()
 		{
 			if (GetComponent<BaseEnemy>().CheckCooldownAndMana (caller.enemy_options.electric.charge_collector.mana_cost) == true)
 			{
@@ -2639,7 +2620,7 @@ public class Enemy
 		}
 		#endregion
 
-		private void Update()
+		private void FixedUpdate()
 		{
 			if (GetComponent<BaseEnemy>().CheckCooldownAndMana (caller.enemy_options.electric.zap.mana_cost) == true)
 			{
@@ -2666,7 +2647,7 @@ public class Enemy
 			if (GetComponent<BaseEnemy>().CheckCooldownAndMana (caller.enemy_options.electric.rocket_goblin.mana_cost) == true)
 			{
 				if (CheckStraightLineJumpViability (caller, GetComponent<BaseEnemy>().GetCurrentPosition (), caller.enemy_options.electric.rocket_goblin.casting_range,
-				GetComponent<BaseEnemy>().GetDistanceFromCore(), out grid_direction jump_direction))
+				out grid_direction jump_direction))
 				{
 					StraightLineJump (1.5f, caller.enemy_options.electric.rocket_goblin.casting_range, gameObject, jump_direction);
 					GetComponent<BaseEnemy>().SetUniqueAction (true);
@@ -2690,7 +2671,7 @@ public class Enemy
 		}
 		#endregion
 
-		private void Update()
+		private void FixedUpdate()
 		{
 			if (GetComponent<BaseEnemy>().CheckCooldownAndMana (caller.enemy_options.electric.overcharge.mana_cost) == true)
 			{
@@ -2720,7 +2701,7 @@ public class Enemy
 			last_health_state = GetComponent<BaseEnemy>().GetCurrentHealth();
 		}
 
-		private void Update()
+		private void FixedUpdate()
 		{
 			if (GetComponent<BaseEnemy>().GetCurrentHealth() != last_health_state)
 			{
@@ -2751,7 +2732,7 @@ public class Enemy
 		}
 		#endregion
 
-		private void Update()
+		private void FixedUpdate()
 		{
 			if (GetComponent<BaseEnemy>().CheckCooldownAndMana (caller.enemy_options.poison.ooze.mana_cost) == true)
 			{
@@ -2772,7 +2753,7 @@ public class Enemy
 		}
 		#endregion
 
-		private void Update()
+		private void FixedUpdate()
 		{
 			if (GetComponent<BaseEnemy>().CheckCooldownAndMana (caller.enemy_options.poison.corpse_eater.mana_cost) == true)
 			{
@@ -2793,7 +2774,7 @@ public class Enemy
 		}
 		#endregion
 
-		private void Update()
+		private void FixedUpdate()
 		{
 			if (GetComponent<BaseEnemy>().CheckCooldownAndMana (caller.enemy_options.poison.mutant.mana_cost) == true)
 			{
@@ -2814,7 +2795,7 @@ public class Enemy
 		}
 		#endregion
 
-		private void Update()
+		private void FixedUpdate()
 		{
 			if (GetComponent<BaseEnemy>().CheckCooldownAndMana (caller.enemy_options.poison.grappling_spider.mana_cost) == true)
 			{
@@ -2836,7 +2817,7 @@ public class Enemy
 			
 		}
 
-		private void Update()
+		private void FixedUpdate()
 		{
 			
 		}
@@ -2869,7 +2850,7 @@ public class Enemy
 		}
 		#endregion
 
-		private void Update()
+		private void FixedUpdate()
 		{
 			if (GetComponent<BaseEnemy>().CheckCooldownAndMana (caller.enemy_options.magic.shadow_fiend.mana_cost) == true)
 			{
@@ -2890,7 +2871,7 @@ public class Enemy
 		}
 		#endregion
 
-		private void Update()
+		private void FixedUpdate()
 		{
 			if (GetComponent<BaseEnemy>().CheckCooldownAndMana (caller.enemy_options.magic.shaman.mana_cost) == true)
 			{
@@ -2911,7 +2892,7 @@ public class Enemy
 		}
 		#endregion
 
-		private void Update()
+		private void FixedUpdate()
 		{
 			if (GetComponent<BaseEnemy>().CheckCooldownAndMana (caller.enemy_options.magic.necromancer.mana_cost) == true)
 			{
@@ -2932,7 +2913,7 @@ public class Enemy
 		}
 		#endregion
 
-		private void Update()
+		private void FixedUpdate()
 		{
 			if (GetComponent<BaseEnemy>().CheckCooldownAndMana (caller.enemy_options.magic.mana_addict.mana_cost) == true)
 			{
@@ -2953,7 +2934,7 @@ public class Enemy
 		}
 		#endregion
 
-		private void Update()
+		private void FixedUpdate()
 		{
 			if (GetComponent<BaseEnemy>().CheckCooldownAndMana (caller.enemy_options.magic.phase_shifter.mana_cost) == true)
 			{
@@ -2974,7 +2955,7 @@ public class Enemy
 		}
 		#endregion
 
-		private void Update()
+		private void FixedUpdate()
 		{
 			if (GetComponent<BaseEnemy>().CheckCooldownAndMana (caller.enemy_options.magic.mind_twister.mana_cost) == true)
 			{
@@ -3152,8 +3133,9 @@ public class Enemy
 		}
 	}
 
-	public static bool CheckStraightLineJumpViability (GameHandler caller, (int x, int z) position, int range, int distance_from_core, out grid_direction jump_direction)
+	public static bool CheckStraightLineJumpViability (GameHandler caller, (int x, int z) position, int range, out grid_direction jump_direction)
 	{
+		caller.GetPathfinding().CheckPath (position, caller.GetGameGrid(), pathfinding_tile_parameter.empty, out int original_path_length);
 		List<grid_direction> directions_to_check_list = new List<grid_direction> ();
 		List<int> direction_path_length_list = new List<int> ();
 		if (position.x + range < caller.GetGameGrid().length_x)
@@ -3192,7 +3174,6 @@ public class Enemy
 		{
 			foreach (grid_direction direction in directions_to_check_list)
 			{
-				(int x, int z) [] direction_path_array = new (int x, int z) [] {};
 				(int x, int z) position_temp = (0, 0);
 				switch (direction)
 				{
@@ -3212,11 +3193,11 @@ public class Enemy
 					position_temp = (position.x + range, position.z);
 					break;
 				}
-				if (caller.GetPathfinding().FindPath (position_temp, caller.GetGameGrid(), out direction_path_array, PathFinding.pathfinding_tile_parameter.empty) == true)
+				if (caller.GetPathfinding().CheckPath (position_temp, caller.GetGameGrid(), pathfinding_tile_parameter.empty, out int new_path_length) == true)
 				{
-					if (direction_path_array.Length < distance_from_core)
+					if (new_path_length < original_path_length)
 					{
-						direction_path_length_list.Add (direction_path_array.Length);
+						direction_path_length_list.Add (new_path_length);
 					}
 				}
 			}

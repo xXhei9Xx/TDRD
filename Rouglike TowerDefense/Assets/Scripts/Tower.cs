@@ -307,7 +307,7 @@ public class Tower
 			this_tower_object.transform.position = transform.position;
 		}
 
-		private void Update()
+		private void FixedUpdate()
 		{
 			if (moving == true)
 			{
@@ -619,7 +619,7 @@ public class Tower
 
 		#endregion
 
-		private void Update()
+		private void FixedUpdate()
 		{
 			if (GetComponent<BaseTower>().CheckCooldownAndManaAndWaveActive () == true)
 			{
@@ -651,7 +651,7 @@ public class Tower
 
 		#endregion
 
-		private void Update()
+		private void FixedUpdate()
 		{
 			if (GetComponent<BaseTower>().CheckCooldownAndManaAndWaveActive () == true)
 			{
@@ -684,7 +684,7 @@ public class Tower
 
 		#endregion
 
-		private void Update()
+		private void FixedUpdate()
 		{
 			if (GetComponent<BaseTower>().CheckCooldownAndManaAndWaveActive () == true)
 			{
@@ -708,7 +708,7 @@ public class Tower
 
 		#endregion
 
-		private void Update()
+		private void FixedUpdate()
 		{
 			if (GetComponent<BaseTower>().CheckCooldownAndManaAndWaveActive() == true)
 			{
@@ -778,7 +778,7 @@ public class Tower
 
 		#endregion
 
-		private void Update()
+		private void FixedUpdate()
 		{
 			if (GetComponent<BaseTower>().CheckCooldownAndManaAndWaveActive () == true)
 			{
@@ -825,7 +825,7 @@ public class Tower
 			flame_object.AddComponent<FlameCollider> ().SetVariables (this);
 		}
 
-		private void Update()
+		private void FixedUpdate()
 		{
 			if (GetComponent<BaseTower>().CheckCooldownAndManaAndWaveActive() == true)
 			{
@@ -926,7 +926,7 @@ public class Tower
 
 	//	#endregion
 
-	//	private void Update()
+	//	private void FixedUpdate()
 	//	{
 	//		if (CheckWaveIsActiveAndCooldown (GetComponent<BaseTower>() ) )
 	//		{
@@ -952,7 +952,7 @@ public class Tower
 			starting_position = transform.position;
 		}
 
-		private void Update()
+		private void FixedUpdate()
 		{
 			if (targeted_enemy == null)
 			{

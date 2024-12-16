@@ -119,7 +119,7 @@ namespace CodeMonkey.Utils {
             if (MouseUpFunc != null) MouseUpFunc();
         }
 
-        private void Update() {
+        private void FixedUpdate() {
             if (mouseOver) {
                 if (MouseOverFunc != null) MouseOverFunc();
                 mouseOverPerSecFuncTimer -= Time.unscaledDeltaTime;

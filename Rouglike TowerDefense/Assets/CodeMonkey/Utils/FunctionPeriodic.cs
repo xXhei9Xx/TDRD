@@ -28,7 +28,7 @@ namespace CodeMonkey.Utils {
 
             public Action OnUpdate;
 
-            private void Update() {
+            private void FixedUpdate() {
                 if (OnUpdate != null) OnUpdate();
             }
 
@@ -81,7 +81,7 @@ namespace CodeMonkey.Utils {
 
             GameObject gameObject = new GameObject("FunctionPeriodic Object " + functionName, typeof(MonoBehaviourHook));
             FunctionPeriodic functionPeriodic = new FunctionPeriodic(gameObject, action, timer, testDestroy, functionName, useUnscaledDeltaTime);
-            gameObject.GetComponent<MonoBehaviourHook>().OnUpdate = functionPeriodic.Update;
+            gameObject.GetComponent<MonoBehaviourHook>().OnUpdate = functionPeriodic.FixedUpdate;
 
             funcList.Add(functionPeriodic);
 
@@ -159,7 +159,7 @@ namespace CodeMonkey.Utils {
             return baseTimer;
         }
 
-        private void Update() {
+        private void FixedUpdate() {
             if (useUnscaledDeltaTime) {
                 timer -= Time.unscaledDeltaTime;
             } else {

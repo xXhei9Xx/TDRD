@@ -51,7 +51,7 @@ namespace TMPro.Examples
         }
 
 
-        void Update()
+        void FixedUpdate()
         {
             if (!isStatic)
             {
