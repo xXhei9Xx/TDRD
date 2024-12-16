@@ -8,8 +8,8 @@ OcclusionCullingSettings:
     smallestOccluder: 5
     smallestHole: 0.25
     backfaceThreshold: 100
-  m_SceneGUID: 00000000000000000000000000000000
-  m_OcclusionCullingData: {fileID: 0}
+  m_SceneGUID: c91b2e917f10f134cb042312e404b355
+  m_OcclusionCullingData: {fileID: 36300000, guid: 41596132c8f97cb4198aecb01aef34fd, type: 2}
 --- !u!104 &2
 RenderSettings:
   m_ObjectHideFlags: 0
@@ -36457,17 +36457,18 @@ MonoBehaviour:
     display_grid_text: 0
     manual_spawn_list: 1
     random_core_positions: 0
-    random_spawner_positions: 0
-    manual_enemy_spawn_list: 01000000
+    random_spawner_positions: 1
+    manual_enemy_spawn_list: 01000000010000000100000001000000010000000100000001000000010000000100000001000000
     first_wave_amount_of_enemies: 5
     enemies_per_wave_increment: 6
-    amount_of_cores: 2
-    amount_of_spawners: 2
+    amount_of_cores: 1
+    amount_of_spawners: 10
     core_health: 10
     spawner_cooldown: 2
   gameplay_options:
     map:
-      load_save: 0
+      load_save: 1
+      random_save: 1
       save_name: 
       length_x: 10
       width_z: 10
@@ -36520,7 +36521,7 @@ MonoBehaviour:
       range: 2
       mana_generated: 10
     test:
-      health: 0
+      health: 1
       mana_requirement: 1
       physical_damage: 6
       fire_damage: 0

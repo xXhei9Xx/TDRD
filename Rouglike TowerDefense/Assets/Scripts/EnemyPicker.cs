@@ -221,7 +221,7 @@ public class EnemyPicker
 			#endregion
 			for (int i = 0; i < amount_of_enemies_to_spawn; i++)
 			{
-				Enemy.enemy_id picked_enemy = pickable_enemies_list [caller.RandomInt (0, pickable_enemies_list.Count - 1)];
+				Enemy.enemy_id picked_enemy = pickable_enemies_list [UnityEngine.Random.Range (0, pickable_enemies_list.Count)];
 				enemies_to_spawn_list.Add (picked_enemy);
 				CheckAndRemoveEnemyTypeFromList (picked_enemy, pickable_enemies_list);
 			}

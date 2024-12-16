@@ -505,7 +505,6 @@ public class Tower
 			var xz = caller.GetGameGrid().GetXZ(transform.position);
 			x = xz.x; z = xz.z;
 			caller.GetGameGrid().SetValue (xz.x, xz.z, grid_parameter.object_type, object_type.tower);
-			caller.SetAllSpawnerPathfinding ();
 		}
 
 		public void DestroyThisTower ()

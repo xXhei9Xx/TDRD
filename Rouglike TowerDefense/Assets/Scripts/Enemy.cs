@@ -321,7 +321,7 @@ public class Enemy
 		spawner.transform.parent = GameObject.Find ("Spawner Initialized").transform;
 		caller.AddSpawnerToSpawnerList (spawner);
 		var xz = caller.GetGameGrid().GetXZ(position);
-		caller.GetGameGrid().SetValue (xz.x, xz.z, GameGrid.grid_parameter.object_type, GameGrid.object_type.spawner);
+		caller.GetGameGrid().SetValue (xz.x, xz.z, grid_parameter.object_type, object_type.spawner);
 		spawner.AddComponent<Spawner>().SetVariables (position, caller);
 	}
 
@@ -520,10 +520,11 @@ public class Enemy
 	{
 		#region variable declarations
 
-		private bool draw_path = false;
+		[SerializeField] private bool draw_path = false;
 		private float cooldown;
 		private Vector3 position;
 		private GameHandler caller;
+		private	GameObject path_timer;
 		private GameObject spawner_template, this_spawner, enemy_object;
 		private (int x, int z) [] path_tuple_array = new (int x, int z) [0];
 
@@ -549,8 +550,8 @@ public class Enemy
 		public void SpawnEnemy (Spawner parent)
 		{
 			bool repeat = true;
-			if ((caller.GetGameGrid().GetValue(caller.GetGameGrid().GetXZ(position).x, caller.GetGameGrid().GetXZ(position).z,
-			GameGrid.grid_parameter.enemy) == caller.GetGameGrid().EnumTranslator(GameGrid.enemy.empty)))
+			if ((caller.GetGameGrid().GetValue (caller.GetGameGrid().GetXZ (position).x, caller.GetGameGrid().GetXZ (position).z,
+			grid_parameter.enemy) == caller.GetGameGrid().EnumTranslator (enemy.empty)))
 			{
 				enemy_id type = caller.GetEnemyTypeToSpawn();
 				if (type != enemy_id.none)
@@ -573,8 +574,7 @@ public class Enemy
 		//timer allowing spawner to spawn next enemy
 		public void SpawnEnemyTimer (Spawner parent)
 		{
-			Action action;
-			GameHandler.Timer.Create (action = () => {
+			GameHandler.Timer.Create (() => {
 			if (caller.CheckIfWaveActive () == true)
 			{
 				parent.SpawnEnemy (parent);
@@ -585,8 +585,7 @@ public class Enemy
 		//continusly draws the path from the spawner to the core
 		public void DrawPathLines ()
 		{
-			Action action;
-			GameHandler.Timer.Create (action = () => {
+			path_timer = GameHandler.Timer.Create (() => {
 			for (int i = 0; i < path_tuple_array.Length - 1; i++)
 			{
 				Debug.DrawLine (caller.GetGameGrid().GetWorldTileCenter(path_tuple_array [i].x, path_tuple_array [i].z, 0),
@@ -599,11 +598,11 @@ public class Enemy
 		//determines which core is the closest and establishes the shortest path to it
 		public void SetNewPathfinding ()
 		{
-			caller.GetPathfinding().FindPath (position, caller.GetGameGrid(), out path_tuple_array, PathFinding.pathfinding_tile_parameter.empty);
+			caller.GetPathfinding().FindPath (position, caller.GetGameGrid(), out path_tuple_array, pathfinding_tile_parameter.empty);
 			if (draw_path == false)
 			{
-				draw_path = true;
 				DrawPathLines ();
+				draw_path = true;
 			}
 		}
 	}
@@ -1196,6 +1195,7 @@ public class Enemy
 			}
 			previous_position = transform.position;
 			GetComponent<Rigidbody>().useGravity = true;
+			GetComponent<Rigidbody> ().freezeRotation = true;
 		}
 
 		private void Update()
@@ -1222,7 +1222,7 @@ public class Enemy
 					//choosing the next destination tile
 					caller.GetGameGrid().SetValue (current_position.x, current_position.z, GameGrid.grid_parameter.enemy, GameGrid.enemy.occupied);
 					next_tile = path_tuple_array [counter];
-					direction = caller.GetGameGrid().GetMovementDirection (next_tile, current_position);
+					direction = caller.GetGameGrid().GetMovementDirection (current_position, next_tile);
 					//rotating enemy to match movement direction
 					switch (direction)
 					{
@@ -1262,7 +1262,7 @@ public class Enemy
 					counter--;
 				}
 				//moving enemy object
-				this_test_enemy.transform.position += GetDirectionVector (direction) * Time.deltaTime * movement_speed;
+				this_test_enemy.transform.position += GetDirectionVector (direction, movement_speed);
 				//action triggered when enemy dies while walking
 				if (health <= 0)
 				{
@@ -1529,7 +1529,7 @@ public class Enemy
 
 		#endregion
 
-		#region set destination reached action, get next tile, set on hit action, get resistances, set in air
+		#region set destination reached action, get next tile, set on hit action, get resistances, set in air, get path tuple array, get movement speed, get movement direction
 
 		public void SetDestinationReachedAction (Action action)
 		{
@@ -1559,6 +1559,21 @@ public class Enemy
 		public void SetInAir (bool state)
 		{
 			in_air = state;
+		}
+
+		public (int x, int z) [] GetPathTupleArray ()
+		{
+			return path_tuple_array;
+		}
+
+		public float GetMovementSpeed ()
+		{
+			return movement_speed;
+		}
+
+		public grid_direction GetMovementDirection ()
+		{
+			return direction;
 		}
 
 		#endregion
@@ -1665,7 +1680,7 @@ public class Enemy
 			GameObject dead_body = Instantiate (GameObject.Find ("Dead Template") );
 			dead_body.transform.SetParent (GameObject.Find ("Dead Bodies").transform, false);
 			dead_body.transform.position = transform.position - new Vector3 (0, transform.localScale.y / 2, 0);
-			dead_body.transform.Rotate (0, caller.RandomInt (0, 360), 0);
+			dead_body.transform.Rotate (0, UnityEngine.Random.Range (0, 361), 0);
 			dead_body.AddComponent<DeadBody>().SetVariables (caller);
 		}
 
@@ -1751,7 +1766,6 @@ public class Enemy
 				unique_action = false;
 				in_air = false;
 				SetNewPathfinding(pathfinding_tile_parameter.empty);
-				GetComponent<Rigidbody> ().freezeRotation = false;
 			}
 		}
 
@@ -2970,19 +2984,35 @@ public class Enemy
 	}
 	#endregion
 
-	public static Vector3 GetDirectionVector (GameGrid.grid_direction direction)
+	public static Vector3 GetDirectionVector (grid_direction direction, float movement_speed)
 	{
 		switch (direction)
 		{
 			default: return new Vector3 (0, 0, 0);	
 
-			case GameGrid.grid_direction.up: return new Vector3 (0, 0, 1);
+			case grid_direction.up:
+			return new Vector3 (0, 0, Time.deltaTime * movement_speed);
 
-			case GameGrid.grid_direction.down: return new Vector3 (0, 0, -1);
+			case grid_direction.down:
+			return new Vector3 (0, 0, Time.deltaTime * - movement_speed);
 
-			case GameGrid.grid_direction.right: return new Vector3 (1, 0, 0);
+			case grid_direction.right:
+			return new Vector3 (Time.deltaTime * movement_speed, 0, 0);
 
-			case GameGrid.grid_direction.left: return new Vector3 (-1, 0, 0);
+			case grid_direction.left:
+			return new Vector3 (Time.deltaTime * - movement_speed, 0, 0);
+
+			case grid_direction.top_left:
+			return new Vector3 (- Time.deltaTime * movement_speed / (float) Math.Pow (2, 0.5f), 0, Time.deltaTime * movement_speed / (float) Math.Pow (2, 0.5f));
+
+			case grid_direction.top_right:
+			return new Vector3 (Time.deltaTime * movement_speed / (float) Math.Pow (2, 0.5f), 0, Time.deltaTime * movement_speed / (float) Math.Pow (2, 0.5f));
+
+			case grid_direction.bottom_left:
+			return new Vector3 (- Time.deltaTime * movement_speed / (float) Math.Pow (2, 0.5f), 0, - Time.deltaTime * movement_speed / (float) Math.Pow (2, 0.5f));
+
+			case grid_direction.bottom_right:
+			return new Vector3 (Time.deltaTime * movement_speed / (float) Math.Pow (2, 0.5f), 0, - Time.deltaTime * movement_speed / (float) Math.Pow (2, 0.5f));
 		}
 	}
 
@@ -3040,6 +3070,49 @@ public class Enemy
 
 			case GameGrid.grid_direction.left: 
 			if (enemy_object.transform.position.x <= caller.GetGameGrid().GetWorldTileCenter (destination_tile.x, destination_tile.z, enemy_object.transform.localScale.y).x)
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+			case GameGrid.grid_direction.top_left: 
+			if (enemy_object.transform.position.z >= caller.GetGameGrid().GetWorldTileCenter (destination_tile.x, destination_tile.z, enemy_object.transform.localScale.y).z &&
+			enemy_object.transform.position.x <= caller.GetGameGrid().GetWorldTileCenter (destination_tile.x, destination_tile.z, enemy_object.transform.localScale.y).x)
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+
+			case GameGrid.grid_direction.top_right: 
+			if (enemy_object.transform.position.z >= caller.GetGameGrid().GetWorldTileCenter (destination_tile.x, destination_tile.z, enemy_object.transform.localScale.y).z &&
+			enemy_object.transform.position.x >= caller.GetGameGrid().GetWorldTileCenter (destination_tile.x, destination_tile.z, enemy_object.transform.localScale.y).x)
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+
+			case GameGrid.grid_direction.bottom_left: 
+			if (enemy_object.transform.position.z <= caller.GetGameGrid().GetWorldTileCenter (destination_tile.x, destination_tile.z, enemy_object.transform.localScale.y).z &&
+			enemy_object.transform.position.x <= caller.GetGameGrid().GetWorldTileCenter (destination_tile.x, destination_tile.z, enemy_object.transform.localScale.y).x)
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+
+			case GameGrid.grid_direction.bottom_right: 
+			if (enemy_object.transform.position.z <= caller.GetGameGrid().GetWorldTileCenter (destination_tile.x, destination_tile.z, enemy_object.transform.localScale.y).z &&
+			enemy_object.transform.position.x >= caller.GetGameGrid().GetWorldTileCenter (destination_tile.x, destination_tile.z, enemy_object.transform.localScale.y).x)
 			{
 				return true;
 			}
