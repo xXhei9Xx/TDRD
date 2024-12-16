@@ -1,0 +1,10 @@
+{
+  "name": "rouglike-tower-defense",
+  "version": "1.0.0",
+  "description": "> game by [xXhei9Xx](https://github.com/xXhei9Xx)  ---",
+  "main": "dev-tools/lounch.js",
+  "scripts": {
+    "start": "node ./dev-tools/lounch.js",
+    "build": ""
+  }
+}
