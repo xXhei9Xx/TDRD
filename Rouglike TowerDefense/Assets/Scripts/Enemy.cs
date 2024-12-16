@@ -543,7 +543,7 @@ public class Enemy
 			this_spawner.name = "Spawner Object";
 			this_spawner.transform.position = position;
 			this_spawner.transform.parent = transform;
-			DrawPathLines();
+			//DrawPathLines();
 		}
 
 		public void SpawnEnemy (Spawner parent)

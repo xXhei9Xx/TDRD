@@ -36461,7 +36461,7 @@ MonoBehaviour:
     manual_enemy_spawn_list: 01000000010000000100000001000000010000000100000001000000010000000100000001000000
     first_wave_amount_of_enemies: 5
     enemies_per_wave_increment: 6
-    amount_of_cores: 1
+    amount_of_cores: 2
     amount_of_spawners: 1
     core_health: 10
     spawner_cooldown: 2
@@ -36474,7 +36474,6 @@ MonoBehaviour:
       width_z: 10
       cell_length_x: 1
       cell_width_z: 1
-      pathfinding_refresh_rate: 0.2
     ui:
       outline_off_pointer_material: {fileID: 2100000, guid: b95b6e75f8419d943a487163e2d090a5, type: 2}
       outline_on_pointer_material: {fileID: 2100000, guid: a380e63437f394e47aa303087d7912b6, type: 2}
