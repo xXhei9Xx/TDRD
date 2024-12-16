@@ -41,7 +41,7 @@ public class CameraMovement : MonoBehaviour
 		camera = GameObject.Find ("Main Camera").GetComponent<Camera>();
 	}
 
-	private void Update()
+	private void FixedUpdate()
 	{
 		if (caller != null)
 		{

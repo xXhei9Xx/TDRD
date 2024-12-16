@@ -32,71 +32,71 @@ public static class BallisticMotion
 		sin_horizontal_angle, tan_vertical_angle * cos_horizontal_angle) * starting_speed, ForceMode.Impulse);
 	}
 
-	public static void LaunchAtMovingEnemy (GameHandler caller, GameObject projectile, GameObject target_enemy)
-	{
-		float peak_height = 0.5f;
-		float time_of_flight = 2 * peak_height / 9.81f;
-		float enemy_movement_speed = target_enemy.GetComponent<Enemy.BaseEnemy>().GetMovementSpeed ();
-		Vector3 target_position = GetFutureEnemyPosition (caller, time_of_flight, target_enemy);
-		List <Collider> objects_in_path = new List<Collider> ();
-		foreach (RaycastHit collider_hit in Physics.RaycastAll (new Ray (projectile.transform.position, target_position), Vector3.Distance (projectile.transform.position, target_position)))
-		{
-			if (collider_hit.collider.gameObject != projectile && collider_hit.collider.gameObject != target_enemy)
-			{
-				objects_in_path.Add (collider_hit.collider);
-			}
-		}
-		if (objects_in_path.Count > 0)
-		{
+	//public static void LaunchAtMovingEnemy (GameHandler caller, GameObject projectile, GameObject target_enemy)
+	//{
+	//	float peak_height = 0.5f;
+	//	float time_of_flight = 2 * peak_height / 9.81f;
+	//	float enemy_movement_speed = target_enemy.GetComponent<Enemy.BaseEnemy>().GetMovementSpeed ();
+	//	Vector3 target_position = GetFutureEnemyPosition (caller, time_of_flight, target_enemy);
+	//	List <Collider> objects_in_path = new List<Collider> ();
+	//	foreach (RaycastHit collider_hit in Physics.RaycastAll (new Ray (projectile.transform.position, target_position), Vector3.Distance (projectile.transform.position, target_position)))
+	//	{
+	//		if (collider_hit.collider.gameObject != projectile && collider_hit.collider.gameObject != target_enemy)
+	//		{
+	//			objects_in_path.Add (collider_hit.collider);
+	//		}
+	//	}
+	//	if (objects_in_path.Count > 0)
+	//	{
 
-		}
+	//	}
 
-		Rigidbody projectile_rigid_body = projectile.GetComponent<Rigidbody>();
-		float horizontal_distance = (float)Math.Pow((Math.Pow(target_position.z - projectile.transform.position.z, 2f) +
-		Math.Pow(target_position.x - projectile.transform.position.x, 2f)), 0.5f);
-		float sin_horizontal_angle = 4 * peak_height / (float)Math.Pow((Math.Pow(peak_height, 2) + Math.Pow(horizontal_distance, 2)), 0.5f);
-		float cos_horizontal_angle = horizontal_distance / (float)Math.Pow((Math.Pow(peak_height, 2) + Math.Pow(horizontal_distance, 2)), 0.5f);
-		float tan_vertical_angle = (target_position.z - projectile.transform.position.z) / (target_position.x - projectile.transform.position.x);
-		float starting_speed = (float)Math.Pow((2 * peak_height * 9.81f / Math.Pow(sin_horizontal_angle, 2)), 0.5f);
-		projectile_rigid_body.AddRelativeForce(new Vector3((1 / tan_vertical_angle) * cos_horizontal_angle,
-		sin_horizontal_angle, tan_vertical_angle * cos_horizontal_angle) * starting_speed, ForceMode.Impulse);
-	}
+	//	Rigidbody projectile_rigid_body = projectile.GetComponent<Rigidbody>();
+	//	float horizontal_distance = (float)Math.Pow((Math.Pow(target_position.z - projectile.transform.position.z, 2f) +
+	//	Math.Pow(target_position.x - projectile.transform.position.x, 2f)), 0.5f);
+	//	float sin_horizontal_angle = 4 * peak_height / (float)Math.Pow((Math.Pow(peak_height, 2) + Math.Pow(horizontal_distance, 2)), 0.5f);
+	//	float cos_horizontal_angle = horizontal_distance / (float)Math.Pow((Math.Pow(peak_height, 2) + Math.Pow(horizontal_distance, 2)), 0.5f);
+	//	float tan_vertical_angle = (target_position.z - projectile.transform.position.z) / (target_position.x - projectile.transform.position.x);
+	//	float starting_speed = (float)Math.Pow((2 * peak_height * 9.81f / Math.Pow(sin_horizontal_angle, 2)), 0.5f);
+	//	projectile_rigid_body.AddRelativeForce(new Vector3((1 / tan_vertical_angle) * cos_horizontal_angle,
+	//	sin_horizontal_angle, tan_vertical_angle * cos_horizontal_angle) * starting_speed, ForceMode.Impulse);
+	//}
 
-	public static Vector3 GetFutureEnemyPosition (GameHandler caller, float time, GameObject target_enemy)
-	{
-		Vector3 target_position = Vector3.zero;
-		float enemy_movement_speed = target_enemy.GetComponent<Enemy.BaseEnemy>().GetMovementSpeed ();
-		float distance_from_next_position = Vector3.Distance (target_enemy.transform.position, caller.GetGameGrid().GetWorldTileCenter (target_enemy.GetComponent<Enemy.BaseEnemy>().GetNextTile ()));
-		if (time > (distance_from_next_position / enemy_movement_speed))
-		{
-			float enemy_simulation_time = time - (distance_from_next_position / enemy_movement_speed);
-			(int x, int z) [] enemy_path_array = target_enemy.GetComponent<Enemy.BaseEnemy>().GetPathTupleArray ();
-			int current_path_counter = target_enemy.GetComponent<Enemy.BaseEnemy>().GetDistanceFromCore () - 1;
+	//public static Vector3 GetFutureEnemyPosition (GameHandler caller, float time, GameObject target_enemy)
+	//{
+	//	Vector3 target_position = Vector3.zero;
+	//	float enemy_movement_speed = target_enemy.GetComponent<Enemy.BaseEnemy>().GetMovementSpeed ();
+	//	float distance_from_next_position = Vector3.Distance (target_enemy.transform.position, caller.GetGameGrid().GetWorldTileCenter (target_enemy.GetComponent<Enemy.BaseEnemy>().GetNextTile ()));
+	//	if (time > (distance_from_next_position / enemy_movement_speed))
+	//	{
+	//		float enemy_simulation_time = time - (distance_from_next_position / enemy_movement_speed);
+	//		(int x, int z) [] enemy_path_array = target_enemy.GetComponent<Enemy.BaseEnemy>().GetPathTupleArray ();
+	//		int current_path_counter = target_enemy.GetComponent<Enemy.BaseEnemy>().GetDistanceFromCore () - 1;
 			
-		}
-		else
-		{
-			switch (target_enemy.GetComponent<Enemy.BaseEnemy>().GetMovementDirection ())
-			{
-				case grid_direction.up:
-				target_position = target_enemy.transform.position + new Vector3 (0, 0, (enemy_movement_speed * time));
-				break;
+	//	}
+	//	else
+	//	{
+	//		switch (target_enemy.GetComponent<Enemy.BaseEnemy>().GetMovementDirection ())
+	//		{
+	//			case grid_direction.up:
+	//			target_position = target_enemy.transform.position + new Vector3 (0, 0, (enemy_movement_speed * time));
+	//			break;
 
-				case grid_direction.down:
-				target_position = target_enemy.transform.position + new Vector3 (0, 0, - (enemy_movement_speed * time));
-				break;
+	//			case grid_direction.down:
+	//			target_position = target_enemy.transform.position + new Vector3 (0, 0, - (enemy_movement_speed * time));
+	//			break;
 
-				case grid_direction.left:
-				target_position = target_enemy.transform.position + new Vector3 ((enemy_movement_speed * time), 0, 0);
-				break;
+	//			case grid_direction.left:
+	//			target_position = target_enemy.transform.position + new Vector3 ((enemy_movement_speed * time), 0, 0);
+	//			break;
 
-				case grid_direction.right:
-				target_position = target_enemy.transform.position + new Vector3 (- (enemy_movement_speed * time), 0, 0);
-				break;
-			}
-		}
-		return target_position;
-	}
+	//			case grid_direction.right:
+	//			target_position = target_enemy.transform.position + new Vector3 (- (enemy_movement_speed * time), 0, 0);
+	//			break;
+	//		}
+	//	}
+	//	return target_position;
+	//}
 
 	//public Vector3 PredictFallingObjectFuturePosition (GameObject projectile)
 	//{

@@ -37,7 +37,7 @@ namespace CodeMonkey.MonoBehaviours {
             if (OnDisableFunc != null) OnDisableFunc();
         }
 
-        private void Update() {
+        private void FixedUpdate() {
             if (OnUpdate != null) OnUpdate();
         }
 

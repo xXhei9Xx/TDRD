@@ -17,7 +17,7 @@ using System.Collections.Generic;
 namespace CodeMonkey.Utils {
 
     /*
-     * Calls function on every Update until it returns true
+     * Calls function on every FixedUpdate until it returns true
      * */
     public class FunctionUpdater {
 
@@ -28,7 +28,7 @@ namespace CodeMonkey.Utils {
 
             public Action OnUpdate;
 
-            private void Update() {
+            private void FixedUpdate() {
                 if (OnUpdate != null) OnUpdate();
             }
 
@@ -76,7 +76,7 @@ namespace CodeMonkey.Utils {
 
             GameObject gameObject = new GameObject("FunctionUpdater Object " + functionName, typeof(MonoBehaviourHook));
             FunctionUpdater functionUpdater = new FunctionUpdater(gameObject, updateFunc, functionName, active);
-            gameObject.GetComponent<MonoBehaviourHook>().OnUpdate = functionUpdater.Update;
+            gameObject.GetComponent<MonoBehaviourHook>().OnUpdate = functionUpdater.FixedUpdate;
 
             updaterList.Add(functionUpdater);
             return functionUpdater;
@@ -138,7 +138,7 @@ namespace CodeMonkey.Utils {
             active = true;
         }
 
-        private void Update() {
+        private void FixedUpdate() {
             if (!active) return;
             if (updateFunc()) {
                 DestroySelf();

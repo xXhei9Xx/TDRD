@@ -34,8 +34,8 @@ namespace TMPro.Examples
         }
 
 
-        // Update is called once per frame
-        void Update()
+        // FixedUpdate is called once per frame
+        void FixedUpdate()
         {
             switch (Motion)
             {

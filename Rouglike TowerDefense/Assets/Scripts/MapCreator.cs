@@ -140,7 +140,7 @@ public class MapCreator : MonoBehaviour
 		}
     }
 
-	private void Update()
+	private void FixedUpdate()
 	{
 		if (save_chosen == true && save_loaded == false)
 		{

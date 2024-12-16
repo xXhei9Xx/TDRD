@@ -28,7 +28,7 @@ namespace CodeMonkey.Utils {
 
             public Action OnUpdate;
 
-            private void Update() {
+            private void FixedUpdate() {
                 if (OnUpdate != null) OnUpdate();
             }
 
@@ -69,7 +69,7 @@ namespace CodeMonkey.Utils {
 
             GameObject obj = new GameObject("FunctionTimer Object "+functionName, typeof(MonoBehaviourHook));
             FunctionTimer funcTimer = new FunctionTimer(obj, action, timer, functionName, useUnscaledDeltaTime);
-            obj.GetComponent<MonoBehaviourHook>().OnUpdate = funcTimer.Update;
+            obj.GetComponent<MonoBehaviourHook>().OnUpdate = funcTimer.FixedUpdate;
 
             timerList.Add(funcTimer);
 
@@ -122,7 +122,7 @@ namespace CodeMonkey.Utils {
             this.useUnscaledDeltaTime = useUnscaledDeltaTime;
         }
 
-        private void Update() {
+        private void FixedUpdate() {
             if (useUnscaledDeltaTime) {
                 timer -= Time.unscaledDeltaTime;
             } else {
@@ -158,11 +158,11 @@ namespace CodeMonkey.Utils {
                 this.timer = timer;
             }
 
-            public bool Update() {
-                return Update(Time.deltaTime);
+            public bool FixedUpdate() {
+                return FixedUpdate(Time.deltaTime);
             }
 
-            public bool Update(float deltaTime) {
+            public bool FixedUpdate(float deltaTime) {
                 timer -= deltaTime;
                 if (timer <= 0) {
                     callback();
@@ -173,7 +173,7 @@ namespace CodeMonkey.Utils {
             }
         }
 
-        // Create a Object that must be manually updated through Update();
+        // Create a Object that must be manually updated through FixedUpdate();
         public static FunctionTimerObject CreateObject(Action callback, float timer) {
             return new FunctionTimerObject(callback, timer);
         }

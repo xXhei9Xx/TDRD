@@ -25,14 +25,20 @@ public class GameGrid
 		object_type,
 		object_id,
 		enemy,
-		prev_x,
-		prev_z,
 		simulated,
 		terrain,
 		spawn_zone,
 		mana,
 		tile_effect,
-		amount_of_dead
+		amount_of_dead,
+		prev_x_empty,
+		prev_z_empty,
+		prev_x_any_object,
+		prev_z_any_object,
+		prev_x_any_terrain,
+		prev_z_any_terrain,
+		prev_x_any_tile,
+		prev_z_any_tile
 	}
 
 	public int EnumTranslator (grid_parameter parameter)
@@ -47,17 +53,33 @@ public class GameGrid
 
 			case grid_parameter.enemy: return 2;
 
-			case grid_parameter.prev_x: return 3;
+			case grid_parameter.simulated: return 3;
 
-			case grid_parameter.prev_z: return 4;
+			case grid_parameter.terrain: return 4;
 
-			case grid_parameter.simulated: return 5;
+			case grid_parameter.spawn_zone: return 5;
 
-			case grid_parameter.terrain: return 6;
+			case grid_parameter.mana: return 6;
 
-			case grid_parameter.spawn_zone: return 7;
+			case grid_parameter.tile_effect: return 7;
 
-			case grid_parameter.mana: return 8;
+			case grid_parameter.amount_of_dead: return 8;
+
+			case grid_parameter.prev_x_empty: return 9;
+
+			case grid_parameter.prev_z_empty: return 10;
+
+			case grid_parameter.prev_x_any_object: return 11;
+
+			case grid_parameter.prev_z_any_object: return 12;
+
+			case grid_parameter.prev_x_any_terrain: return 13;
+
+			case grid_parameter.prev_z_any_terrain: return 14;
+
+			case grid_parameter.prev_x_any_tile: return 15;
+
+			case grid_parameter.prev_z_any_tile: return 16;
 		}
 	}
 	#endregion
@@ -512,9 +534,13 @@ public class GameGrid
 		var parameter_names = Enum.GetNames(typeof(grid_parameter));
 		for(int k = 0; k < parameter_names.Length; k++)
 		{
-			if (parameter_names[k] == grid_parameter.prev_x.ToString())
+			if (parameter_names[k] == grid_parameter.prev_x_empty.ToString())
 			{
-				text_objects_array [x, z].GetComponent<TextMeshProUGUI>().text += "prev_tile - " + grid_array [x,z,k] + "," + grid_array [x,z,k + 1] + System.Environment.NewLine;
+				text_objects_array [x, z].GetComponent<TextMeshProUGUI>().text += "prev_tile_empty - " + grid_array [x,z,k] + "," + grid_array [x,z,k + 1] + System.Environment.NewLine +
+				"prev_tile_any_object - " + grid_array [x,z,k + 2] + "," + grid_array [x,z,k + 3] + System.Environment.NewLine +
+				"prev_tile_any_terrain - " + grid_array [x,z,k + 4] + "," + grid_array [x,z,k + 5] + System.Environment.NewLine +
+				"prev_tile_any_tile - " + grid_array [x,z,k + 6] + "," + grid_array [x,z,k + 7];
+				break;
 			}
 			if (parameter_names[k] == grid_parameter.object_type.ToString())
 			{

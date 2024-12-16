@@ -67,7 +67,7 @@ namespace TMPro.Examples
             m_Frames = 0;
         }
 
-        void Update()
+        void FixedUpdate()
         {
             if (AnchorPosition != last_AnchorPosition)
                 Set_FrameCounter_Position(AnchorPosition);
