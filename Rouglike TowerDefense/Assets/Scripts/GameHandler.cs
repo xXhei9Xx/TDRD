@@ -1193,27 +1193,27 @@ public class GameHandler : MonoBehaviour
 		//creating core in preset position
 		if (testing_options.random_spawner_positions == false)
 		{
-			new Core (grid.GetWorldTileCenter (4, 9, 0), this);
+			new Core (grid.GetWorldTileCenter (4, 9, 0.5f), this);
 		}
 		else
 		{
 			//creating cores in random positions
 			for (int i = 0; i < testing_options.amount_of_cores; i++)
 			{
-				new Core (grid.GetWorldTileCenter (grid.RandomTile (GameGrid.object_type.empty), 1), this);
+				new Core (grid.GetWorldTileCenter (grid.RandomTile (object_type.empty), 0.5f), this);
 			}
 		}
 		//creating spawner in preset position
 		if (testing_options.random_spawner_positions == false)
 		{
-			new Enemy (grid.GetWorldTileCenter (4, 0, 0), this);
+			new Enemy (grid.GetWorldTileCenter (4, 0, 0.5f), this);
 		}
 		else
 		{
 			//creating spawners in random positions
 			for (int i = 0; i < testing_options.amount_of_spawners; i++)
 			{
-				new Enemy (grid.GetWorldTileCenter (grid.RandomTile (GameGrid.object_type.empty), 1), this);
+				new Enemy (grid.GetWorldTileCenter (grid.RandomTile (object_type.empty), 0.5f), this);
 			}
 		}
 		SetManaOutlineTimer ();
@@ -1269,12 +1269,9 @@ public class GameHandler : MonoBehaviour
 			Physics.Raycast (mouse_world_ray, out RaycastHit rayCastHit);
 			if (object_under_cursor != null)
 			{
-				if (object_under_cursor != rayCastHit.collider.gameObject)
+				if (object_under_cursor != rayCastHit.collider.gameObject && rayCastHit.collider.gameObject.TryGetComponent (out MeshRenderer mesh_renderer) == true)
 				{
-					if (rayCastHit.collider.gameObject.TryGetComponent (out MeshRenderer mesh_renderer) == true)
-					{
-						SetOutlineMaterial (object_under_cursor, gameplay_options.ui.outline_off_pointer_material);
-					}
+					SetOutlineMaterial (object_under_cursor, gameplay_options.ui.outline_off_pointer_material);
 				}
 			}
 			if ((rayCastHit.collider.tag == "tower" || rayCastHit.collider.tag == "enemy") && object_under_cursor != rayCastHit.collider.gameObject)

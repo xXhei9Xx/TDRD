@@ -543,7 +543,7 @@ public class Enemy
 			this_spawner.name = "Spawner Object";
 			this_spawner.transform.position = position;
 			this_spawner.transform.parent = transform;
-			//DrawPathLines();
+			DrawPathLines();
 		}
 
 		public void SpawnEnemy (Spawner parent)
@@ -593,8 +593,8 @@ public class Enemy
 				{
 					while (path_length != 0)
 					{
-						Debug.DrawLine(caller.GetGameGrid().GetWorldTileCenter (current_position),
-						caller.GetGameGrid().GetWorldTileCenter (next_position), Color.red, 0.3f);
+						Debug.DrawLine(caller.GetGameGrid().GetWorldTileCenter (current_position, 0.1f),
+						caller.GetGameGrid().GetWorldTileCenter (next_position, 0.1f), Color.red, 0.3f);
 						if (caller.GetGameGrid().GetValue (next_position, grid_parameter.object_type) == caller.GetGameGrid().EnumTranslator (object_type.core))
 						{
 							break;
@@ -618,12 +618,13 @@ public class Enemy
 		private GameObject health_bar;
 		private GameObject mana_bar;
 		private GameObject casting_bar;
+		private GameObject enemy_bar_canvas;
 		private Action DeathAction = null;
 		private Action DestinationReachedAction = null;
 		private Action OnHitAction = null;
 		private Action<(int physical_damage, int fire_damage, int frost_damage, int electric_damage, int poison_damage, int magic_damage)> BlockingAction = null;
 		private List<Collider> this_enemy_collider_list = new List<Collider>();
-		[SerializeField] private (int x, int z) current_position, next_tile;
+		private (int x, int z) current_position, next_tile;
 		[SerializeField] private bool moving = false, unique_action = false, cooldown = false, minion, mana_regen = true, blocking = false, blocked = false, calculate_distance_traveled = false, in_air = false;
 		private (int physical_damage, int fire_damage, int frost_damage, int electric_damage, int poison_damage, int magic_damage) blocked_damage_tuple = (0, 0, 0, 0, 0, 0);
 		[SerializeField] private float mana_timer = 1, distance_traveled = 0;
@@ -1162,7 +1163,7 @@ public class Enemy
 		private void Start()
 		{
 			#region health & mana bars setup
-			GameObject enemy_bar_canvas = Instantiate (GameObject.Find ("Enemy Bar Canvas") );
+			enemy_bar_canvas = Instantiate (GameObject.Find ("Enemy Bar Canvas") );
 			enemy_bar_canvas.transform.SetParent (transform, true);
 			enemy_bar_canvas.transform.localPosition = new Vector3 (0, 1, 0.25f);
 			enemy_bar_canvas.transform.SetSiblingIndex (2);
@@ -1181,6 +1182,7 @@ public class Enemy
 			previous_position = transform.position;
 			GetComponent<Rigidbody>().useGravity = true;
 			GetComponent<Rigidbody> ().freezeRotation = true;
+
 		}
 
 		private void FixedUpdate()
@@ -1206,42 +1208,50 @@ public class Enemy
 				{
 					//choosing the next destination tile
 					caller.GetGameGrid().SetValue (current_position.x, current_position.z, GameGrid.grid_parameter.enemy, GameGrid.enemy.occupied);
-					next_tile = (caller.GetGameGrid().GetValue (next_tile, grid_parameter.prev_x_empty),
-					caller.GetGameGrid().GetValue (next_tile, grid_parameter.prev_z_empty));
+					next_tile = (caller.GetGameGrid().GetValue (current_position, grid_parameter.prev_x_empty),
+					caller.GetGameGrid().GetValue (current_position, grid_parameter.prev_z_empty));
 					direction = caller.GetGameGrid().GetMovementDirection (current_position, next_tile);
 					//rotating enemy to match movement direction
 					switch (direction)
 					{
 						case grid_direction.up:
 						transform.Rotate (- transform.rotation.eulerAngles.x, - transform.rotation.eulerAngles.y, - transform.rotation.eulerAngles.z);
+						enemy_bar_canvas.transform.Rotate (transform.rotation.eulerAngles.x, transform.rotation.eulerAngles.z, transform.rotation.eulerAngles.y);
 						break;
 
 						case grid_direction.down:
 						transform.Rotate (- transform.rotation.eulerAngles.x, - transform.rotation.eulerAngles.y + 180, - transform.rotation.eulerAngles.z);
+						enemy_bar_canvas.transform.Rotate (transform.rotation.eulerAngles.x, transform.rotation.eulerAngles.z, transform.rotation.eulerAngles.y - 180);
 						break;
 
 						case grid_direction.left:
 						transform.Rotate (- transform.rotation.eulerAngles.x, - transform.rotation.eulerAngles.y - 90, - transform.rotation.eulerAngles.z);
+						enemy_bar_canvas.transform.Rotate (transform.rotation.eulerAngles.x, transform.rotation.eulerAngles.z, transform.rotation.eulerAngles.y + 90);
 						break;
 
 						case grid_direction.right:
-						transform.Rotate (- transform.rotation.eulerAngles.x, - transform.rotation.y + 90, - transform.rotation.eulerAngles.z);
+						transform.Rotate (- transform.rotation.eulerAngles.x, - transform.rotation.eulerAngles.y + 90, - transform.rotation.eulerAngles.z);
+						enemy_bar_canvas.transform.Rotate (transform.rotation.eulerAngles.x, transform.rotation.eulerAngles.z, transform.rotation.eulerAngles.y - 90);
 						break;
 
 						case grid_direction.top_left:
 						transform.Rotate (- transform.rotation.eulerAngles.x, - transform.rotation.eulerAngles.y - 45, - transform.rotation.eulerAngles.z);
+						enemy_bar_canvas.transform.Rotate (transform.rotation.eulerAngles.x, transform.rotation.eulerAngles.z, transform.rotation.eulerAngles.y + 45);
 						break;
 
 						case grid_direction.top_right:
 						transform.Rotate (- transform.rotation.eulerAngles.x, - transform.rotation.eulerAngles.y + 45, - transform.rotation.eulerAngles.z);
+						enemy_bar_canvas.transform.Rotate (transform.rotation.eulerAngles.x, transform.rotation.eulerAngles.z, transform.rotation.eulerAngles.y - 45);
 						break;
 
 						case grid_direction.bottom_left:
 						transform.Rotate (- transform.rotation.eulerAngles.x, - transform.rotation.eulerAngles.y - 135, - transform.rotation.eulerAngles.z);
+						enemy_bar_canvas.transform.Rotate (transform.rotation.eulerAngles.x, transform.rotation.eulerAngles.z, transform.rotation.eulerAngles.y + 135);
 						break;
 
 						case grid_direction.bottom_right:
-						transform.Rotate (- transform.rotation.eulerAngles.x, - transform.rotation.y + 135, - transform.rotation.eulerAngles.z);
+						transform.Rotate (- transform.rotation.eulerAngles.x, - transform.rotation.eulerAngles.y + 135, - transform.rotation.eulerAngles.z);
+						enemy_bar_canvas.transform.Rotate (transform.rotation.eulerAngles.x, transform.rotation.eulerAngles.z, transform.rotation.eulerAngles.y - 135);
 						break;
 					}
 					moving = true;
@@ -1661,7 +1671,7 @@ public class Enemy
 		{
 			GameObject dead_body = Instantiate (GameObject.Find ("Dead Template") );
 			dead_body.transform.SetParent (GameObject.Find ("Dead Bodies").transform, false);
-			dead_body.transform.position = transform.position - new Vector3 (0, transform.localScale.y / 2, 0);
+			dead_body.transform.position = transform.position - new Vector3 (0, (transform.localScale.y / 2) + 0.2f, 0);
 			dead_body.transform.Rotate (0, UnityEngine.Random.Range (0, 361), 0);
 			dead_body.AddComponent<DeadBody>().SetVariables (caller);
 		}
@@ -1743,7 +1753,7 @@ public class Enemy
 			}
 			if (collider.gameObject.tag == "plane" && in_air == true)
 			{
-				transform.position = caller.GetGameGrid().GetWorldTileCenter(caller.GetGameGrid().GetXZ(transform.position), transform.localScale.y + 0.01f);
+				transform.position = caller.GetGameGrid().GetWorldTileCenter(caller.GetGameGrid().GetXZ(transform.position), transform.localScale.y + 0.2f);
 				current_position = caller.GetGameGrid().GetXZ(transform.position);
 				unique_action = false;
 				in_air = false;

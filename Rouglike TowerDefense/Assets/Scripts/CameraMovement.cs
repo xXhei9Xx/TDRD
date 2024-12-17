@@ -41,7 +41,7 @@ public class CameraMovement : MonoBehaviour
 		camera = GameObject.Find ("Main Camera").GetComponent<Camera>();
 	}
 
-	private void FixedUpdate()
+	private void Update()
 	{
 		if (caller != null)
 		{
@@ -190,19 +190,19 @@ public class CameraMovement : MonoBehaviour
 				switch (movement_direction)
 				{
 					case camera_directions.up:
-					camera.transform.position += new Vector3 (0, 0, -Time.fixedUnscaledDeltaTime * caller.gameplay_options.ui.camera_movement_speed);
+					camera.transform.position += new Vector3 (0, 0, -Time.unscaledDeltaTime * caller.gameplay_options.ui.camera_movement_speed);
 					break;
 
 					case camera_directions.down:
-					camera.transform.position += new Vector3 (0, 0, Time.fixedUnscaledDeltaTime * caller.gameplay_options.ui.camera_movement_speed);
+					camera.transform.position += new Vector3 (0, 0, Time.unscaledDeltaTime * caller.gameplay_options.ui.camera_movement_speed);
 					break;
 
 					case camera_directions.left:
-					camera.transform.position += new Vector3 (-Time.fixedUnscaledDeltaTime * caller.gameplay_options.ui.camera_movement_speed, 0, 0);
+					camera.transform.position += new Vector3 (-Time.unscaledDeltaTime * caller.gameplay_options.ui.camera_movement_speed, 0, 0);
 					break;
 
 					case camera_directions.right:
-					camera.transform.position += new Vector3 (Time.fixedUnscaledDeltaTime * caller.gameplay_options.ui.camera_movement_speed, 0, 0);
+					camera.transform.position += new Vector3 (Time.unscaledDeltaTime * caller.gameplay_options.ui.camera_movement_speed, 0, 0);
 					break;
 				}
 				break;
@@ -211,19 +211,19 @@ public class CameraMovement : MonoBehaviour
 				switch (movement_direction)
 				{
 					case camera_directions.up:
-					camera.transform.position += new Vector3 (0, 0, Time.fixedUnscaledDeltaTime * caller.gameplay_options.ui.camera_movement_speed);
+					camera.transform.position += new Vector3 (0, 0, Time.unscaledDeltaTime * caller.gameplay_options.ui.camera_movement_speed);
 					break;
 
 					case camera_directions.down:
-					camera.transform.position += new Vector3 (0, 0, -Time.fixedUnscaledDeltaTime * caller.gameplay_options.ui.camera_movement_speed);
+					camera.transform.position += new Vector3 (0, 0, -Time.unscaledDeltaTime * caller.gameplay_options.ui.camera_movement_speed);
 					break;
 
 					case camera_directions.left:
-					camera.transform.position += new Vector3 (Time.fixedUnscaledDeltaTime * caller.gameplay_options.ui.camera_movement_speed, 0, 0);
+					camera.transform.position += new Vector3 (Time.unscaledDeltaTime * caller.gameplay_options.ui.camera_movement_speed, 0, 0);
 					break;
 
 					case camera_directions.right:
-					camera.transform.position += new Vector3 (-Time.fixedUnscaledDeltaTime * caller.gameplay_options.ui.camera_movement_speed, 0, 0);
+					camera.transform.position += new Vector3 (-Time.unscaledDeltaTime * caller.gameplay_options.ui.camera_movement_speed, 0, 0);
 					break;
 				}
 				break;
@@ -232,19 +232,19 @@ public class CameraMovement : MonoBehaviour
 				switch (movement_direction)
 				{
 					case camera_directions.up:
-					camera.transform.position += new Vector3 (-Time.fixedUnscaledDeltaTime * caller.gameplay_options.ui.camera_movement_speed, 0, 0);
+					camera.transform.position += new Vector3 (-Time.unscaledDeltaTime * caller.gameplay_options.ui.camera_movement_speed, 0, 0);
 					break;
 
 					case camera_directions.down:
-					camera.transform.position += new Vector3 (Time.fixedUnscaledDeltaTime * caller.gameplay_options.ui.camera_movement_speed, 0, 0);
+					camera.transform.position += new Vector3 (Time.unscaledDeltaTime * caller.gameplay_options.ui.camera_movement_speed, 0, 0);
 					break;
 
 					case camera_directions.left:
-					camera.transform.position += new Vector3 (0, 0, Time.fixedUnscaledDeltaTime * caller.gameplay_options.ui.camera_movement_speed);
+					camera.transform.position += new Vector3 (0, 0, Time.unscaledDeltaTime * caller.gameplay_options.ui.camera_movement_speed);
 					break;
 
 					case camera_directions.right:
-					camera.transform.position += new Vector3 (0, 0, -Time.fixedUnscaledDeltaTime * caller.gameplay_options.ui.camera_movement_speed);
+					camera.transform.position += new Vector3 (0, 0, -Time.unscaledDeltaTime * caller.gameplay_options.ui.camera_movement_speed);
 					break;
 				}
 				break;
@@ -253,19 +253,19 @@ public class CameraMovement : MonoBehaviour
 				switch (movement_direction)
 				{
 					case camera_directions.up:
-					camera.transform.position += new Vector3 (Time.fixedUnscaledDeltaTime * caller.gameplay_options.ui.camera_movement_speed, 0, 0);
+					camera.transform.position += new Vector3 (Time.unscaledDeltaTime * caller.gameplay_options.ui.camera_movement_speed, 0, 0);
 					break;
 
 					case camera_directions.down:
-					camera.transform.position += new Vector3 (-Time.fixedUnscaledDeltaTime * caller.gameplay_options.ui.camera_movement_speed, 0, 0);
+					camera.transform.position += new Vector3 (-Time.unscaledDeltaTime * caller.gameplay_options.ui.camera_movement_speed, 0, 0);
 					break;
 
 					case camera_directions.left:
-					camera.transform.position += new Vector3 (0, 0, -Time.fixedUnscaledDeltaTime * caller.gameplay_options.ui.camera_movement_speed);
+					camera.transform.position += new Vector3 (0, 0, -Time.unscaledDeltaTime * caller.gameplay_options.ui.camera_movement_speed);
 					break;
 
 					case camera_directions.right:
-					camera.transform.position += new Vector3 (0, 0, Time.fixedUnscaledDeltaTime * caller.gameplay_options.ui.camera_movement_speed);
+					camera.transform.position += new Vector3 (0, 0, Time.unscaledDeltaTime * caller.gameplay_options.ui.camera_movement_speed);
 					break;
 				}
 				break;
@@ -279,19 +279,19 @@ public class CameraMovement : MonoBehaviour
 				switch (movement_direction)
 				{
 					case camera_directions.up:
-					camera.transform.position += new Vector3 (0, 0, -Time.fixedUnscaledDeltaTime * 3);
+					camera.transform.position += new Vector3 (0, 0, -Time.unscaledDeltaTime * 3);
 					break;
 
 					case camera_directions.down:
-					camera.transform.position += new Vector3 (0, 0, Time.fixedUnscaledDeltaTime * 3);
+					camera.transform.position += new Vector3 (0, 0, Time.unscaledDeltaTime * 3);
 					break;
 
 					case camera_directions.left:
-					camera.transform.position += new Vector3 (-Time.fixedUnscaledDeltaTime * 3, 0, 0);
+					camera.transform.position += new Vector3 (-Time.unscaledDeltaTime * 3, 0, 0);
 					break;
 
 					case camera_directions.right:
-					camera.transform.position += new Vector3 (Time.fixedUnscaledDeltaTime * 3, 0, 0);
+					camera.transform.position += new Vector3 (Time.unscaledDeltaTime * 3, 0, 0);
 					break;
 				}
 				break;
@@ -300,19 +300,19 @@ public class CameraMovement : MonoBehaviour
 				switch (movement_direction)
 				{
 					case camera_directions.up:
-					camera.transform.position += new Vector3 (0, 0, Time.fixedUnscaledDeltaTime * 3);
+					camera.transform.position += new Vector3 (0, 0, Time.unscaledDeltaTime * 3);
 					break;
 
 					case camera_directions.down:
-					camera.transform.position += new Vector3 (0, 0, -Time.fixedUnscaledDeltaTime * 3);
+					camera.transform.position += new Vector3 (0, 0, -Time.unscaledDeltaTime * 3);
 					break;
 
 					case camera_directions.left:
-					camera.transform.position += new Vector3 (Time.fixedUnscaledDeltaTime * 3, 0, 0);
+					camera.transform.position += new Vector3 (Time.unscaledDeltaTime * 3, 0, 0);
 					break;
 
 					case camera_directions.right:
-					camera.transform.position += new Vector3 (-Time.fixedUnscaledDeltaTime * 3, 0, 0);
+					camera.transform.position += new Vector3 (-Time.unscaledDeltaTime * 3, 0, 0);
 					break;
 				}
 				break;
@@ -321,19 +321,19 @@ public class CameraMovement : MonoBehaviour
 				switch (movement_direction)
 				{
 					case camera_directions.up:
-					camera.transform.position += new Vector3 (-Time.fixedUnscaledDeltaTime * 3, 0, 0);
+					camera.transform.position += new Vector3 (-Time.unscaledDeltaTime * 3, 0, 0);
 					break;
 
 					case camera_directions.down:
-					camera.transform.position += new Vector3 (Time.fixedUnscaledDeltaTime * 3, 0, 0);
+					camera.transform.position += new Vector3 (Time.unscaledDeltaTime * 3, 0, 0);
 					break;
 
 					case camera_directions.left:
-					camera.transform.position += new Vector3 (0, 0, Time.fixedUnscaledDeltaTime * 3);
+					camera.transform.position += new Vector3 (0, 0, Time.unscaledDeltaTime * 3);
 					break;
 
 					case camera_directions.right:
-					camera.transform.position += new Vector3 (0, 0, -Time.fixedUnscaledDeltaTime * 3);
+					camera.transform.position += new Vector3 (0, 0, -Time.unscaledDeltaTime * 3);
 					break;
 				}
 				break;
@@ -342,19 +342,19 @@ public class CameraMovement : MonoBehaviour
 				switch (movement_direction)
 				{
 					case camera_directions.up:
-					camera.transform.position += new Vector3 (Time.fixedUnscaledDeltaTime * 3, 0, 0);
+					camera.transform.position += new Vector3 (Time.unscaledDeltaTime * 3, 0, 0);
 					break;
 
 					case camera_directions.down:
-					camera.transform.position += new Vector3 (-Time.fixedUnscaledDeltaTime * 3, 0, 0);
+					camera.transform.position += new Vector3 (-Time.unscaledDeltaTime * 3, 0, 0);
 					break;
 
 					case camera_directions.left:
-					camera.transform.position += new Vector3 (0, 0, -Time.fixedUnscaledDeltaTime * 3);
+					camera.transform.position += new Vector3 (0, 0, -Time.unscaledDeltaTime * 3);
 					break;
 
 					case camera_directions.right:
-					camera.transform.position += new Vector3 (0, 0, Time.fixedUnscaledDeltaTime * 3);
+					camera.transform.position += new Vector3 (0, 0, Time.unscaledDeltaTime * 3);
 					break;
 				}
 				break;
