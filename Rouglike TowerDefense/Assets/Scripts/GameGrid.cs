@@ -584,7 +584,7 @@ public class GameGrid
 
 	public Vector3 GetWorldPosition (int x, int z)
 	{
-		return new Vector3 (x * cell_length_x, 0, z * cell_width_z);
+		return new Vector3 (x * cell_length_x, 0.5f, z * cell_width_z);
 	}
 
 	public Vector3 GetWorldPosition (int x, int z, float object_y)
@@ -594,7 +594,7 @@ public class GameGrid
 
 	public Vector3 GetWorldTileCenter (int x, int z)
 	{
-		return new Vector3 (((float)x + 0.5f) * cell_length_x, 0, ((float)z + 0.5f) * cell_width_z);
+		return new Vector3 (((float)x + 0.5f) * cell_length_x, 0.5f, ((float)z + 0.5f) * cell_width_z);
 	}
 
 	public Vector3 GetWorldTileCenter (int x, int z, float object_y)
@@ -604,7 +604,7 @@ public class GameGrid
 
 	public Vector3 GetWorldTileCenter ((int x, int z) xz_tuple)
 	{
-		return new Vector3 (((float)xz_tuple.x + 0.5f) * cell_length_x, 0, ((float)xz_tuple.z + 0.5f) * cell_width_z);
+		return new Vector3 (((float)xz_tuple.x + 0.5f) * cell_length_x, 0.5f, ((float)xz_tuple.z + 0.5f) * cell_width_z);
 	}
 
 	public Vector3 GetWorldTileCenter ((int x, int z) xz_tuple, float object_y)

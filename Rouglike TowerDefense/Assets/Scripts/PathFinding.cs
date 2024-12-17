@@ -30,6 +30,8 @@ public class PathFinding
 		int counter = 1;
 		int next_x = 0;
 		int next_z = 0;
+		int current_x = 0;
+		int current_z = 0;
 		switch (parameter)
 		{
 			case pathfinding_tile_parameter.empty:
@@ -52,9 +54,9 @@ public class PathFinding
 			next_z = grid.GetValue (x, z, grid_parameter.prev_z_any_tile);
 			break;
 		}
-		while (next_x != 0 && next_z != 0)
+		while (counter < (grid.length_x * grid.width_z) + 1)
 		{
-			if (grid.GetValue (next_x, next_z, grid_parameter.object_type) == grid.EnumTranslator (object_type.core))
+			if (grid.GetValue (current_x, current_z, grid_parameter.object_type) == grid.EnumTranslator (object_type.core))
 			{
 				path_length = counter;
 				return true;
@@ -62,26 +64,32 @@ public class PathFinding
 			switch (parameter)
 			{
 				case pathfinding_tile_parameter.empty:
-				next_x = grid.GetValue (next_x, next_z, grid_parameter.prev_x_empty);
-				next_z = grid.GetValue (next_x, next_z, grid_parameter.prev_z_empty);
+				next_x = grid.GetValue (current_x, current_z, grid_parameter.prev_x_empty);
+				next_z = grid.GetValue (current_x, current_z, grid_parameter.prev_z_empty);
 				break;
 
 				case pathfinding_tile_parameter.any_object:
-				next_x = grid.GetValue (next_x, next_z, grid_parameter.prev_x_any_object);
-				next_z = grid.GetValue (next_x, next_z, grid_parameter.prev_z_any_object);
+				next_x = grid.GetValue (current_x, current_z, grid_parameter.prev_x_any_object);
+				next_z = grid.GetValue (current_x, current_z, grid_parameter.prev_z_any_object);
 				break;
 
 				case pathfinding_tile_parameter.any_terrain:
-				next_x = grid.GetValue (next_x, next_z, grid_parameter.prev_x_any_terrain);
-				next_z = grid.GetValue (next_x, next_z, grid_parameter.prev_z_any_terrain);
+				next_x = grid.GetValue (current_x, current_z, grid_parameter.prev_x_any_terrain);
+				next_z = grid.GetValue (current_x, current_z, grid_parameter.prev_z_any_terrain);
 				break;
 
 				case pathfinding_tile_parameter.any_tile:
-				next_x = grid.GetValue (next_x, next_z, grid_parameter.prev_x_any_tile);
-				next_z = grid.GetValue (next_x, next_z, grid_parameter.prev_z_any_tile);
+				next_x = grid.GetValue (current_x, next_z, grid_parameter.prev_x_any_tile);
+				next_z = grid.GetValue (current_x, next_z, grid_parameter.prev_z_any_tile);
 				break;
 			}
+			current_x = next_x;
+			current_z = next_z;
 			counter++;
+			if (next_x == -1)
+			{
+				break;
+			}
 		}
 		path_length = 0;
 		return false;
@@ -92,6 +100,8 @@ public class PathFinding
 		int counter = 1;
 		int next_x = 0;
 		int next_z = 0;
+		int current_x = 0;
+		int current_z = 0;
 		switch (parameter)
 		{
 			case pathfinding_tile_parameter.empty:
@@ -116,7 +126,7 @@ public class PathFinding
 		}
 		while (counter < (grid.length_x * grid.width_z) + 1)
 		{
-			if (grid.GetValue (next_x, next_z, grid_parameter.object_type) == grid.EnumTranslator (object_type.core))
+			if (grid.GetValue (current_x, current_z, grid_parameter.object_type) == grid.EnumTranslator (object_type.core))
 			{
 				path_length = counter;
 				return true;
@@ -124,26 +134,32 @@ public class PathFinding
 			switch (parameter)
 			{
 				case pathfinding_tile_parameter.empty:
-				next_x = grid.GetValue (next_x, next_z, grid_parameter.prev_x_empty);
-				next_z = grid.GetValue (next_x, next_z, grid_parameter.prev_z_empty);
+				next_x = grid.GetValue (current_x, current_z, grid_parameter.prev_x_empty);
+				next_z = grid.GetValue (current_x, current_z, grid_parameter.prev_z_empty);
 				break;
 
 				case pathfinding_tile_parameter.any_object:
-				next_x = grid.GetValue (next_x, next_z, grid_parameter.prev_x_any_object);
-				next_z = grid.GetValue (next_x, next_z, grid_parameter.prev_z_any_object);
+				next_x = grid.GetValue (current_x, current_z, grid_parameter.prev_x_any_object);
+				next_z = grid.GetValue (current_x, current_z, grid_parameter.prev_z_any_object);
 				break;
 
 				case pathfinding_tile_parameter.any_terrain:
-				next_x = grid.GetValue (next_x, next_z, grid_parameter.prev_x_any_terrain);
-				next_z = grid.GetValue (next_x, next_z, grid_parameter.prev_z_any_terrain);
+				next_x = grid.GetValue (current_x, current_z, grid_parameter.prev_x_any_terrain);
+				next_z = grid.GetValue (current_x, current_z, grid_parameter.prev_z_any_terrain);
 				break;
 
 				case pathfinding_tile_parameter.any_tile:
-				next_x = grid.GetValue (next_x, next_z, grid_parameter.prev_x_any_tile);
-				next_z = grid.GetValue (next_x, next_z, grid_parameter.prev_z_any_tile);
+				next_x = grid.GetValue (current_x, next_z, grid_parameter.prev_x_any_tile);
+				next_z = grid.GetValue (current_x, next_z, grid_parameter.prev_z_any_tile);
 				break;
 			}
+			current_x = next_x;
+			current_z = next_z;
 			counter++;
+			if (next_x == -1)
+			{
+				break;
+			}
 		}
 		path_length = 0;
 		return false;

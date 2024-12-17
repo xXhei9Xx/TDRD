@@ -553,7 +553,7 @@ public class CardHandler : MonoBehaviour
 					caller.GetGameGrid().GetValue (mouse_xz.x, mouse_xz.z, GameGrid.grid_parameter.object_type) == 0)
 					{
 						SetTowerPositionXZ (mouse_xz.x, mouse_xz.z);
-						//caller.SetAllSpawnerPathfinding ();
+						//caller.SetNewPathfinding ();
 					}
 				}
 				//transforming the card into tower

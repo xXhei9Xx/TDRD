@@ -33,19 +33,19 @@ public class MapConstructor
 		switch (terrain)
 		{
 			case GameGrid.terrain.grass:
-			terrain_object.AddComponent<TerrainInstantiate>().SetTerrain (caller.GetGameGrid().GetWorldTileCenter (x, z, 0), grass_object);
+			terrain_object.AddComponent<TerrainInstantiate>().SetTerrain (caller.GetGameGrid().GetWorldTileCenter (x, z, 0.05f), grass_object);
 			break;
 
 			case GameGrid.terrain.water:
-			terrain_object.AddComponent<TerrainInstantiate>().SetTerrain (caller.GetGameGrid().GetWorldTileCenter (x, z, 0), water_object);
+			terrain_object.AddComponent<TerrainInstantiate>().SetTerrain (caller.GetGameGrid().GetWorldTileCenter (x, z, 0.05f), water_object);
 			break;
 			
 			case GameGrid.terrain.sand:
-			terrain_object.AddComponent<TerrainInstantiate>().SetTerrain (caller.GetGameGrid().GetWorldTileCenter (x, z, 0), sand_object);
+			terrain_object.AddComponent<TerrainInstantiate>().SetTerrain (caller.GetGameGrid().GetWorldTileCenter (x, z, 0.05f), sand_object);
 			break;
 
 			case GameGrid.terrain.swamp:
-			terrain_object.AddComponent<TerrainInstantiate>().SetTerrain (caller.GetGameGrid().GetWorldTileCenter (x, z, 0), swamp_object);
+			terrain_object.AddComponent<TerrainInstantiate>().SetTerrain (caller.GetGameGrid().GetWorldTileCenter (x, z, 0.05f), swamp_object);
 			break;
 		}
 	}
