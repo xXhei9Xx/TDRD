@@ -445,21 +445,24 @@ public class GameGrid
 			{
 				Debug.DrawLine (GetWorldPosition (i, j, 0) , GetWorldPosition (i + 1, j, 0), Color.white, 10000);
 				Debug.DrawLine (GetWorldPosition (i, j, 0) , GetWorldPosition (i, j + 1, 0), Color.white, 10000);
-				array_of_characters_on_tile_lists [i, j] = new List<GameObject> ();
-				text_objects_array[i, j] = new GameObject("text " + i + "," + j);
-				text_objects_array[i, j].transform.SetParent(GameObject.Find("Text Collection").transform);
-				text_objects_array [i, j].AddComponent<TextMeshProUGUI>().fontSize = 0.05f;
-				text_objects_array[i, j].transform.position = GetWorldTileCenter(i, j, 0);
-				text_objects_array[i, j].transform.Rotate (90, 0, 0);
-				text_objects_array [i, j].GetComponent<TextMeshProUGUI>().alignment = TextAlignmentOptions.CenterGeoAligned;
-				text_objects_array [i, j].GetComponent<RectTransform>().sizeDelta = new Vector2 (1, 1);
-				GridTextTileUpdate (i, j);
+				if (display_text == true)
+				{
+					array_of_characters_on_tile_lists [i, j] = new List<GameObject> ();
+					text_objects_array[i, j] = new GameObject("text " + i + "," + j);
+					text_objects_array[i, j].transform.SetParent(GameObject.Find("Text Collection").transform);
+					text_objects_array [i, j].AddComponent<TextMeshProUGUI>().fontSize = 0.05f;
+					text_objects_array[i, j].transform.position = GetWorldTileCenter(i, j, 0);
+					text_objects_array[i, j].transform.Rotate (90, 0, 0);
+					text_objects_array [i, j].GetComponent<TextMeshProUGUI>().alignment = TextAlignmentOptions.CenterGeoAligned;
+					text_objects_array [i, j].GetComponent<RectTransform>().sizeDelta = new Vector2 (1, 1);
+				}
 			}
 		}
 
 		Debug.DrawLine (GetWorldPosition (length_x, 0, 0) , GetWorldPosition (length_x, width_z, 0), Color.white, 10000);
 		Debug.DrawLine (GetWorldPosition (0, width_z, 0) , GetWorldPosition (length_x, width_z, 0), Color.white, 10000);
-		GridTextToggle (display_text);
+		GridTextUpdate ();
+
 	}
 
 	public GameGrid ((int length_x, int width_z) dimentions, float cell_length_x, float cell_width_z, bool display_text = true)
@@ -487,43 +490,37 @@ public class GameGrid
 			{
 				Debug.DrawLine (GetWorldPosition (i, j, 0) , GetWorldPosition (i + 1, j, 0), Color.white, 10000);
 				Debug.DrawLine (GetWorldPosition (i, j, 0) , GetWorldPosition (i, j + 1, 0), Color.white, 10000);
-				array_of_characters_on_tile_lists [i, j] = new List<GameObject> ();
-				text_objects_array[i, j] = new GameObject("text " + i + "," + j);
-				text_objects_array[i, j].transform.SetParent(GameObject.Find("Text Collection").transform);
-				text_objects_array [i, j].AddComponent<TextMeshProUGUI>().fontSize = 0.05f;
-				text_objects_array[i, j].transform.position = GetWorldTileCenter(i, j, 0);
-				text_objects_array[i, j].transform.Rotate (90, 0, 0);
-				text_objects_array [i, j].GetComponent<TextMeshProUGUI>().alignment = TextAlignmentOptions.CenterGeoAligned;
-				text_objects_array [i, j].GetComponent<RectTransform>().sizeDelta = new Vector2 (1, 1);
-				GridTextTileUpdate (i, j);
+				if (display_text == true)
+				{
+					array_of_characters_on_tile_lists [i, j] = new List<GameObject> ();
+					text_objects_array[i, j] = new GameObject("text " + i + "," + j);
+					text_objects_array[i, j].transform.SetParent(GameObject.Find("Text Collection").transform);
+					text_objects_array [i, j].AddComponent<TextMeshProUGUI>().fontSize = 0.05f;
+					text_objects_array[i, j].transform.position = GetWorldTileCenter(i, j, 0);
+					text_objects_array[i, j].transform.Rotate (90, 0, 0);
+					text_objects_array [i, j].GetComponent<TextMeshProUGUI>().alignment = TextAlignmentOptions.CenterGeoAligned;
+					text_objects_array [i, j].GetComponent<RectTransform>().sizeDelta = new Vector2 (1, 1);
+				}
 			}
 		}
 
 		Debug.DrawLine (GetWorldPosition (length_x, 0, 0) , GetWorldPosition (length_x, width_z, 0), Color.white, 10000);
 		Debug.DrawLine (GetWorldPosition (0, width_z, 0) , GetWorldPosition (length_x, width_z, 0), Color.white, 10000);
-		GridTextToggle (display_text);
+		GridTextUpdate ();
 	}
 
 	#region GridTextToggle, GridTextUpdate, GridTextTileUpdate
 
-	public void GridTextToggle (bool state)
-	{
-		for (int i = 0; i < length_x; i++)
-		{
-			for (int j = 0; j < width_z; j++)
-			{
-				text_objects_array [i, j].GetComponent<TextMeshProUGUI>().enabled = state;
-			}
-		}
-	}
-
 	public void GridTextUpdate ()
 	{
-		for (int i = 0; i < length_x; i++)
+		if (display_text == true)
 		{
-			for (int j = 0; j < width_z; j++)
+			for (int i = 0; i < length_x; i++)
 			{
-				GridTextTileUpdate (i, j);
+				for (int j = 0; j < width_z; j++)
+				{
+					GridTextTileUpdate (i, j);
+				}
 			}
 		}
 	}
@@ -619,49 +616,41 @@ public class GameGrid
 	public void SetValue (int x, int z, int parameter, int value)
 	{
 		grid_array[x, z, parameter] = value;
-		GridTextTileUpdate (x, z);
 	}
 
 	public void SetValue (int x, int z, grid_parameter parameter, int value)
 	{
 		grid_array[x, z, EnumTranslator(parameter)] = value;
-		GridTextTileUpdate (x, z);
 	}
 
 	public void SetValue (int x, int z, grid_parameter parameter, object_type value)
 	{
 		grid_array[x, z, EnumTranslator(parameter)] = EnumTranslator(value);
-		GridTextTileUpdate (x, z);
 	}
 
 	public void SetValue (int x, int z, grid_parameter parameter, enemy value)
 	{
 		grid_array[x, z, EnumTranslator(parameter)] = EnumTranslator(value);
-		GridTextTileUpdate (x, z);
 	}
 
 	public void SetValue ((int x, int z) position_tuple, int parameter, int value)
 	{
 		grid_array[position_tuple.x, position_tuple.z, parameter] = value;
-		GridTextTileUpdate (position_tuple.x, position_tuple.z);
 	}
 
 	public void SetValue ((int x, int z) position_tuple, grid_parameter parameter, int value)
 	{
 		grid_array[position_tuple.x, position_tuple.z, EnumTranslator(parameter)] = value;
-		GridTextTileUpdate (position_tuple.x, position_tuple.z);
 	}
 
 	public void SetValue ((int x, int z) position_tuple, grid_parameter parameter, object_type value)
 	{
 		grid_array[position_tuple.x, position_tuple.z, EnumTranslator(parameter)] = EnumTranslator(value);
-		GridTextTileUpdate (position_tuple.x, position_tuple.z);
 	}
 
 	public void SetValue ((int x, int z) position_tuple, grid_parameter parameter, enemy value)
 	{
 		grid_array[position_tuple.x, position_tuple.z, EnumTranslator(parameter)] = EnumTranslator(value);
-		GridTextTileUpdate (position_tuple.x, position_tuple.z);
 	}
 	#endregion
 

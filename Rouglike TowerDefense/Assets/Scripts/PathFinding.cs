@@ -228,6 +228,7 @@ public class PathFinding
 				}
 			}
 		}
+		grid.GridTextUpdate ();
 	}
 
 	private void SetPreviousXZ (int x, int z, int prev_x, int prev_z, GameGrid grid, pathfinding_tile_parameter parameter)
