@@ -526,6 +526,7 @@ public class Enemy
 		private GameHandler caller;
 		private	GameObject path_timer;
 		private GameObject spawner_template, this_spawner, enemy_object;
+		public int life_time = 0;
 
 		public void SetVariables (Vector3 position, GameHandler caller)
 		{

@@ -64,16 +64,16 @@ public class SaveHandler
 		string save_json = File.ReadAllText(Application.dataPath + "/Map Saves/" + save_name + ".json");
 		GridSave grid_load = JsonUtility.FromJson<GridSave>(save_json);
 		string [] temp = grid_load.GetGridTerrainArrayString().Split(":");
-		int [,] loaded_terrain_array = new int [(temp.Length - 2), 1];
-		for (int i = 0; i < (temp.Length - 2); i++)
+		int [,] loaded_terrain_array = new int [(temp.Length - 1), 1];
+		for (int i = 0; i < (temp.Length - 1); i++)
 		{
 			string [] temp_2 = temp[i].Split(",");
 			caller.GetGameGrid().SetValue (int.Parse(temp_2[0]), int.Parse(temp_2[1]), 
 			caller.GetGameGrid().EnumTranslator(grid_parameter.terrain), int.Parse(temp_2[2]));
 		}
 		temp = grid_load.GetGridSpawnZoneArrayString().Split(":");
-		int [,] loaded_spawn_zone_array = new int [(temp.Length - 2), 1];
-		for (int i = 0; i < (temp.Length - 2); i++)
+		int [,] loaded_spawn_zone_array = new int [(temp.Length - 1), 1];
+		for (int i = 0; i < (temp.Length - 1); i++)
 		{
 			string [] temp_2 = temp[i].Split(",");
 			caller.GetGameGrid().SetValue (int.Parse(temp_2[0]), int.Parse(temp_2[1]), 
@@ -86,16 +86,16 @@ public class SaveHandler
 		string save_json = File.ReadAllText(Application.dataPath + "/Map Saves/" + save_name + ".json");
 		GridSave grid_load = JsonUtility.FromJson<GridSave>(save_json);
 		string [] temp = grid_load.GetGridTerrainArrayString().Split(":");
-		int [,] loaded_terrain_array = new int [(temp.Length - 2), 1];
-		for (int i = 0; i < (temp.Length - 2); i++)
+		int [,] loaded_terrain_array = new int [(temp.Length - 1), 1];
+		for (int i = 0; i < (temp.Length - 1); i++)
 		{
 			string [] temp_2 = temp[i].Split(",");
 			caller.GetGameGrid().SetValue (int.Parse(temp_2[0]), int.Parse(temp_2[1]), 
 			caller.GetGameGrid().EnumTranslator(grid_parameter.terrain), int.Parse(temp_2[2]));
 		}
 		temp = grid_load.GetGridSpawnZoneArrayString().Split(":");
-		int [,] loaded_spawn_zone_array = new int [(temp.Length - 2), 1];
-		for (int i = 0; i < (temp.Length - 2); i++)
+		int [,] loaded_spawn_zone_array = new int [(temp.Length - 1), 1];
+		for (int i = 0; i < (temp.Length - 1); i++)
 		{
 			string [] temp_2 = temp[i].Split(",");
 			caller.GetGameGrid().SetValue (int.Parse(temp_2[0]), int.Parse(temp_2[1]), 

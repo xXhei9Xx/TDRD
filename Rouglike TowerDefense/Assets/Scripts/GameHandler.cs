@@ -24,7 +24,7 @@ public class GameHandler : MonoBehaviour
 	[SerializeField] public EnemyOptions enemy_options;
 	new GameObject camera;
 	private (float x, float y, float z) board_center_position_tuple;
-	private int wave_number = 0, tower_counter = 0, enemy_counter = 0, spawner_counter = 0, core_counter = 0, mana_amount = 0;
+	private int wave_number = 0, tower_counter = 0, enemy_counter = 0, spawner_counter = 0, core_counter = 0, mana_amount = 0, turns_since_last_spawner = 0;
 	private List<(int x, int z, grid_direction direction)> mana_outline_tuple_list = new List<(int x, int z, grid_direction direction)> ();
 	private GameObject wave_button;
 	private GameObject time_buttons, time_button_pause, time_button_0_25, time_button_0_5, time_button_1, time_button_2, time_button_4;
@@ -48,6 +48,7 @@ public class GameHandler : MonoBehaviour
 	private camera_directions camera_direction = camera_directions.up;
 	private InspectorHandler inspector_handler;
 	private float pathfinding_timer = 0;
+	private List<(int x, int z)> spawner_tile_list = new List<(int x, int z)> {}, core_tile_list = new List<(int x, int z)> {};
 
 	#region testing options
 	[Serializable] public class TestingOptions
@@ -56,6 +57,8 @@ public class GameHandler : MonoBehaviour
 		[SerializeField] public bool manual_spawn_list = false;
 		[SerializeField] public bool random_core_positions = true;
 		[SerializeField] public bool random_spawner_positions = true;
+		[SerializeField] [Range (1,4)] public int amount_of_turns_to_new_spawner;
+		[SerializeField] [Range (1,10)] public int spawner_lifetime_amount_of_turns;
 		[SerializeField] public List<enemy_id> manual_enemy_spawn_list;
 		[SerializeField] public int first_wave_amount_of_enemies = 5;
 		[SerializeField] public int enemies_per_wave_increment = 5;
@@ -1189,7 +1192,25 @@ public class GameHandler : MonoBehaviour
 		time_button_color_exit = new Color (0.4156863f, 0.4156863f, 0.4156863f);
 
 		#endregion
-		
+		#region spawning spawners and cores
+
+		for (int x = 0; x < grid.length_x; x++)
+		{
+			for (int z = 0; z < grid.width_z; z++)
+			{
+				if (grid.GetValue (x, z, grid_parameter.spawn_zone) == grid.EnumTranslator (spawn_zone.spawner))
+				{
+					spawner_tile_list.Add ((x, z));
+				}
+				else
+				{
+					if (grid.GetValue (x, z, grid_parameter.spawn_zone) == grid.EnumTranslator (spawn_zone.core))
+					{
+						core_tile_list.Add ((x, z));
+					}
+				}
+			}
+		}
 		//creating core in preset position
 		if (testing_options.random_spawner_positions == false)
 		{
@@ -1200,7 +1221,9 @@ public class GameHandler : MonoBehaviour
 			//creating cores in random positions
 			for (int i = 0; i < testing_options.amount_of_cores; i++)
 			{
-				new Core (grid.GetWorldTileCenter (grid.RandomTile (object_type.empty), 0.5f), this);
+				int index = UnityEngine.Random.Range (0, core_tile_list.Count);
+				new Core (grid.GetWorldTileCenter (core_tile_list [index]), this);
+				core_tile_list.RemoveAt (index);
 			}
 		}
 		//creating spawner in preset position
@@ -1213,9 +1236,14 @@ public class GameHandler : MonoBehaviour
 			//creating spawners in random positions
 			for (int i = 0; i < testing_options.amount_of_spawners; i++)
 			{
-				new Enemy (grid.GetWorldTileCenter (grid.RandomTile (object_type.empty), 0.5f), this);
+				int index = UnityEngine.Random.Range (0, spawner_tile_list.Count);
+				new Enemy (grid.GetWorldTileCenter (spawner_tile_list [index]), this);
+				spawner_tile_list.RemoveAt (index);
 			}
 		}
+
+		#endregion
+		
 		SetManaOutlineTimer ();
 		#region board center tupple
 
@@ -1297,6 +1325,7 @@ public class GameHandler : MonoBehaviour
 			foreach (GameObject spawner in spawner_list)
 			{
 				spawner.GetComponent<Spawner>().SpawnEnemyTimer (spawner.GetComponent<Spawner>());
+				spawner.GetComponent<Spawner>().life_time++;
 			}
 			card_handler.GetComponent<CardHandler>().tower_discarding = false;
 		}
@@ -1315,6 +1344,28 @@ public class GameHandler : MonoBehaviour
 			card_handler.ability_discarding = false;
 			card_handler.finished_discarding = false;
 			card_handler.AddingNewCardToDeck ();
+			//spawning new spawners
+			for (int counter = 0; counter < spawner_list.Count;)
+			{
+				if (spawner_list [counter].GetComponent<Spawner>().life_time >= testing_options.spawner_lifetime_amount_of_turns)
+				{
+					spawner_tile_list.Add (grid.GetXZ (spawner_list [counter].transform.position));
+					Destroy (spawner_list [counter]);
+					spawner_list.Remove (spawner_list [counter]);
+				}
+				else
+				{
+					counter++;
+				}
+			}
+			turns_since_last_spawner++;
+			if (turns_since_last_spawner >= testing_options.amount_of_turns_to_new_spawner)
+			{
+				int index = UnityEngine.Random.Range (0, spawner_tile_list.Count);
+				new Enemy (grid.GetWorldTileCenter (spawner_tile_list [index]), this);
+				spawner_tile_list.RemoveAt (index);
+				turns_since_last_spawner = 0;
+			}
 		}
 		if (card_handler.picking == false && card_handler.after_picking == true)
 		{

@@ -36454,11 +36454,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   testing_options:
-    display_grid_text: 1
+    display_grid_text: 0
     manual_spawn_list: 1
     random_core_positions: 0
     random_spawner_positions: 1
-    manual_enemy_spawn_list: 01000000010000000100000001000000010000000100000001000000010000000100000001000000
+    amount_of_turns_to_new_spawner: 1
+    spawner_lifetime_amount_of_turns: 4
+    manual_enemy_spawn_list: 17000000030000000400000006000000
     first_wave_amount_of_enemies: 5
     enemies_per_wave_increment: 6
     amount_of_cores: 1

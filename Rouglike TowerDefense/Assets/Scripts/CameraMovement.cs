@@ -49,7 +49,7 @@ public class CameraMovement : MonoBehaviour
 			{
 				MoveCamera (camera_directions.up);
 			}
-			if (Input.GetKey (caller.gameplay_options.controls.move_up) == true && camera.transform.position.z < caller.gameplay_options.map.width_z)
+			if (Input.GetKey (caller.gameplay_options.controls.move_up) == true && camera.transform.position.z < caller.GetGameGrid().width_z)
 			{
 				MoveCamera (camera_directions.down);
 			}
@@ -57,7 +57,7 @@ public class CameraMovement : MonoBehaviour
 			{
 				MoveCamera (camera_directions.left);
 			}
-			if (Input.GetKey (caller.gameplay_options.controls.move_right) == true && camera.transform.position.x < caller.gameplay_options.map.length_x)
+			if (Input.GetKey (caller.gameplay_options.controls.move_right) == true && camera.transform.position.x < caller.GetGameGrid().length_x)
 			{
 				MoveCamera (camera_directions.right);
 			}
@@ -77,11 +77,11 @@ public class CameraMovement : MonoBehaviour
 					RotateGridText (-90);
 				}
 			}
-			if (Input.GetAxis ("Mouse ScrollWheel") > 0 && camera.transform.position.y > caller.gameplay_options.map.cell_length_x * 2)
+			if (Input.GetAxis ("Mouse ScrollWheel") > 0 && camera.transform.position.y > caller.GetGameGrid().cell_length_x * 2)
 			{
 				camera.transform.position += new Vector3 (0, -1, 0);
 			}
-			if (Input.GetAxis ("Mouse ScrollWheel") < 0 && camera.transform.position.y < caller.gameplay_options.map.length_x + (caller.gameplay_options.map.cell_length_x * 2) )
+			if (Input.GetAxis ("Mouse ScrollWheel") < 0 && camera.transform.position.y < caller.GetGameGrid().length_x + (caller.GetGameGrid().cell_length_x * 2) )
 			{
 				camera.transform.position += new Vector3 (0, 1, 0);
 			}
